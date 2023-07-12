@@ -9,6 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain:
+          - '1.66' # MSRV
+          - stable
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -23,7 +28,7 @@ jobs:
           cargo test --package=confik-macros
           cargo test --package=confik --no-default-features
           cargo test --package=confik --no-default-features --all-features
-  
+
   clippy:
     runs-on: ubuntu-latest
     steps:

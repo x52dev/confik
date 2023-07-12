@@ -1,7 +1,12 @@
 # `confik`
 
-[![crates.io](https://img.shields.io/crates/v/confik.svg)](http://crates.io/crates/confik)
-[![docs.rs](https://docs.rs/confik/badge.svg)](http://docs.rs/confik)
+[![crates.io](https://img.shields.io/crates/v/confik?label=latest)](https://crates.io/crates/confik)
+[![Documentation](https://docs.rs/confik/badge.svg?version=0.7.0)](https://docs.rs/confik/0.7.0)
+![MIT or Apache 2.0 licensed](https://img.shields.io/crates/l/confik.svg)
+<br />
+![Version](https://img.shields.io/badge/rustc-1.65+-ab6000.svg)
+[![dependency status](https://deps.rs/crate/confik/0.7.0/status.svg)](https://deps.rs/crate/confik/0.7.0)
+[![Download](https://img.shields.io/crates/d/confik.svg)](https://crates.io/crates/confik)
 
 This crate provides a macro for creating configuration/settings structures and functions to read them from files and the environment.
 
@@ -23,12 +28,13 @@ PASSWORD=hunter2
 Then:
 
 ```rust
-use confik::{Configuration, EnvSource, FileSource, TomlSource};
+use confik::{Configuration, EnvSource, FileSource};
 
 #[derive(Debug, PartialEq, Configuration)]
 struct Config {
     host: String,
     username: String,
+
     #[confik(secret)]
     password: String,
 }
