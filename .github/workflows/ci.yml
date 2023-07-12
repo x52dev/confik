@@ -18,18 +18,29 @@ jobs:
         with:
           tool: cargo-hack
 
-      - name: Clippy
-        run: |
-          cargo clippy --workspace --no-default-features
-          cargo clippy --workspace --no-default-features --all-features
-          cargo hack --feature-powerset clippy --workspace
-
       - name: Test
         run: |
           cargo test --package=confik-macros
           cargo test --package=confik --no-default-features
           cargo test --package=confik --no-default-features --all-features
           cargo hack --feature-powerset test --package=confik
+  
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+
+      - name: Clippy
+        run: |
+          cargo clippy --workspace --no-default-features
+          cargo clippy --workspace --no-default-features --all-features
+          cargo hack --feature-powerset clippy --workspace
 
   rustfmt:
     runs-on: ubuntu-latest
