@@ -16,7 +16,7 @@ jobs:
           components: clippy
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-nextest
+          tool: cargo-hack
 
       - name: Clippy
         run: |
