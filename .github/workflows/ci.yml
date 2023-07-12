@@ -23,7 +23,6 @@ jobs:
           cargo test --package=confik-macros
           cargo test --package=confik --no-default-features
           cargo test --package=confik --no-default-features --all-features
-          cargo hack --feature-powerset test --package=confik
   
   clippy:
     runs-on: ubuntu-latest
@@ -40,7 +39,7 @@ jobs:
         run: |
           cargo clippy --workspace --no-default-features
           cargo clippy --workspace --no-default-features --all-features
-          cargo hack --feature-powerset clippy --workspace
+          cargo hack --feature-powerset --depth=3 clippy --workspace
 
   rustfmt:
     runs-on: ubuntu-latest

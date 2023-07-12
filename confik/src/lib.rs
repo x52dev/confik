@@ -4,26 +4,26 @@
 //!
 //! ## Example
 //!
-//! Assume that `config.toml` contains
+//! Assume that `config.toml` contains:
 //!
 //! ```toml
 //! host=google.com
 //! username=root
 //! ```
 //!
-//! and the environment contains
+//! and the environment contains:
 //!
 //! ```bash
 //! PASSWORD=hunter2
 //! ```
 //!
-//! Then:
+//! then:
 //!
 //! ```no_run
 //! # #[cfg(all(feature = "toml", feature = "env"))]
 //! # {
-//! use std::path::Path;
 //! use confik::{Configuration, EnvSource, FileSource, TomlSource};
+//! use std::path::Path;
 //!
 //! #[derive(Debug, PartialEq, Configuration)]
 //! struct Config {
@@ -39,11 +39,14 @@
 //!     .try_build()
 //!     .unwrap();
 //!
-//! assert_eq!(config, Config {
-//!     host: "google.com".to_string(),
-//!     username: "root".to_string(),
-//!     password: "hunter2".to_string(),
-//! });
+//! assert_eq!(
+//!     config,
+//!     Config {
+//!         host: "google.com".to_string(),
+//!         username: "root".to_string(),
+//!         password: "hunter2".to_string(),
+//!     }
+//! );
 //! # }
 //! ```
 //!
@@ -68,7 +71,8 @@
 //! ## Secrets
 //!
 //! Fields annotated with `#[confik(secret)]` will only be read from secure sources.
-//! This serves as a runtime check that no secrets have been stored in insecure places such as world-readable files.
+//! This serves as a runtime check that no secrets have been stored in insecure places such as
+//! world-readable files.
 //!
 //! If a secret is found in an insecure source, an error will be returned.
 //! You can opt into loading secrets on a source-by-source basis.
@@ -94,9 +98,11 @@
 //! }
 //! ```
 //!
-//! ### Forwarding attributes to `Deserialize`
+//! ### Forwarding Attributes To `Deserialize`
 //!
-//! The serde attributes used for customizing a `Deserialize` derive typically are achieved by adding `#[confik(forward_serde(...))` attributes.
+//! The serde attributes used for customizing a `Deserialize` derive typically are achieved by
+//! adding `#[confik(forward_serde(...))` attributes.
+//!
 //! For example:
 //!
 //! ```
@@ -111,7 +117,8 @@
 //!
 //! Defaults are specified on a per-field basis.
 //! * Defaults are used if the data cannot be fully read, even if it is partially read.
-//!   E.g. even if `data` in the below example has one value read in, both will be overwritten by the default.
+//!   E.g., even if `data` in the below example has one value read in, both will be overwritten by
+//!   the default.
 //!   ```
 //!   # #[cfg(feature = "toml")]
 //!   # {
@@ -153,8 +160,7 @@
 //!   assert_eq!(config.data.a, 1234);
 //!   # }
 //!   ```
-//! * Defaults can be given by any rust expression, and have [`Into::into`] run over them.
-//!   E.g.
+//! * Defaults can be given by any rust expression, and have [`Into::into`] run over them. E.g.,
 //!   ```
 //!   const DEFAULT_VALUE: u8 = 4;
 //!
@@ -168,7 +174,7 @@
 //!       c: f32,
 //!   }
 //!   ```
-//! * Alternatively, a default without a given value called [`Default::default`], e.g.
+//! * Alternatively, a default without a given value called [`Default::default`]. E.g.,
 //!   ```
 //!   use confik::{Configuration};
 //!
@@ -182,10 +188,10 @@
 //!   assert_eq!(config.a, 0);
 //!   ```
 //!
-//! ### Handling foreign types
+//! ### Handling Foreign Types
 //!
-//! If there's a foreign type used in your config, then you will not be able to implement [`Configuration`] for it.
-//! Instead any type that implements [`Into::into`] can be used.
+//! If there's a foreign type used in your config, then you will not be able to implement
+//! [`Configuration`] for it. Instead any type that implements [`Into`] can be used.
 //!
 //! ```
 //! struct ForeignType {
@@ -212,9 +218,9 @@
 //! }
 //! ```
 //!
-//! ## Macro limitations
+//! ## Macro Limitations
 //!
-//! ### `Option` defaulting
+//! ### `Option` Defaulting
 //!
 //! `Option`s cannot default to anything other than `None`. I.e., the below example ignores the provided default.
 //!
@@ -233,17 +239,19 @@
 //! assert_eq!(config.data, None);
 //! ```
 //!
-//! This behaviour occurs due to `Option`s needing to have a default value of `None`, as `Option`al configuration shouldn't be required.
-//! This defaulting occurs inside the [`ConfigurationBuilder`] implementation of [`Option`] and so happens before the macro can try to default the value.
+//! This behaviour occurs due to `Option`s needing to have a default value of `None`, as `Option`al
+//! configuration shouldn't be required. This defaulting occurs inside the [`ConfigurationBuilder`]
+//! implementation of [`Option`] and so happens before the macro can try to default the value.
 //!
-//! This is in principle fixable by special casing any value with an `Option<...>` type, but this has not been implemented due to the fragility that trying to exact match on the string value of a type in a macro would bring.
-//! E.g. a custom type such as `type MyOption = Option<usize>` would then behave differently to using `Option<usize>` directly.
+//! This is in principle fixable by special casing any value with an `Option<...>` type, but this
+//! has not been implemented due to the fragility that trying to exact match on the string value of
+//! a type in a macro would bring. E.g., a custom type such as `type MyOption = Option<usize>` would
+//! then behave differently to using `Option<usize>` directly.
 //!
+//! ### Custom `Deserialize` Implementations
 //!
-//! ### Custom `Deserialize` implementations
-//!
-//! If you're using a custom `Deserialize` implementation, then you cannot use the `Configuration` derive macro.
-//! Instead, define the necessary config implementation manually like so:
+//! If you're using a custom `Deserialize` implementation, then you cannot use the `Configuration`
+//! derive macro. Instead, define the necessary config implementation manually like so:
 //!
 //! ```rust
 //! #[derive(Debug, serde_with::DeserializeFromStr)]
@@ -263,8 +271,8 @@
 //! }
 //! ```
 //!
-//! Note that the `Option<Self>` builder type only works for simple types.
-//! For more info, see the docs on [`Configuration`] and [`ConfigurationBuilder`].
+//! Note that the `Option<Self>` builder type only works for simple types. For more info, see the
+//! docs on [`Configuration`] and [`ConfigurationBuilder`].
 
 #![deny(rust_2018_idioms, nonstandard_style, future_incompatible)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
@@ -278,9 +286,13 @@ use crate::{path::Path, sources::DynSource};
 
 #[doc(hidden)]
 pub mod __exports {
-    /// Re-export [`Deserialize`](serde::Deserialize) for use in case `serde` is not otherwise used whilst we are.
+    /// Re-export [`Deserialize`] for use in case `serde` is not otherwise used
+    /// whilst we are.
     ///
-    /// As serde then calls into other serde functions, we need to re-export the whole of serde, instead of just [`Deserialize`](serde::Deserialize).
+    /// As serde then calls into other serde functions, we need to re-export the whole of serde,
+    /// instead of just [`Deserialize`].
+    ///
+    /// [`Deserialize`]: serde::Deserialize
     pub use serde as __serde;
 }
 
@@ -354,10 +366,12 @@ where
 
 /// The target to be deserialized from multiple sources.
 ///
-/// This will normally be created by the derive macro which also creates a [`ConfigurationBuilder`] implementation.
+/// This will normally be created by the derive macro which also creates a [`ConfigurationBuilder`]
+/// implementation.
 ///
-/// For types with no contents, e.g. empty structs, or simple enums, this can be implemented very easily by specifying only the builder type as `Option<Self>`.
-/// For anything more complicated, complete target and builder implementations will be needed.
+/// For types with no contents, e.g. empty structs, or simple enums, this can be implemented very
+/// easily by specifying only the builder type as `Option<Self>`. For anything more complicated,
+/// complete target and builder implementations will be needed.
 ///
 /// # Examples
 ///
@@ -386,7 +400,8 @@ pub trait Configuration: Sized {
 ///
 /// This will almost never be implemented manually, instead being derived.
 ///
-/// Builders must implement [`Default`] so that if the structure is nested in another then it being missing is not an error.
+/// Builders must implement [`Default`] so that if the structure is nested in another then it being
+/// missing is not an error.
 /// For trivial cases, this is solved by using an `Option<Configuration>`.
 /// See the worked example on [`Configuration`].
 pub trait ConfigurationBuilder: Default + serde::de::DeserializeOwned {
@@ -397,21 +412,23 @@ pub trait ConfigurationBuilder: Default + serde::de::DeserializeOwned {
     #[must_use]
     fn merge(self, other: Self) -> Self;
 
-    /// This will probably delegate to `TryInto` but allows it to be implemented for types foreign to the library.
+    /// This will probably delegate to `TryInto` but allows it to be implemented for types foreign
+    /// to the library.
     fn try_build(self) -> Result<Self::Target, MissingValue>;
 
-    /// Called recursively on each field, aiming to hit all [`SecretBuilder`]s. This is only called when [`Source::allows_secrets`] is `false`.
+    /// Called recursively on each field, aiming to hit all [`SecretBuilder`]s. This is only called
+    /// when [`Source::allows_secrets`] is `false`.
     ///
     /// If any data is present then `Ok(true)` is returned, unless the data is wrapped in a
-    /// [`SecretBuilder`] in which case [`UnexpectedSecret`] is passed, which will then be built into
-    /// the path to the secret data.
+    /// [`SecretBuilder`] in which case [`UnexpectedSecret`] is passed, which will then be built
+    /// into the path to the secret data.
     fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret>;
 }
 
 /// Implementations for trivial types via `Option`.
 ///
-/// This can also be used for user types, such as an `enum` with no variants containing fields. See the worked example on
-/// [`Configuration`]
+/// This can also be used for user types, such as an `enum` with no variants containing fields. See
+/// the worked example on [`Configuration`].
 impl<T> ConfigurationBuilder for Option<T>
 where
     T: serde::de::DeserializeOwned + Configuration,
@@ -426,8 +443,8 @@ where
         self.ok_or_else(|| MissingValue(Path::new()))
     }
 
-    /// Should not have an `Option` wrapping a secret as `<Option<T> as ConfigurationBuilder` is used
-    /// for terminal types, therefore the `SecretBuilder` wrapping would be external to it.
+    /// Should not have an `Option` wrapping a secret as `<Option<T> as ConfigurationBuilder` is
+    /// used for terminal types, therefore the `SecretBuilder` wrapping would be external to it.
     fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
         Ok(self.is_some())
     }
