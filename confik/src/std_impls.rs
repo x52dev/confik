@@ -60,7 +60,8 @@ type ValueOf<C> = <C as KeyedContainer>::Value;
 type TargetOf<B> = <B as ConfigurationBuilder>::Target;
 type BuilderOf<T> = <T as Configuration>::Builder;
 
-/// Builder type for unkeyed containers such as [`Vec`] (as opposed to keyed containers like [`HashMap`]).
+/// Builder type for unkeyed containers such as [`Vec`] (as opposed to keyed containers like
+/// [`HashMap`]).
 #[derive(Debug, Default, Deserialize, Hash, PartialEq, PartialOrd, Eq, Ord)]
 #[serde(from = "Container")]
 pub enum UnkeyedContainerBuilder<Container, Target> {
@@ -365,7 +366,8 @@ impl<T> ConfigurationBuilder for PhantomData<T> {
     }
 }
 
-/// Build an `Option<T>` with a custom structure as we want `None` to be an explicit value that will not be overwritten.
+/// Build an `Option<T>` with a custom structure as we want `None` to be an explicit value that will
+/// not be overwritten.
 impl<T: Configuration> Configuration for Option<T>
 where
     OptionBuilder<BuilderOf<T>>: DeserializeOwned,
@@ -373,7 +375,8 @@ where
     type Builder = OptionBuilder<BuilderOf<T>>;
 }
 
-/// Build an `Option<T>` with a custom structure as we want `None` to be an explicit value that will not be overwritten.
+/// Build an `Option<T>` with a custom structure as we want `None` to be an explicit value that will
+/// not be overwritten.
 #[derive(Debug, Default, Deserialize, Hash, PartialEq, PartialOrd, Eq, Ord)]
 #[serde(from = "Option<T>")]
 pub enum OptionBuilder<T> {

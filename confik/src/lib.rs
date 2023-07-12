@@ -23,18 +23,18 @@
 //! # #[cfg(all(feature = "toml", feature = "env"))]
 //! # {
 //! use confik::{Configuration, EnvSource, FileSource, TomlSource};
-//! use std::path::Path;
 //!
 //! #[derive(Debug, PartialEq, Configuration)]
 //! struct Config {
 //!     host: String,
 //!     username: String,
+//!
 //!     #[confik(secret)]
 //!     password: String,
 //! }
 //!
 //! let config = Config::builder()
-//!     .override_with(FileSource::new(Path::new("config.toml")))
+//!     .override_with(FileSource::new("config.toml"))
 //!     .override_with(EnvSource::new().allow_secrets())
 //!     .try_build()
 //!     .unwrap();
@@ -386,7 +386,7 @@ where
 /// }
 /// ```
 pub trait Configuration: Sized {
-    /// The builder that accumulates the deserialisations.
+    /// The builder that accumulates the deserializations.
     type Builder: ConfigurationBuilder<Target = Self>;
 
     /// Creates an instance of [`ConfigBuilder`] tied to this type.

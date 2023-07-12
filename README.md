@@ -10,20 +10,19 @@ This crate provides a macro for creating configuration/settings structures and f
 Assume that `config.toml` contains
 
 ```toml
-host=google.com
-username=root
+host = "google.com"
+username = "root"
 ```
 
 and the environment contains
 
-```bash
+```sh
 PASSWORD=hunter2
 ```
 
 Then:
 
 ```rust
-use std::path::Path;
 use confik::{Configuration, EnvSource, FileSource, TomlSource};
 
 #[derive(Debug, PartialEq, Configuration)]
@@ -36,16 +35,19 @@ struct Config {
 
 fn main() {
     let config = Config::builder()
-        .override_with(FileSource::new(Path::new("config.toml")))
+        .override_with(FileSource::new("config.toml"))
         .override_with(EnvSource::new().allow_secrets())
         .try_build()
         .unwrap();
 
-    assert_eq!(config, Config {
-        host: "google.com".to_string(),
-        username: "root".to_string(),
-        password: "hunter2".to_string(),
-    });
+    assert_eq!(
+        config,
+        Config {
+            host: "google.com".to_string(),
+            username: "root".to_string(),
+            password: "hunter2".to_string(),
+        }
+    );
 }
 ```
 
@@ -55,5 +57,5 @@ This project is licensed under either of
 
 - Apache License, Version 2.0
 - MIT License
-    
+
 at your option.

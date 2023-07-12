@@ -1,5 +1,5 @@
-//! Implementations of [`Configuration`](crate::Configuration) for frequently used types
-//! from other crates.
+//! Implementations of [`Configuration`](crate::Configuration) for frequently used types from other
+//! crates.
 
 #[cfg(feature = "with-chrono")]
 mod chrono {
@@ -16,9 +16,9 @@ mod chrono {
     }
 }
 
-#[cfg(feature = "with-rust_decimal-1")]
+#[cfg(feature = "with-rust_decimal")]
 mod decimal {
-    use rust_decimal_1::Decimal;
+    use rust_decimal::Decimal;
 
     use crate::Configuration;
 

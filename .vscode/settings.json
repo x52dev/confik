@@ -1,0 +1,11 @@
+{
+  "cSpell.words": [
+    "chrono",
+    "confik",
+    "deserializations",
+    "docsrs",
+    "lknsgihseipfpiahefphapfhpahwfphapihpihpihphpi",
+    "thiserror"
+  ],
+  "rust-analyzer.cargo.features": "all"
+}
