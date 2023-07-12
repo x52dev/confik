@@ -1,6 +1,11 @@
 [package]
 name = "confik-macros"
 version = "0.7.0"
+authors = ["Rob Ede <robjtede@icloud.com>"]
+description = "Macros for confik"
+keywords = ["parser", "serde", "utility", "config"]
+categories = ["config"]
+repository = "https://github.com/robjtede/confik"
 license = "MIT OR Apache-2.0"
 edition = "2021"
 rust-version = "1.66"

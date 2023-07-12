@@ -1,8 +1,11 @@
 [package]
 name = "confik"
 version = "0.7.0"
-keywords = ["parser", "serde", "utility"]
+description = "A library for reading application configuration split across multiple sources"
+authors = ["Rob Ede <robjtede@icloud.com>"]
+keywords = ["parser", "serde", "utility", "config"]
 categories = ["config"]
+repository = "https://github.com/robjtede/confik"
 license = "MIT OR Apache-2.0"
 edition = "2021"
 rust-version = "1.66"
