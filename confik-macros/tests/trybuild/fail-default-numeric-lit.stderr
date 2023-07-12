@@ -1,0 +1,5 @@
+error: Unexpected literal type `int`
+ --> tests/trybuild/fail-default-numeric-lit.rs:3:24
+  |
+3 |     #[confik(default = 123)]
+  |                        ^^^

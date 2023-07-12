@@ -1,0 +1,5 @@
+error: Name-value arguments are not supported. Use #[confik(...)]
+ --> tests/trybuild/fail-config-name-value.rs:3:7
+  |
+3 |     #[confik = "foo"]
+  |       ^^^^^^

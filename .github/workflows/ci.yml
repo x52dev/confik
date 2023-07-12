@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with: { toolchain: nightly }
+      - uses: taiki-e/install-action@v2
+        with: { tool: cargo-nextest }
+
+      - name: Clippy
+        run: |
+          cargo clippy --no-default-features
+          cargo clippy --no-default-features --features common,with-chrono,with-rust_decimal,with-url,with-uuid
+          cargo hack --feature-powerset --include-features env,json,toml clippy --features common,with-chrono,with-rust_decimal,with-url,with-uuid
+
+      - name: Test
+        run: |
+          cargo test --package confik-macros
+          cargo test --package confik --no-default-features
+          cargo test --package confik --no-default-features --features common,with-chrono,with-rust_decimal,with-url,with-uuid
+          cargo hack --feature-powerset --include-features env,json,toml test --package confik --features common,with-chrono,with-rust_decimal,with-url,with-uuid
+
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with: { toolchain: nightly }
+
+      - run: cargo fmt -- --check

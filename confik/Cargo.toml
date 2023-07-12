@@ -1,0 +1,62 @@
+[package]
+name = "confik"
+version = "0.7.0"
+keywords = ["parser", "serde", "utility"]
+categories = ["config"]
+license = "MIT OR Apache-2.0"
+edition = "2021"
+rust-version = "1.66"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[package.metadata.cargo-machete]
+ignored = [
+  "humantime_serde", # used in serde macro attributes
+  "serde_with",      # used in doctests
+]
+
+[features]
+default = ["env", "toml"]
+## Source types
+env = ["dep:envious"]
+json = ["dep:serde_json"]
+toml = ["dep:toml"]
+## Destination types
+common = []
+with-chrono = ["dep:chrono"]
+with-rust_decimal = ["dep:rust_decimal"]
+with-url = ["dep:url"]
+with-uuid = ["dep:uuid"]
+
+[dependencies]
+confik-macros = "=0.7.0"
+
+cfg-if = "1"
+serde = { version = "1", features = ["derive"], default-features = false }
+thiserror = "1.0.41"
+
+envious = { version = "0.2", optional = true }
+serde_json = { version = "1", optional = true, default-features = false, features = ["std"] }
+toml = { version = "0.7", optional = true, default-features = false, features = ["parse"] }
+
+chrono = { version = "0.4", optional = true, default-features = false }
+rust_decimal = { version = "1", optional = true, default-features = false, features = ["serde"] }
+url = { version = "2", optional = true, default-features = false, features = ["serde"] }
+uuid = { version = "1", optional = true, default-features = false, features = ["serde"] }
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+humantime-serde = "1"
+indoc = "2"
+serde_with = "3"
+temp-env = "0.3"
+
+[[example]]
+name = "simple"
+required-features = ["toml"]
+
+[[example]]
+name = "derives"
+required-features = ["toml"]

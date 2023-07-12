@@ -1,0 +1,7 @@
+[workspace]
+members = ["confik", "confik-macros"]
+resolver = "2"
+
+[patch.crates-io]
+confik = { path = "confik" }
+confik-macros = { path = "confik-macros" }

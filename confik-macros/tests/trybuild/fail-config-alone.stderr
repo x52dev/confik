@@ -1,0 +1,5 @@
+error: `#[config]` is not a valid standalone attribute
+ --> tests/trybuild/fail-config-alone.rs:3:7
+  |
+3 |     #[config]
+  |       ^^^^^^

@@ -1,0 +1,5 @@
+error: #[confik(...)] attribute must be a non-empty list
+ --> tests/trybuild/fail-config-empty-list.rs:3:7
+  |
+3 |     #[confik()]
+  |       ^^^^^^

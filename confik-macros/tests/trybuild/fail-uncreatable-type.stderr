@@ -1,0 +1,5 @@
+error: Cannot create a builder for a type that cannot be instantiated: C
+ --> tests/trybuild/fail-uncreatable-type.rs:2:6
+  |
+2 | enum C {}
+  |      ^

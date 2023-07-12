@@ -1,0 +1,13 @@
+error[E0277]: the trait bound `usize: From<i32>` is not satisfied
+ --> tests/trybuild/fail-default-parse.rs:3:24
+  |
+3 |     #[confik(default = "1 + 2")]
+  |                        ^^^^^^^ the trait `From<i32>` is not implemented for `usize`
+  |
+  = help: the following other types implement trait `From<T>`:
+            <usize as From<NonZeroUsize>>
+            <usize as From<bool>>
+            <usize as From<std::ptr::Alignment>>
+            <usize as From<u16>>
+            <usize as From<u8>>
+  = note: required for `i32` to implement `Into<usize>`
