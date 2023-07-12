@@ -83,7 +83,7 @@
 //! following third-party crates. Implementations for third-party crates are feature gated.
 //!
 //! - `with-chrono` - `chrono` 0.4
-//! - `with-rust_decimal-1` - `rust_decimal` 1
+//! - `with-rust_decimal` - `rust_decimal` 1
 //! - `with-url` - `url` 1
 //! - `with-uuid` - `uuid` 1
 //!

@@ -1,9 +1,9 @@
 //! A general builder struct to allow for adding sources gradually, instead of requiring
 //! producing your own list for [`build_from_sources`].
 //!
-//! The sources are consumed in the order they are provided, with priority given to the first source.
-//! e.g. If sources `Source::File("config.toml")` and `Source::File("defaults.toml")`
-//! are provided any values specified in `config.toml` take precedence over `defaults.toml`.
+//! The sources are consumed in the order they are provided, with priority given to the first
+//! source. E.g., If sources `Source::File("config.toml")` and `Source::File("defaults.toml")` are
+//! provided any values specified in `config.toml` take precedence over `defaults.toml`.
 //!
 //! A builder will generally be created by calling [`ConfigBuilder::default`], sources will be added
 //! with [`ConfigBuilder::override_with`] which overrides existing source with the new source, and
