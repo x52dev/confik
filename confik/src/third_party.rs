@@ -3,7 +3,7 @@
 
 #[cfg(feature = "with-chrono")]
 mod chrono {
-    use chrono_04::{DateTime, TimeZone};
+    use chrono::{DateTime, TimeZone};
     use serde::de::DeserializeOwned;
 
     use crate::Configuration;
@@ -29,7 +29,7 @@ mod decimal {
 
 #[cfg(feature = "with-url")]
 mod url {
-    use url_2::Url;
+    use url::Url;
 
     use crate::Configuration;
 
@@ -40,7 +40,7 @@ mod url {
 
 #[cfg(feature = "with-uuid")]
 mod uuid {
-    use uuid_1::Uuid;
+    use uuid::Uuid;
 
     use crate::Configuration;
 

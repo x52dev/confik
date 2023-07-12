@@ -20,16 +20,16 @@ jobs:
 
       - name: Clippy
         run: |
-          cargo clippy --no-default-features
-          cargo clippy --no-default-features --features common,with-chrono,with-rust_decimal,with-url,with-uuid
-          cargo hack --feature-powerset --include-features env,json,toml clippy --features common,with-chrono,with-rust_decimal,with-url,with-uuid
+          cargo clippy --workspace --no-default-features
+          cargo clippy --workspace --no-default-features --all-features
+          cargo hack --feature-powerset clippy --workspace
 
       - name: Test
         run: |
-          cargo test --package confik-macros
-          cargo test --package confik --no-default-features
-          cargo test --package confik --no-default-features --features common,with-chrono,with-rust_decimal,with-url,with-uuid
-          cargo hack --feature-powerset --include-features env,json,toml test --package confik --features common,with-chrono,with-rust_decimal,with-url,with-uuid
+          cargo test --package=confik-macros
+          cargo test --package=confik --no-default-features
+          cargo test --package=confik --no-default-features --all-features
+          cargo hack --feature-powerset test --package=confik
 
   rustfmt:
     runs-on: ubuntu-latest

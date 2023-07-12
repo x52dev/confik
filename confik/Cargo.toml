@@ -19,11 +19,13 @@ ignored = [
 
 [features]
 default = ["env", "toml"]
-## Source types
+
+# Source types
 env = ["dep:envious"]
 json = ["dep:serde_json"]
 toml = ["dep:toml"]
-## Destination types
+
+# Destination types
 common = []
 with-chrono = ["dep:chrono"]
 with-rust_decimal = ["dep:rust_decimal"]
@@ -34,7 +36,7 @@ with-uuid = ["dep:uuid"]
 confik-macros = "=0.7.0"
 
 cfg-if = "1"
-serde = { version = "1", features = ["derive"], default-features = false }
+serde = { version = "1", default-features = false, features = ["std", "derive"] }
 thiserror = "1.0.41"
 
 envious = { version = "0.2", optional = true }
