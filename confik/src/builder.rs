@@ -79,8 +79,6 @@ impl<'a, Target: Configuration> ConfigBuilder<'a, Target> {
     ///
     /// The source is added at the end of the list, overriding existing sources.
     ///
-    /// For adding multiple sources to the list at once, use [`Self::extend`].
-    ///
     /// ```
     /// # #[cfg(feature = "toml")]
     /// # {
