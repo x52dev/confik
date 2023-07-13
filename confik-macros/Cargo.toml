@@ -1,6 +1,6 @@
 [package]
 name = "confik-macros"
-version = "0.7.0"
+version = "0.8.0"
 authors = ["Rob Ede <robjtede@icloud.com>"]
 description = "Macros for confik"
 keywords = ["parser", "serde", "utility", "config"]
@@ -21,7 +21,7 @@ syn = { version = "2", features = ["extra-traits"] }
 
 [dev-dependencies]
 assert_matches = "1.5"
-confik = "0.7"
+confik = "0.8"
 rustversion = "1"
 serde = { version = "1", features = ["derive"] }
 toml = "0.7"
