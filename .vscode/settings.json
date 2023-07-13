@@ -11,7 +11,8 @@
     "rustversion",
     "struct",
     "thiserror",
-    "trybuild"
+    "trybuild",
+    "usize"
   ],
   "rust-analyzer.cargo.features": "all"
 }

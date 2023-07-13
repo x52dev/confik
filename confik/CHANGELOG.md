@@ -4,14 +4,14 @@
 
 ## 0.8.0
 
-- Attributes that receive expressions (`default` and `from`) now need to be unquoted. E.g.:
+- Attributes that receive expressions (`default` and `from`) now need to be unquoted, e.g.:
 
   ```diff
-  - struct MyStruct(#[config(default = "\"Hello World\"") String)
-  + struct MyStruct(#[config(default = "Hello World") String)
+  - struct Config { #[config(default = "\"Hello World\"") param: String }
+  + struct Config { #[config(default = "Hello World") param: String }
 
-  - struct MyStruct(#[config(default = "5usize") usize)
-  + struct MyStruct(#[config(default = 5usize) usize)
+  - struct Config { #[config(default = "5_usize") param: usize }
+  + struct Config { #[config(default = 5_usize) param: usize }
   ```
 
 ## 0.7.0
