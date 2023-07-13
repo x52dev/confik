@@ -4,7 +4,7 @@ use confik::Configuration;
 
 #[derive(Debug, PartialEq, Eq, Configuration)]
 struct Config {
-    #[confik(secret, default = "\"foo\"")]
+    #[confik(secret, default = "foo")]
     param: String,
 }
 

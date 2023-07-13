@@ -1,6 +1,6 @@
 #[derive(confik::Configuration)]
 struct Config {
-    #[confik(default = 123)]
+    #[confik(default = Hello World)]
     _param: String,
 }
 

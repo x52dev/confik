@@ -27,12 +27,12 @@ fn compile_macros() {
     t.pass("tests/trybuild/21-field-from.rs");
     t.pass("tests/trybuild/22-dataless-types.rs");
 
-    t.compile_fail("tests/trybuild/fail-default-empty.rs");
     t.compile_fail("tests/trybuild/fail-default-parse.rs");
-    t.compile_fail("tests/trybuild/fail-default-numeric-lit.rs");
+    t.compile_fail("tests/trybuild/fail-default-invalid-expr.rs");
     t.compile_fail("tests/trybuild/fail-config-name-value.rs");
     t.compile_fail("tests/trybuild/fail-secret-extra-attr.rs");
     t.compile_fail("tests/trybuild/fail-derive-literal.rs");
     t.compile_fail("tests/trybuild/fail-field-from-unknown-type.rs");
     t.compile_fail("tests/trybuild/fail-uncreatable-type.rs");
+    t.compile_fail("tests/trybuild/fail-not-a-type.rs");
 }

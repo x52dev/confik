@@ -3,8 +3,17 @@ use confik::{Configuration, TomlSource};
 
 #[derive(Debug, Configuration, PartialEq, Eq)]
 struct Config {
-    #[confik(from = A)]
+    #[confik(from = { A })]
     param: String,
+}
+
+#[derive(Debug, Default, serde::Deserialize, confik::Configuration)]
+struct A(usize);
+
+impl From<A> for String {
+    fn from(_: A) -> Self {
+        String::from("Hello world")
+    }
 }
 
 fn main() {
