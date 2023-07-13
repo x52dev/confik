@@ -213,7 +213,7 @@
 //!
 //! #[derive(confik::Configuration)]
 //! struct Config {
-//!     #[confik(from = "MyForeignTypeCopy")]
+//!     #[confik(from = MyForeignTypeCopy)]
 //!     foreign_data: ForeignType
 //! }
 //! ```

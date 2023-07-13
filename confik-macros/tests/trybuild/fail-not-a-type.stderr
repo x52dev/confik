@@ -1,0 +1,18 @@
+error: Unable to parse provided from ({ A }) as rust type
+ --> tests/trybuild/fail-not-a-type.rs:6:21
+  |
+6 |     #[confik(from = { A })]
+  |                     ^^^^^
+
+error[E0599]: no function or associated item named `builder` found for struct `Config` in the current scope
+  --> tests/trybuild/fail-not-a-type.rs:20:26
+   |
+5  | struct Config {
+   | ------------- function or associated item `builder` not found for this struct
+...
+20 |     let config = Config::builder()
+   |                          ^^^^^^^ function or associated item not found in `Config`
+   |
+   = help: items from traits can only be used if the trait is implemented and in scope
+   = note: the following trait defines an item `builder`, perhaps you need to implement it:
+           candidate #1: `Configuration`

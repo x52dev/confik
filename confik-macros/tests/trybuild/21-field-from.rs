@@ -3,7 +3,7 @@ use confik::{Configuration, TomlSource};
 
 #[derive(Debug, Configuration, PartialEq, Eq)]
 struct Config {
-    #[confik(from = "A")]
+    #[confik(from = A)]
     param: String,
 }
 

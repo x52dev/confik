@@ -34,4 +34,5 @@ fn compile_macros() {
     t.compile_fail("tests/trybuild/fail-derive-literal.rs");
     t.compile_fail("tests/trybuild/fail-field-from-unknown-type.rs");
     t.compile_fail("tests/trybuild/fail-uncreatable-type.rs");
+    t.compile_fail("tests/trybuild/fail-not-a-type.rs");
 }
