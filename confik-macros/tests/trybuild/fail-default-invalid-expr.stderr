@@ -1,0 +1,5 @@
+error: expected `,`
+ --> tests/trybuild/fail-default-invalid-expr.rs:3:30
+  |
+3 |     #[confik(default = Hello World)]
+  |                              ^^^^^

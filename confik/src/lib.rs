@@ -132,7 +132,7 @@
 //!
 //!   #[derive(Configuration)]
 //!   struct Config {
-//!       #[confik(default = "Data  { a: 1, b: 2 }")]
+//!       #[confik(default = Data  { a: 1, b: 2 })]
 //!       data: Data
 //!   }
 //!
@@ -166,11 +166,11 @@
 //!
 //!   #[derive(confik::Configuration)]
 //!   struct Config {
-//!       #[confik(default = "DEFAULT_VALUE")]
+//!       #[confik(default = DEFAULT_VALUE)]
 //!       a: u32,
-//!       #[confik(default = "\"hello world\"")]
+//!       #[confik(default = "hello world")]
 //!       b: String,
-//!       #[confik(default = "5f32")]
+//!       #[confik(default = 5f32)]
 //!       c: f32,
 //!   }
 //!   ```
@@ -231,7 +231,7 @@
 //!
 //! #[derive(Configuration)]
 //! struct Config {
-//!     #[confik(default = "DEFAULT_DATA")]
+//!     #[confik(default = DEFAULT_DATA)]
 //!     data: Option<usize>
 //! }
 //!

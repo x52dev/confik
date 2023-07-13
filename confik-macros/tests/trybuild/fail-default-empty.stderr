@@ -1,5 +1,0 @@
-error: Unable to parse provided default as rust expression:
- --> tests/trybuild/fail-default-empty.rs:3:24
-  |
-3 |     #[confik(default = "")]
-  |                        ^^

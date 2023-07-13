@@ -8,8 +8,8 @@ use darling::{
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    parse_macro_input, spanned::Spanned, DeriveInput, Expr, Generics, Index, Lit, Meta, Path, Type,
-    Visibility,
+    parse, parse_macro_input, spanned::Spanned, DeriveInput, Expr, Generics, Index, Lit, Meta,
+    Path, Type, Visibility,
 };
 
 #[cfg(test)]
@@ -82,7 +82,7 @@ impl FromMeta for ForwardSerde {
 /// Parser for a default attribute
 #[derive(Debug)]
 struct FieldDefaulter {
-    expr: TokenStream,
+    expr: Expr,
 }
 
 impl FromMeta for FieldDefaulter {
@@ -92,26 +92,46 @@ impl FromMeta for FieldDefaulter {
         })
     }
 
-    fn from_value(default: &Lit) -> darling::Result<Self> {
-        let Lit::Str(default) = default else {
-            return Err(darling::Error::unexpected_lit_type(default).with_span(&default.span()));
-        };
-
-        let Ok(default) = default.parse::<Expr>() else {
-            return Err(syn::Error::new(
-                default.span(),
-                format!(
-                    "Unable to parse provided default as rust expression: {}",
-                    default.value()
-                ),
-            ))
-            .map_err(Into::into);
-        };
-
-        let expr = quote_spanned!(default.span() => { #default }.into() );
+    fn from_expr(default: &Expr) -> darling::Result<Self> {
+        let default = quote_spanned!(default.span() => { #default }.into() );
+        let expr = parse(default.into()).expect("Failed to parse default when wrapped in into");
         Ok(Self { expr })
     }
 }
+
+/*
+/// Parser for a default attribute
+#[derive(Debug)]
+struct FieldDefaulter {
+    expr: Expr,
+}
+
+impl FromMeta for FieldDefaulter {
+    fn from_word() -> darling::Result<Self> {
+        Ok(Self {
+            expr: syn::parse_str("Default::default()").unwrap(),
+        })
+    }
+
+    fn from_meta(default: &Meta) -> darling::Result<Self> {
+        match preserve_str_literal(default) {
+            Ok(default) => {
+                let default = quote_spanned!(default.span() => { #default }.into() );
+                let expr =
+                    parse(default.into()).expect("Failed to parse default when wrapped in into");
+                Ok(Self { expr })
+            }
+            Err(err) => Err(syn::Error::new(
+                default.span(),
+                format!(
+                    "Unable to parse provided default ({}) as rust expression: {err}",
+                    quote!(default).to_string()
+                ),
+            )
+            .into()),
+        }
+    }
+}*/
 
 /// Implemented for enum variants
 #[derive(Debug, FromVariant)]

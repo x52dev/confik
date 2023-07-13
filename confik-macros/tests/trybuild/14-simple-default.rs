@@ -4,7 +4,7 @@ use confik::{ConfigBuilder, TomlSource};
 
 #[derive(confik::Configuration, Debug, PartialEq)]
 struct Config {
-    #[confik(default = "\"hello world\"")]
+    #[confik(default = "hello world")]
     param: String,
 }
 

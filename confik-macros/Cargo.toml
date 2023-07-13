@@ -14,7 +14,7 @@ rust-version = "1.66"
 proc-macro = true
 
 [dependencies]
-darling = "0.20.1"
+darling = "0.20.2" # Parse bare items in attributes
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["extra-traits"] }

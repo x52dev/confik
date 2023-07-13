@@ -14,7 +14,7 @@ const DEFAULT_NUM: usize = 3;
 
 #[derive(Debug, Default, Deserialize, Configuration, PartialEq, Eq, Serialize)]
 struct Present {
-    #[confik(default = "def(DEFAULT_NUM)")]
+    #[confik(default = def(DEFAULT_NUM))]
     partial: PartiallyPresent,
 }
 
