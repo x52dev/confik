@@ -1,4 +1,4 @@
-error: Unable to parse provided from ({ A }) as rust type
+error: Unable to parse type from: { A }
  --> tests/trybuild/fail-not-a-type.rs:6:21
   |
 6 |     #[confik(from = { A })]

@@ -2,10 +2,16 @@
   "cSpell.words": [
     "chrono",
     "confik",
+    "dataless",
     "deserializations",
     "docsrs",
     "lknsgihseipfpiahefphapfhpahwfphapihpihpihphpi",
-    "thiserror"
+    "MSRV",
+    "rustc",
+    "rustversion",
+    "struct",
+    "thiserror",
+    "trybuild"
   ],
   "rust-analyzer.cargo.features": "all"
 }

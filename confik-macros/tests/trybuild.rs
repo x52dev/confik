@@ -1,5 +1,5 @@
-// only run on stable to avoid changes to compiler output in nightly causing CI failures
-#[rustversion::stable]
+// only run on MSRV to avoid changes to compiler output causing CI failures
+#[rustversion::stable(1.66)]
 #[test]
 fn compile_macros() {
     let t = trybuild::TestCases::new();
@@ -35,4 +35,5 @@ fn compile_macros() {
     t.compile_fail("tests/trybuild/fail-field-from-unknown-type.rs");
     t.compile_fail("tests/trybuild/fail-uncreatable-type.rs");
     t.compile_fail("tests/trybuild/fail-not-a-type.rs");
+    t.compile_fail("tests/trybuild/fail-default-not-expression.rs");
 }

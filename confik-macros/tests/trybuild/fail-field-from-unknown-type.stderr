@@ -1,16 +1,26 @@
 error[E0412]: cannot find type `A` in this scope
  --> tests/trybuild/fail-field-from-unknown-type.rs:6:21
   |
+5 | struct Config {
+  |              - help: you might be missing a type parameter: `<A>`
 6 |     #[confik(from = A)]
   |                     ^ not found in this scope
-  |
-help: you might be missing a type parameter
-  |
-5 | struct Config<A> {
-  |              +++
 
 error[E0412]: cannot find type `A` in this scope
  --> tests/trybuild/fail-field-from-unknown-type.rs:6:21
   |
 6 |     #[confik(from = A)]
   |                     ^ not found in this scope
+
+error[E0283]: type annotations needed
+ --> tests/trybuild/fail-field-from-unknown-type.rs:6:21
+  |
+5 |   struct Config {
+  |          ------ in this derive macro expansion
+6 |       #[confik(from = A)]
+  |  _____________________^
+7 | |     param: String,
+  | |_________^ cannot infer type
+  |
+  = note: cannot satisfy `_: Default`
+  = note: this error originates in the derive macro `::std::default::Default` (in Nightly builds, run with -Z macro-backtrace for more info)

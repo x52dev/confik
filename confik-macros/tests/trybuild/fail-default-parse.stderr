@@ -5,12 +5,16 @@ error[E0277]: the trait bound `usize: From<i32>` is not satisfied
   |                        ^----
   |                        |
   |                        the trait `From<i32>` is not implemented for `usize`
-  |                        this tail expression is of type `i32`
+  |                        this tail expression is of type `_`
   |
   = help: the following other types implement trait `From<T>`:
-            <usize as From<NonZeroUsize>>
-            <usize as From<bool>>
-            <usize as From<std::ptr::Alignment>>
-            <usize as From<u16>>
-            <usize as From<u8>>
+            <f32 as From<i16>>
+            <f32 as From<i8>>
+            <f32 as From<u16>>
+            <f32 as From<u8>>
+            <f64 as From<f32>>
+            <f64 as From<i16>>
+            <f64 as From<i32>>
+            <f64 as From<i8>>
+          and $N others
   = note: required for `i32` to implement `Into<usize>`

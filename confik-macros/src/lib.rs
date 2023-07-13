@@ -26,7 +26,7 @@ pub fn derive_macro_builder(input: proc_macro::TokenStream) -> proc_macro::Token
     }
 }
 
-/// Handles `from` attributes for dealing with foreign types
+/// Handles `from` attributes for dealing with foreign types.
 #[derive(Debug)]
 struct FieldFrom {
     ty: Type,
@@ -37,10 +37,7 @@ impl FromMeta for FieldFrom {
         let Ok(ty) = parse2(ty.to_token_stream()) else {
             return Err(syn::Error::new(
                 ty.span(),
-                format!(
-                    "Unable to parse provided from ({}) as rust type",
-                    ty.to_token_stream()
-                ),
+                format!("Unable to parse type from: {}", ty.to_token_stream()),
             )
             .into());
         };
@@ -49,7 +46,7 @@ impl FromMeta for FieldFrom {
     }
 }
 
-/// Handles requesting to forward `serde` attributes
+/// Handles requesting to forward `serde` attributes.
 #[derive(Debug)]
 struct ForwardSerde {
     items: Vec<NestedMeta>,
@@ -78,7 +75,7 @@ impl FromMeta for ForwardSerde {
     }
 }
 
-/// Parser for a default attribute
+/// Parser for a default attribute.
 #[derive(Debug)]
 struct FieldDefaulter {
     expr: Expr,
@@ -92,26 +89,27 @@ impl FromMeta for FieldDefaulter {
     }
 
     fn from_expr(default: &Expr) -> darling::Result<Self> {
-        let default = quote_spanned!(default.span() => { #default }.into() );
-        let expr = parse2(default).expect("Failed to parse default when wrapped in into");
+        let default_into_expr = quote_spanned!(default.span() => { #default }.into() );
+        let expr = parse2(default_into_expr)
+            .expect("expression should still be valid after being wrapped");
         Ok(Self { expr })
     }
 }
 
-/// Implemented for enum variants
+/// Implemented for enum variants.
 #[derive(Debug, FromVariant)]
 #[darling(attributes(confik))]
 struct VariantImplementer {
-    /// The variant name
+    /// The variant name.
     ident: Ident,
 
-    /// The fields
+    /// The fields.
     fields: ast::Fields<SpannedValue<FieldImplementer>>,
 
-    /// Optional explicit override of the variant's descriminant
+    /// Optional explicit override of the variant's discriminant.
     discriminant: Option<Expr>,
 
-    /// Optional attributes to forward to serde
+    /// Optional attributes to forward to serde.
     forward_serde: Option<ForwardSerde>,
 }
 
@@ -284,7 +282,7 @@ impl ToTokens for FieldIdent<'_> {
     }
 }
 
-/// Implementer for struct fields, including those embedded inside an enum, e.g.
+/// Implementer for struct fields, including those embedded inside an enum, e.g.,
 /// `enum A { B { c: () } }`
 #[derive(Debug, FromField)]
 #[darling(attributes(confik))]
@@ -299,21 +297,21 @@ struct FieldImplementer {
     /// Enables handling foreign types.
     from: Option<FieldFrom>,
 
-    /// The field name, if a named field
+    /// The field name, if a named field.
     ///
     /// If not, then you will probably want to enumerate through the list of these and
     /// use that index.
     ident: Option<Ident>,
 
-    /// The field type
+    /// The field type.
     ty: Type,
 
-    /// Optional attributes to forward to serde
+    /// Optional attributes to forward to serde.
     forward_serde: Option<ForwardSerde>,
 }
 
 impl FieldImplementer {
-    /// Produces a new ident with a prefix
+    /// Produces a new ident with a prefix.
     fn prefixed_ident(
         field_index: usize,
         field_impl: &SpannedValue<Self>,
@@ -332,12 +330,11 @@ impl FieldImplementer {
         )
     }
 
-    /// Extract fields, e.g. in a match statement
+    /// Extract fields, e.g. in a match statement.
     ///
-    /// For a tuple field with index 0, with a prefix of "us", this should look like:
-    /// `us_0`
+    /// For a tuple field with index 0, with a prefix of "us", this should look like: `us_0`.
     /// For a struct field with ident field1, with a prefix of "us", this should look like:
-    /// `field1: us_field1`
+    /// `field1: us_field1`.
     fn extract_for_match(
         field_index: usize,
         field_impl: &SpannedValue<Self>,
@@ -353,7 +350,7 @@ impl FieldImplementer {
         quote_spanned!(field_impl.span() => #maybe_field_specifier #ident)
     }
 
-    /// Define the builder field for a given target field
+    /// Define the builder field for a given target field.
     fn define_builder(field_impl: &SpannedValue<Self>) -> TokenStream {
         let Self {
             ty,
@@ -387,7 +384,7 @@ impl FieldImplementer {
         }
     }
 
-    /// Define how to merge the given field in a struct impl
+    /// Define how to merge the given field in a struct impl.
     fn impl_struct_merge(
         field_index: usize,
         field_impl: &SpannedValue<Self>,
@@ -409,7 +406,7 @@ impl FieldImplementer {
         }
     }
 
-    /// Define how to merge the given field in an enum impl
+    /// Define how to merge the given field in an enum impl.
     fn impl_enum_merge(
         field_index: usize,
         field_impl: &SpannedValue<Self>,
@@ -488,7 +485,7 @@ impl FieldImplementer {
         }
     }
 
-    /// Defines how to check that the field does not contain secret data
+    /// Defines how to check that the field does not contain secret data.
     fn impl_contains_non_secret_data(
         field_index: usize,
         field_impl: &SpannedValue<Self>,
@@ -511,7 +508,7 @@ impl FieldImplementer {
     }
 }
 
-/// List of attributes to be derived
+/// List of attributes to be derived.
 #[derive(Debug)]
 struct Derive {
     items: Vec<Path>,
@@ -552,43 +549,47 @@ impl ToTokens for Derive {
     }
 }
 
-/// Driver for the implementation of `#[derive(Configuration)]`
+/// Driver for the implementation of `#[derive(Configuration)]`.
 #[derive(Debug, FromDeriveInput)]
 #[darling(attributes(confik))]
 struct RootImplementer {
-    /// The ident/name of the target (the struct/enum the derive was called on)
+    /// The ident/name of the target (the struct/enum the derive was called on).
     ///
-    /// To get the builder_name, see [`RootImplementer::builder_name`]
+    /// To get the builder_name, see [`RootImplementer::builder_name`].
     ident: Ident,
 
     // #[darling(rename = "ident")]
     // target_name: Ident,
-    /// The ident/name of the builder that this will use
+    //
+    /// The ident/name of the builder that this will use.
     ///
     /// In most cases, this will be a new struct/enum, but in some cases a pre-existing builder,
     /// e.g. `Option` may be used.
+
     // #[darling(rename = "ident", map = "builder_name")]
     // builder_name: Ident,
 
-    /// Generics from the target, these will be propagated to the builder
+    /// Generics from the target, these will be propagated to the builder.
     generics: Generics,
 
-    /// Fields, handled by [`EnumFieldImplementer`] or [`StructFieldImplementer`] depending on target type
+    /// Fields, handled by [`EnumFieldImplementer`] or [`StructFieldImplementer`] depending on
+    /// target type.
     data: ast::Data<SpannedValue<VariantImplementer>, SpannedValue<FieldImplementer>>,
 
-    /// `pub`, `pub(crate)`, etc
+    /// `pub`, `pub(crate)`, etc.
     vis: Visibility,
 
-    /// Optional attributes to forward to serde
+    /// Optional attributes to forward to serde.
     forward_serde: Option<ForwardSerde>,
 
-    /// Derives needed by the builder, e.g. `Hash`
+    /// Derives needed by the builder, e.g. `Hash`.
     derive: Option<Derive>,
 }
 
 impl RootImplementer {
     /// Check that the type can be instantiated. This currently just checks that the type
-    /// is not a variantless `enum`, e.g.
+    /// is not a variant-less `enum`, e.g.
+    ///
     /// ```rust
     /// enum A {}
     /// ```
@@ -613,7 +614,7 @@ impl RootImplementer {
         format_ident!("{}ConfigBuilder", self.ident)
     }
 
-    /// Defines the builder for the target
+    /// Defines the builder for the target.
     fn define_builder(&self) -> TokenStream {
         let Self {
             ident: target_name,
@@ -666,11 +667,11 @@ impl RootImplementer {
             }
         };
 
-        // Tuple structs must end in `;`. However if a normal struct ends in `;` then
-        // the `impl` for the builder is not printed by rustc when it calls into this
-        // `proc-macro`, even when it is present...
+        // Tuple structs must end in `;`. However if a normal struct ends in `;` then the `impl` for
+        // the builder is not printed by rustc when it calls into this `proc-macro`, even when it is
+        // present...
         //
-        // Therefore conditionally add the `;`
+        // Therefore, conditionally add the `;`.
         let terminator = if matches!(&self.data, ast::Data::Struct(fields) if fields.style.is_tuple())
         {
             Some(quote!(;))
@@ -688,7 +689,7 @@ impl RootImplementer {
         }
     }
 
-    /// Implement the `ConfigurationBuilder::merge` method for our builder
+    /// Implement the `ConfigurationBuilder::merge` method for our builder.
     fn impl_merge(&self) -> TokenStream {
         let Self { data, .. } = self;
 
@@ -706,7 +707,7 @@ impl RootImplementer {
                 let bracketed_fields = ast::Fields::new(style, fields).into_token_stream();
                 quote!(Self #bracketed_fields)
             }
-            // Undefined variant must go first to take precendence in the match
+            // Undefined variant must go first to take precedence in the match.
             ast::Data::Enum(variants) => {
                 let variants = variants
                     .iter()
@@ -759,7 +760,7 @@ impl RootImplementer {
         };
 
         quote! {
-            // Allow useless conversions as the default handling may call `Into::into` unnecessarily.
+            // Allow useless conversions as the default handling may call `.into()` unnecessarily.
             #[allow(clippy::useless_conversion)]
             fn try_build(self) -> ::std::result::Result<Self::Target, ::confik::MissingValue> {
                 #field_build
@@ -767,7 +768,7 @@ impl RootImplementer {
         }
     }
 
-    /// Implement the `ConfigurationBuilder::contains_non_secret_data` method for our builder
+    /// Implement the `ConfigurationBuilder::contains_non_secret_data` method for our builder.
     fn impl_contains_non_secret_data(&self) -> TokenStream {
         let field_check = match &self.data {
             ast::Data::Struct(fields) => {
