@@ -4,11 +4,15 @@
 
 ## 0.8.0
 
-- **BREAKING CHANGE**: Switch `default` and `from` attributes to take bare parameters. E.g.
-	- Old style: `struct MyStruct(#[config(default = "\"Hello World\"") String)`
-	- New style: `struct MyStruct(#[config(default = "Hello World") String)`
-	- Old style: `struct MyStruct(#[config(default = "5usize") usize)`
-	- New style: `struct MyStruct(#[config(default = 5usize) usize)`
+- Attributes that receive expressions (`default` and `from`) now need to be unquoted. E.g.:
+
+  ```diff
+  - struct MyStruct(#[config(default = "\"Hello World\"") String)
+  + struct MyStruct(#[config(default = "Hello World") String)
+
+  - struct MyStruct(#[config(default = "5usize") usize)
+  + struct MyStruct(#[config(default = 5usize) usize)
+  ```
 
 ## 0.7.0
 

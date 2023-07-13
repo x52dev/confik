@@ -1,5 +1,7 @@
 # `confik`
 
+<!-- prettier-ignore-start -->
+
 [![crates.io](https://img.shields.io/crates/v/confik?label=latest)](https://crates.io/crates/confik)
 [![Documentation](https://docs.rs/confik/badge.svg?version=0.7.0)](https://docs.rs/confik/0.7.0)
 ![MIT or Apache 2.0 licensed](https://img.shields.io/crates/l/confik.svg)
@@ -7,6 +9,8 @@
 ![Version](https://img.shields.io/badge/rustc-1.65+-ab6000.svg)
 [![dependency status](https://deps.rs/crate/confik/0.7.0/status.svg)](https://deps.rs/crate/confik/0.7.0)
 [![Download](https://img.shields.io/crates/d/confik.svg)](https://crates.io/crates/confik)
+
+<!-- prettier-ignore-end -->
 
 This crate provides a macro for creating configuration/settings structures and functions to read them from files and the environment.
 
