@@ -38,8 +38,8 @@ impl fmt::Display for DatabaseKind {
 /// The [`Display`] impl provides the full connection string, whereas [`Debug`] is as normal, but
 /// with the `password` field value replaced by `[redacted]`.
 ///
-/// See [`SecretBuilder`](crate::SecretBuilder) for details on secrets. NOTE: The [`Debug`] hiding of
-/// the field is manually implemented for this type, and is not automatically handled by
+/// See [`SecretBuilder`](crate::SecretBuilder) for details on secrets. NOTE: The [`Debug`] hiding
+/// of the field is manually implemented for this type, and is not automatically handled by
 /// `#[config(secret)]`.
 ///
 /// [`Display`]: #impl-Display-for-DatabaseConnectionConfig

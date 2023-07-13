@@ -82,10 +82,10 @@
 //! This crate provides implementations of [`Configuration`] for a number of `std` types and the
 //! following third-party crates. Implementations for third-party crates are feature gated.
 //!
-//! - `with-chrono` - `chrono` 0.4
-//! - `with-rust_decimal` - `rust_decimal` 1
-//! - `with-url` - `url` 1
-//! - `with-uuid` - `uuid` 1
+//! - `chrono` - `chrono` 0.4
+//! - `rust_decimal` - `rust_decimal` 1
+//! - `url` - `url` 1
+//! - `uuid` - `uuid` 1
 //!
 //! ## Macro usage
 //!

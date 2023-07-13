@@ -30,10 +30,10 @@ toml = ["dep:toml"]
 
 # Destination types
 common = []
-with-chrono = ["dep:chrono"]
-with-rust_decimal = ["dep:rust_decimal"]
-with-url = ["dep:url"]
-with-uuid = ["dep:uuid"]
+chrono = ["dep:chrono"]
+rust_decimal = ["dep:rust_decimal"]
+url = ["dep:url"]
+uuid = ["dep:uuid"]
 
 [dependencies]
 confik-macros = "=0.8.0"

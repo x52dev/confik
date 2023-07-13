@@ -1,7 +1,7 @@
 //! Implementations of [`Configuration`](crate::Configuration) for frequently used types from other
 //! crates.
 
-#[cfg(feature = "with-chrono")]
+#[cfg(feature = "chrono")]
 mod chrono {
     use chrono::{DateTime, TimeZone};
     use serde::de::DeserializeOwned;
@@ -16,7 +16,7 @@ mod chrono {
     }
 }
 
-#[cfg(feature = "with-rust_decimal")]
+#[cfg(feature = "rust_decimal")]
 mod decimal {
     use rust_decimal::Decimal;
 
@@ -27,7 +27,7 @@ mod decimal {
     }
 }
 
-#[cfg(feature = "with-url")]
+#[cfg(feature = "url")]
 mod url {
     use url::Url;
 
@@ -38,7 +38,7 @@ mod url {
     }
 }
 
-#[cfg(feature = "with-uuid")]
+#[cfg(feature = "uuid")]
 mod uuid {
     use uuid::Uuid;
 
