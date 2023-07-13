@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.8.0
+
 - Attributes that receive expressions (`default` and `from`) now need to be unquoted. E.g.:
 
   ```diff
