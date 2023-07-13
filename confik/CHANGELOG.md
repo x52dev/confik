@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.9.0
+
 - Optional crate features no longer have the `with-` prefix, e.g.: `with-uuid` -> `uuid`.
 
 ## 0.8.0
