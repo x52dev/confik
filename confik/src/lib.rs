@@ -116,33 +116,27 @@
 //! ### Defaults
 //!
 //! Defaults are specified on a per-field basis.
-//! * Defaults are used if the data cannot be fully read, even if it is partially read.
-//!   E.g., even if `data` in the below example has one value read in, both will be overwritten by
-//!   the default.
+//! * Defaults are not used if the data has been partially read, even if it cannot be created.
+//!   E.g., if `data` in the below example has one value read in, it will return an error.
 //!   ```
 //!   # #[cfg(feature = "toml")]
 //!   # {
 //!   use confik::{Configuration, TomlSource};
 //!
-//!   #[derive(Configuration)]
+//!   #[derive(Debug, Configuration)]
 //!   struct Data {
 //!       a: usize,
 //!       b: usize,
 //!   }
 //!
-//!   #[derive(Configuration)]
+//!   #[derive(Debug, Configuration)]
 //!   struct Config {
 //!       #[confik(default = Data  { a: 1, b: 2 })]
 //!       data: Data
 //!   }
 //!
-//!   let toml = r#"
-//!       [data]
-//!       a = 1234
-//!   "#;
-//!
+//!   // [`Data`] is not specified, the default is used.
 //!   let config = Config::builder()
-//!       .override_with(TomlSource::new(toml))
 //!       .try_build()
 //!       .unwrap();
 //!   assert_eq!(config.data.a, 1);
@@ -150,9 +144,22 @@
 //!   let toml = r#"
 //!       [data]
 //!       a = 1234
+//!   "#;
+//!
+//!   // [`Data`] is partially specified, but is insufficient to create it. The default is not used
+//!   // and an error is returned.
+//!   let config = Config::builder()
+//!       .override_with(TomlSource::new(toml))
+//!       .try_build()
+//!       .unwrap_err();
+//!
+//!   let toml = r#"
+//!       [data]
+//!       a = 1234
 //!       b = 4321
 //!   "#;
 //!
+//!   // [`Data`] is fully specified and the default is not used.
 //!   let config = Config::builder()
 //!       .override_with(TomlSource::new(toml))
 //!       .try_build()
@@ -219,34 +226,6 @@
 //! ```
 //!
 //! ## Macro Limitations
-//!
-//! ### `Option` Defaulting
-//!
-//! `Option`s cannot default to anything other than `None`. I.e., the below example ignores the provided default.
-//!
-//! ```
-//! # use confik::Configuration;
-//!
-//! const DEFAULT_DATA: Option<usize> = Some(5);
-//!
-//! #[derive(Configuration)]
-//! struct Config {
-//!     #[confik(default = DEFAULT_DATA)]
-//!     data: Option<usize>
-//! }
-//!
-//! let config = Config::builder().try_build().unwrap();
-//! assert_eq!(config.data, None);
-//! ```
-//!
-//! This behaviour occurs due to `Option`s needing to have a default value of `None`, as `Option`al
-//! configuration shouldn't be required. This defaulting occurs inside the [`ConfigurationBuilder`]
-//! implementation of [`Option`] and so happens before the macro can try to default the value.
-//!
-//! This is in principle fixable by special casing any value with an `Option<...>` type, but this
-//! has not been implemented due to the fragility that trying to exact match on the string value of
-//! a type in a macro would bring. E.g., a custom type such as `type MyOption = Option<usize>` would
-//! then behave differently to using `Option<usize>` directly.
 //!
 //! ### Custom `Deserialize` Implementations
 //!
