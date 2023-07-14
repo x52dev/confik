@@ -115,13 +115,21 @@ where
         }
     }
 
+    /// Note that we count an explicit an empty container as data, even if the data is that the
+    /// container has no contents.
     fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
         match self {
             Self::Unspecified => Ok(false),
+            // If it's ever in this branch, then there is some data, even if it's
+            // sometimes that the [`Container`] is empty. So always return either an
+            // error or `true`.
             Self::Some(val) => val
                 .into_iter()
                 .map(ConfigurationBuilder::contains_non_secret_data)
-                .try_fold(false, |accum, b| Ok(b? || accum)),
+                .enumerate()
+                .find(|(_index, result)| result.is_err())
+                .map(|(index, result)| result.map_err(|err| err.prepend(index.to_string())))
+                .unwrap_or(Ok(true)),
             Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
         }
     }
@@ -232,15 +240,20 @@ where
         }
     }
 
+    /// Note that we count an explicit an empty container as data, even if the data is that the
+    /// container has no contents.
     fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
         match self {
             Self::Unspecified => Ok(false),
+            // If it's ever in this branch, then there is some data, even if it's
+            // sometimes that the [`Container`] is empty. So always return either an
+            // error or `true`.
             Self::Some(val) => val
                 .into_iter()
                 .map(|(key, value)| (key, value.contains_non_secret_data()))
-                .try_fold(false, |accum, (key, value)| {
-                    Ok(value.map_err(|err| err.prepend(key.to_string()))? || accum)
-                }),
+                .find(|(_key, result)| result.is_err())
+                .map(|(key, result)| result.map_err(|err| err.prepend(key.to_string())))
+                .unwrap_or(Ok(true)),
             Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
         }
     }
@@ -431,7 +444,13 @@ where
         }
     }
 
+    /// Note that we count an explicit `None` as data, even if the data is that there's
+    /// no value.
     fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
-        Ok(matches!(self, Self::Some(data) if data.contains_non_secret_data()?))
+        match self {
+            Self::Some(data) => data.contains_non_secret_data(),
+            Self::None => Ok(true),
+            Self::Unspecified => Ok(false),
+        }
     }
 }

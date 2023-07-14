@@ -2,8 +2,10 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use confik::Configuration;
 
-#[derive(Debug, Configuration, PartialEq, Eq)]
+#[derive(Debug, Configuration, PartialEq, Eq, Default)]
 struct Config {
+    #[confik(default = 0)]
+    option: Option<usize>,
     #[confik(default = [1])]
     vec: Vec<usize>,
     #[confik(default = [2])]
@@ -24,6 +26,7 @@ fn containers_can_default() {
     assert_eq!(
         config,
         Config {
+            option: Some(0),
             vec: vec![1],
             hashset: [2].into(),
             btreeset: [3].into(),
@@ -32,4 +35,32 @@ fn containers_can_default() {
             array: [8]
         }
     );
+}
+
+#[cfg(feature = "json")]
+mod explicit_config {
+    use super::*;
+
+    use confik::JsonSource;
+
+    #[test]
+    fn containers_ignore_default_with_explicit_empty() {
+        // Array can't be empty
+        let json = r#"{
+            "option": null,
+            "vec": [],
+            "hashset": [],
+            "btreeset": [],
+            "btreemap": {},
+            "hashmap": {},
+            "array": [0]
+        }"#;
+
+        // Note, `#[derive(Default)]` doesn't use `confik`'s defaults.
+        let config = Config::builder()
+            .override_with(JsonSource::new(json))
+            .try_build()
+            .unwrap();
+        assert_eq!(config, Config::default());
+    }
 }

@@ -119,7 +119,7 @@ mod toml {
 
     #[test]
     fn check_secret_error_vec_propagation() {
-        check_secret_error_seq_propagation::<MaybeSecretVec>("seq.secret");
+        check_secret_error_seq_propagation::<MaybeSecretVec>("seq.1.secret");
     }
 
     #[test]

@@ -448,33 +448,36 @@ impl FieldImplementer {
 
         let string = ident.to_string();
 
-        let field_build = quote_spanned! {
+        let mut field_build = quote_spanned! {
             field_impl.span() =>
             #our_field.try_build()
         };
 
-        let field_build = if let Some(default) = &field_impl.default {
+        // Default if no data is present
+        if let Some(default) = &field_impl.default {
             let default = &default.expr;
 
-            quote_spanned! {
-                default.span() => #field_build.unwrap_or_else(|_| #default)
-            }
-        } else {
-            let extra_prepend = extra_prepend.map(|extra_prepend| quote!(.prepend(#extra_prepend)));
+            field_build = quote_spanned! {
+                default.span() =>
+                    if #our_field.contains_non_secret_data().unwrap_or(true) {
+                        #field_build
+                    } else {
+                        Ok(#default)
+                    }
+            };
+        }
 
-            quote_spanned! {
-                field_build.span() => #field_build.map_err(|err| err.prepend(#string)#extra_prepend)?
-            }
+        let extra_prepend = extra_prepend.map(|extra_prepend| quote!(.prepend(#extra_prepend)));
+        field_build = quote_spanned! {
+            field_build.span() => #field_build.map_err(|err| err.prepend(#string)#extra_prepend)?
         };
 
         // We're going via another type to allow handling the field being a foreign type. Do the conversion.
-        let field_build = if field_impl.from.is_some() {
-            quote_spanned! {
+        if field_impl.from.is_some() {
+            field_build = quote_spanned! {
                 field_build.span() => #field_build.into()
             }
-        } else {
-            field_build
-        };
+        }
 
         match style {
             Style::Struct => quote_spanned! { field_impl.span() =>
