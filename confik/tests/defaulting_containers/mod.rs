@@ -4,17 +4,17 @@ use confik::Configuration;
 
 #[derive(Debug, Configuration, PartialEq, Eq)]
 struct Config {
-    #[confik(default = "[1]")]
+    #[confik(default = [1])]
     vec: Vec<usize>,
-    #[confik(default = "[2]")]
+    #[confik(default = [2])]
     hashset: HashSet<usize>,
-    #[confik(default = "[3]")]
+    #[confik(default = [3])]
     btreeset: BTreeSet<usize>,
-    #[confik(default = "[(4, 5)]")]
+    #[confik(default = [(4, 5)])]
     btreemap: BTreeMap<usize, usize>,
-    #[confik(default = "[(6, 7)]")]
+    #[confik(default = [(6, 7)])]
     hashmap: HashMap<usize, usize>,
-    #[confik(default = "[8]")]
+    #[confik(default = [8])]
     array: [usize; 1],
 }
 
