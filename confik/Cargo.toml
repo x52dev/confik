@@ -46,7 +46,7 @@ envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true, default-features = false, features = ["std"] }
 toml = { version = "0.7", optional = true, default-features = false, features = ["parse"] }
 
-chrono = { version = "0.4", optional = true, default-features = false }
+chrono = { version = "0.4.20", optional = true, default-features = false }
 rust_decimal = { version = "1", optional = true, default-features = false, features = ["serde"] }
 url = { version = "2", optional = true, default-features = false, features = ["serde"] }
 uuid = { version = "1", optional = true, default-features = false, features = ["serde"] }
