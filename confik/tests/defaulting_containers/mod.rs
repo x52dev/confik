@@ -39,9 +39,9 @@ fn containers_can_default() {
 
 #[cfg(feature = "json")]
 mod explicit_config {
-    use super::*;
-
     use confik::JsonSource;
+
+    use super::*;
 
     #[test]
     fn containers_ignore_default_with_explicit_empty() {
