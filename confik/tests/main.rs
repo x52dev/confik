@@ -30,7 +30,7 @@ struct Target {
 fn check_no_source_fails() {
     assert_matches!(
         ConfigBuilder::<Target>::default().try_build(),
-        Err(Error::MissingValue(path)) if path.to_string().contains("a")
+        Err(Error::MissingValue(path)) if path.to_string().contains('a')
     );
 }
 
