@@ -116,7 +116,7 @@
 //! ### Defaults
 //!
 //! Defaults are specified on a per-field basis.
-//! * Defaults are not used if the data has been partially read, even if it cannot be created.
+//! * Defaults only apply if no data has been read for that field.
 //!   E.g., if `data` in the below example has one value read in, it will return an error.
 //!   ```
 //!   # #[cfg(feature = "toml")]
