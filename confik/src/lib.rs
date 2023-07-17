@@ -135,7 +135,7 @@
 //!       data: Data
 //!   }
 //!
-//!   // [`Data`] is not specified, the default is used.
+//!   // Data is not specified, the default is used.
 //!   let config = Config::builder()
 //!       .try_build()
 //!       .unwrap();
@@ -146,7 +146,7 @@
 //!       a = 1234
 //!   "#;
 //!
-//!   // [`Data`] is partially specified, but is insufficient to create it. The default is not used
+//!   // Data is partially specified, but is insufficient to create it. The default is not used
 //!   // and an error is returned.
 //!   let config = Config::builder()
 //!       .override_with(TomlSource::new(toml))
@@ -159,7 +159,7 @@
 //!       b = 4321
 //!   "#;
 //!
-//!   // [`Data`] is fully specified and the default is not used.
+//!   // Data is fully specified and the default is not used.
 //!   let config = Config::builder()
 //!       .override_with(TomlSource::new(toml))
 //!       .try_build()

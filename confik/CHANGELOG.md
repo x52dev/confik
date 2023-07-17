@@ -4,32 +4,31 @@
 
 ## 0.10.0
 
-- Include the index of an unexpected secret when one is found in an unkeyed container (such as a `Vec`). Note that this will provide little to no information for unsorted/arbitrarily containers like a `HashSet`.
-- `Option`s will now obey `default`s when they have received no explicit configuration.
-  - Explicit `null`s, such as in JSON will set the `Option` to `None`, not to the default.
-- Containers, such as `Vec` and `HashMap` will now obey `default`s when they have received no explicit configuration.
-  - Explicit empty sets will create an empty container.
-- Partial configuration will return an error, even if there is a default set at a higher level. E.g.
-    ```rust
-    struct Data {
-      a: usize,
-      b: usize
-    }
+- The index of an unexpected secret in now included when one is found in an unkeyed container (such as a `Vec`). Note that this will provide little to no information for unsorted/arbitrarily containers like a `HashSet`.
+- `Option`s will now obey `default`s when they have received no explicit configuration. Note that explicit `null`s, such as in JSON, will set the `Option` to `None`, not to the default.
+- Containers, such as `Vec` and `HashMap`, will now obey `default`s when they have received no explicit configuration.
+- Partial configuration will return an error, even if there is a default set at a higher level. E.g.,
 
-    struct Config {
-      #[confik(default = Data { a: 1, b: 2 })]
-      data: Data,
-    }
-    ```
+  ```rust
+  struct Data {
+    a: usize,
+    b: usize
+  }
 
-    with configuration:
+  struct Config {
+    #[confik(default = Data { a: 1, b: 2 })]
+    data: Data,
+  }
+  ```
 
-    ```toml
-    [data]
-    a = "5"
-    ```
+  with configuration:
 
-    will return an error indicating `b` is missing, instead of ignoring the provided configuration.
+  ```toml
+  [data]
+  a = "5"
+  ```
+
+  will return an error indicating `b` is missing, instead of ignoring the provided configuration.
 
 ## 0.9.0
 
