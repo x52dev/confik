@@ -1,12 +1,12 @@
-# Contibuting to `config`
+# Contributing to `config`
 
 Pointers on how to contribute, aimed at simple features. Before starting, it is recommended to install [cargo-hack], due to the number of feature combinations in this crate.
 
 ## Running tests
 
-See [test.yml](./.github/workflows/test.yml).
+See [test.yml](./.github/workflows/ci.yml).
 
-## New 3rd party crate support
+## New 3rd Party Crate Support
 
 ### Terminal/Leaf items
 
@@ -22,7 +22,7 @@ impl Configuration for T {
 }
 ```
 
-### Container types
+### Container Types
 
 I recommend basing this off of the containers in [std_impls]. A simple example for each can be seen in `BTreeSet` and `BTreeMap`, depending on whether the container is indexed with a key on deserialization.
 
