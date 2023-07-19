@@ -1,6 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
   outputs = inputs@{ flake-parts, ... }:
@@ -12,7 +13,7 @@
         devShells.default = pkgs.mkShell {
           packages = [
             config.formatter
-            pkgs.nodePackages.prettier
+            inputs'.nixpkgs-unstable.legacyPackages.nodePackages.prettier
             pkgs.taplo
             pkgs.just
           ] ++ lib.optional pkgs.stdenv.isDarwin [
