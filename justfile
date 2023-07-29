@@ -3,13 +3,13 @@ _list:
 
 clippy:
     cargo clippy --workspace --no-default-features
-    cargo clippy --workspace --no-default-features --all-features
+    cargo clippy --workspace --all-features
     cargo hack --feature-powerset --depth=3 clippy --workspace
 
 test:
     cargo test --package=confik-macros
     cargo test --package=confik --no-default-features
-    cargo test --package=confik --no-default-features --all-features
+    cargo test --package=confik --all-features
 
 doc:
     RUSTDOCFLAGS="--cfg=docsrs" cargo +nightly doc --no-deps --workspace --all-features
