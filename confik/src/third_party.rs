@@ -53,9 +53,9 @@ mod uuid {
 mod secrecy {
     use secrecy::SecretString;
 
-    use crate::Configuration;
+    use crate::{Configuration, SecretOption};
 
     impl Configuration for SecretString {
-        type Builder = Option<Self>;
+        type Builder = SecretOption<Self>;
     }
 }

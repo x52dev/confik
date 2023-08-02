@@ -13,7 +13,7 @@ fn main() {
     "#};
 
     let config = Config::builder()
-        .override_with(TomlSource::new(toml))
+        .override_with(TomlSource::new(toml).allow_secrets())
         .try_build()
         .expect("Failed to parse config");
 

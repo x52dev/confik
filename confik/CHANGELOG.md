@@ -2,14 +2,9 @@
 
 ## Unreleased
 
-- Added support for `SecretString` from the [secrecy](https://crates.io/crates/secrecy) crate. E.g.
-
-```rust
-#[derive(Configuration, Debug)]
-struct Config {
-    secret_field: SecretString,
-}
-```
+- Add `SecretOption`, an alternative to `Option` as a `Configuration::Builder` for types that are always secret.
+- Added support for `SecretString` from the [secrecy](https://crates.io/crates/secrecy) crate.
+  - This type is always considered a secret, and can only be loaded from `Source`s which `allow_secrets`.
 
 ## 0.10.0
 
