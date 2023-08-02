@@ -48,3 +48,14 @@ mod uuid {
         type Builder = Option<Self>;
     }
 }
+
+#[cfg(feature = "secrecy")]
+mod secrecy {
+    use secrecy::SecretString;
+
+    use crate::Configuration;
+
+    impl Configuration for SecretString {
+        type Builder = Option<Self>;
+    }
+}

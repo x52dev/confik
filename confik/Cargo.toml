@@ -34,6 +34,7 @@ chrono = ["dep:chrono"]
 rust_decimal = ["dep:rust_decimal"]
 url = ["dep:url"]
 uuid = ["dep:uuid"]
+secrecy = ["dep:secrecy"]
 
 [dependencies]
 confik-macros = "=0.10.0"
@@ -50,6 +51,8 @@ chrono = { version = "0.4.20", optional = true, default-features = false }
 rust_decimal = { version = "1", optional = true, default-features = false, features = ["serde"] }
 url = { version = "2", optional = true, default-features = false, features = ["serde"] }
 uuid = { version = "1", optional = true, default-features = false, features = ["serde"] }
+secrecy = {version = "0.8.0", optional = true, default-features = false, features = ["alloc", "serde"]}
+
 
 [dev-dependencies]
 assert_matches = "1.5.0"
@@ -65,3 +68,7 @@ required-features = ["toml"]
 [[example]]
 name = "derives"
 required-features = ["toml"]
+
+[[example]]
+name = "secret_string"
+required-features = ["toml", "secrecy"]

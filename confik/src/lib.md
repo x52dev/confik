@@ -73,6 +73,7 @@ This crate provides implementations of [`Configuration`] for a number of `std` t
 - `rust_decimal`: v1
 - `url`: v1
 - `uuid`: v1
+- `secrecy`: v0.8
 
 ## Macro usage
 
