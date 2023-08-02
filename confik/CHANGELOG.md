@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Added support for `SecretString` from the [secrecy](https://crates.io/crates/secrecy) crate. E.g.
+
+```rust
+#[derive(Configuration, Debug)]
+struct Config {
+    secret_field: SecretString,
+}
+```
+
 ## 0.10.0
 
 - The index of an unexpected secret in now included when one is found in an unkeyed container (such as a `Vec`). Note that this will provide little to no information for unsorted/arbitrarily containers like a `HashSet`.

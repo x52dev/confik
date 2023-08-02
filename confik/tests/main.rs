@@ -8,6 +8,7 @@ mod option_builder;
 mod secret;
 mod serde_forward;
 mod singly_nested_tests;
+mod third_party;
 mod unkeyed_containers;
 
 use assert_matches::assert_matches;
