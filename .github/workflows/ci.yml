@@ -3,7 +3,8 @@ name: CI
 on:
   push:
     branches: [main]
-  merge_group: {}
+  merge_group:
+    types: [checks_requested]
   pull_request:
     branches: [main]
 
