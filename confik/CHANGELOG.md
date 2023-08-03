@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.10.1
+
 - Implement `Configuration` for [`secrecy::SecretString`](https://docs.rs/secrecy/0.8/secrecy/type.SecretString.html). This type is always considered a secret, and can only be loaded from `Source`s which `.allow_secrets()`.
 - Add `SecretOption`, an alternative to `Option` as a `Configuration::Builder` for **types** which are always secret.
 
