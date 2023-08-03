@@ -30,7 +30,7 @@ jobs:
         with:
           components: clippy
       - name: Install cargo-hack
-        uses: taiki-e/install-action@v2.13.4
+        uses: taiki-e/install-action@v2.13.5
         with:
           tool: cargo-hack
 
@@ -54,7 +54,7 @@ jobs:
         with:
           components: clippy
       - name: Install cargo-hack
-        uses: taiki-e/install-action@v2.13.4
+        uses: taiki-e/install-action@v2.13.5
         with:
           tool: cargo-hack
 
@@ -100,7 +100,7 @@ jobs:
           components: llvm-tools-preview
 
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@v2.13.4
+        uses: taiki-e/install-action@v2.13.5
         with:
           tool: cargo-llvm-cov
 
