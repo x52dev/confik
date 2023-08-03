@@ -1,6 +1,6 @@
 use confik::{Configuration, TomlSource};
 use indoc::indoc;
-use secrecy::{ExposeSecret, SecretString};
+use secrecy::{ExposeSecret as _, SecretString};
 
 #[derive(Configuration, Debug)]
 struct Config {
@@ -18,12 +18,12 @@ fn main() {
         .expect("Failed to parse config");
 
     assert_eq!(
+        format!("{config:?}"),
         "Config { secret_field: Secret([REDACTED alloc::string::String]) }",
-        format!("{:?}", config)
     );
     assert_eq!(
+        format!("{:?}", config.secret_field),
         "Secret([REDACTED alloc::string::String])",
-        format!("{:?}", config.secret_field)
     );
-    assert_eq!("ProtectedSecret", config.secret_field.expose_secret());
+    assert_eq!(config.secret_field.expose_secret(), "ProtectedSecret");
 }
