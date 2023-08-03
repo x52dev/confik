@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use serde::{de::DeserializeOwned, Deserialize};
 use thiserror::Error;
 
-use crate::{path::Path, ConfigurationBuilder, MissingValue};
+use crate::{path::Path, Configuration, ConfigurationBuilder, MissingValue};
 
 /// Captures the path of a secret found in a non-secret source.
 #[derive(Debug, Default, Error)]
@@ -48,6 +48,45 @@ impl<T: ConfigurationBuilder> SecretBuilder<T> {
             Err(UnexpectedSecret::default())
         } else {
             Ok(false)
+        }
+    }
+}
+
+/// Builder for trivial types that always contain secrets, regardless of the presence of
+/// `#[confik(secret)]` annotations.
+///
+/// This cannot be used for any case where an `Option` cannot be used as a builder, and will
+/// not descend into the structure.
+#[derive(Debug, Deserialize, Hash, PartialEq, PartialOrd, Eq, Ord)]
+#[serde(transparent)]
+pub struct SecretOption<T>(Option<T>);
+
+impl<T> Default for SecretOption<T> {
+    fn default() -> Self {
+        Self(None)
+    }
+}
+
+impl<T> ConfigurationBuilder for SecretOption<T>
+where
+    T: serde::de::DeserializeOwned + Configuration,
+{
+    type Target = T;
+
+    fn merge(self, other: Self) -> Self {
+        Self(self.0.or(other.0))
+    }
+
+    fn try_build(self) -> Result<Self::Target, MissingValue> {
+        self.0.ok_or_else(|| MissingValue(Path::new()))
+    }
+
+    /// Should not have an `Option` wrapping a secret as `<Option<T> as ConfigurationBuilder` is
+    /// used for terminal types, therefore the `SecretBuilder` wrapping would be external to it.
+    fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
+        match self.0 {
+            Some(_) => Err(UnexpectedSecret::default()),
+            None => Ok(false),
         }
     }
 }

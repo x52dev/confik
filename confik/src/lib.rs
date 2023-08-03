@@ -44,7 +44,7 @@ pub use self::sources::toml_source::TomlSource;
 pub use self::{
     builder::ConfigBuilder,
     errors::Error,
-    secrets::{SecretBuilder, UnexpectedSecret},
+    secrets::{SecretBuilder, SecretOption, UnexpectedSecret},
     sources::{file_source::FileSource, Source},
 };
 
