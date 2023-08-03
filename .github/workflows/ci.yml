@@ -78,6 +78,10 @@ jobs:
         with:
           components: llvm-tools-preview
 
+      - uses: taiki-e/install-action@v2.13.4
+        with:
+          tool: cargo-llvm-cov
+
       - name: Generate code coverage
         run: cargo llvm-cov --workspace --all-features --codecov --output-path codecov.json
 
