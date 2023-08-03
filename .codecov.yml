@@ -1,0 +1,6 @@
+comment: false
+
+ignore:
+  - "**/tests"
+  - "**/benches"
+  - "**/examples"
