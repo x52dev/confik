@@ -41,17 +41,17 @@ confik-macros = "=0.10.0"
 
 cfg-if = "1"
 serde = { version = "1", default-features = false, features = ["std", "derive"] }
-thiserror = "1.0.41"
+thiserror = "1"
 
 envious = { version = "0.2", optional = true }
-serde_json = { version = "1", optional = true, default-features = false, features = ["std"] }
+serde_json = { version = "1", optional = true }
 toml = { version = "0.7", optional = true, default-features = false, features = ["parse"] }
 
 chrono = { version = "0.4.20", optional = true, default-features = false }
-rust_decimal = { version = "1", optional = true, default-features = false, features = ["serde"] }
-url = { version = "2", optional = true, default-features = false, features = ["serde"] }
-uuid = { version = "1", optional = true, default-features = false, features = ["serde"] }
-secrecy = { version = "0.8", optional = true, default-features = false, features = ["alloc", "serde"] }
+rust_decimal = { version = "1", optional = true, features = ["serde"] }
+secrecy = { version = "0.8", optional = true, features = ["serde"] }
+url = { version = "2", optional = true, features = ["serde"] }
+uuid = { version = "1", optional = true, features = ["serde"] }
 
 
 [dev-dependencies]
