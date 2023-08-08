@@ -120,6 +120,7 @@ mod tests {
     struct NoopConfig {}
 
     #[derive(Debug, Default, serde::Deserialize, Configuration)]
+    #[allow(dead_code)]
     struct SimpleConfig {
         foo: u64,
     }
@@ -164,6 +165,7 @@ mod tests {
         dir.close().unwrap();
     }
 
+    #[cfg(feature = "json")]
     #[test]
     fn json() {
         let dir = tempfile::TempDir::new().unwrap();
@@ -186,6 +188,7 @@ mod tests {
         dir.close().unwrap();
     }
 
+    #[cfg(feature = "toml")]
     #[test]
     fn toml() {
         let dir = tempfile::TempDir::new().unwrap();

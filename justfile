@@ -11,6 +11,7 @@ test:
     cargo test --package=confik --no-default-features
     @just test-coverage-codecov
     @just test-coverage-lcov
+    RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --all-features
 
 test-coverage-codecov:
     cargo llvm-cov --workspace --all-features --codecov --output-path codecov.json

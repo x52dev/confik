@@ -48,7 +48,7 @@ impl<'a> EnvSource<'a> {
 
     /// Sets the envious prefix.
     ///
-    /// See [`Config::with_prefix`].
+    /// See [`envious::Config::with_prefix()`].
     pub fn with_prefix(mut self, prefix: &'a str) -> Self {
         self.config.with_prefix(prefix);
         self
@@ -56,7 +56,7 @@ impl<'a> EnvSource<'a> {
 
     /// Sets the envious separator.
     ///
-    /// See [`Config::with_separator`].
+    /// See [`envious::Config::with_separator()`].
     pub fn with_separator(mut self, separator: &'a str) -> Self {
         self.config.with_separator(separator);
         self
