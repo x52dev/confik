@@ -90,7 +90,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default() {
+    fn defaults() {
         let source = EnvSource::default();
         assert!(!source.allows_secrets());
     }

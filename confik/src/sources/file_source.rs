@@ -66,27 +66,30 @@ impl FileSource {
     fn deserialize<T: ConfigurationBuilder>(&self) -> Result<T, FileErrorKind> {
         #[allow(unused_variables)]
         let contents = std::fs::read_to_string(&self.path)?;
-        if let Some(ext) = self.path.extension() {
-            if ext == "toml" {
+
+        match self.path.extension().and_then(|ext| ext.to_str()) {
+            Some("toml") => {
                 cfg_if! {
                     if #[cfg(feature = "toml")] {
-                        return Ok(toml::from_str(&contents)?);
+                        Ok(toml::from_str(&contents)?)
                     } else {
-                        return Err(FileErrorKind::MissingFeatureForExtension("toml"));
+                        Err(FileErrorKind::MissingFeatureForExtension("toml"))
                     }
                 }
             }
-            if ext == "json" {
+
+            Some("json") => {
                 cfg_if! {
                     if #[cfg(feature = "json")] {
-                        return Ok(serde_json::from_str(&contents)?);
+                        Ok(serde_json::from_str(&contents)?)
                     } else {
-                        return Err(FileErrorKind::MissingFeatureForExtension("json"));
+                        Err(FileErrorKind::MissingFeatureForExtension("json"))
                     }
                 }
             }
+
+            _ => Err(FileErrorKind::UnknownExtension),
         }
-        Err(FileErrorKind::UnknownExtension)
     }
 }
 
@@ -102,5 +105,106 @@ impl Source for FileSource {
                 kind: err,
             }) as _
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use confik_macros::Configuration;
+
+    use super::*;
+
+    #[derive(Debug, Default, serde::Deserialize, Configuration)]
+    struct NoopConfig {}
+
+    #[derive(Debug, Default, serde::Deserialize, Configuration)]
+    struct SimpleConfig {
+        foo: u64,
+    }
+
+    #[test]
+    fn defaults() {
+        let source = FileSource::new("config.json");
+        assert!(!source.allows_secrets());
+    }
+
+    #[test]
+    fn clone() {
+        let source = FileSource::new("config.toml").allow_secrets();
+        assert!(source.allows_secrets());
+        assert!(source.clone().allow_secrets);
+    }
+
+    #[test]
+    fn non_existent() {
+        let source = FileSource::new("non-existent-config.toml");
+        let err = source.deserialize::<Option<NoopConfig>>().unwrap_err();
+        assert!(
+            err.to_string().contains("No such file or directory"),
+            "unexpected error message: {err}",
+        );
+    }
+
+    #[test]
+    fn unknown_extension() {
+        let dir = tempfile::TempDir::new().unwrap();
+
+        let cfg_path = dir.path().join("config.cfg");
+        fs::write(&cfg_path, "").unwrap();
+
+        let source = FileSource::new(&cfg_path);
+        let err = source.deserialize::<Option<NoopConfig>>().unwrap_err();
+        assert!(
+            err.to_string().contains("Unknown file extension"),
+            "unexpected error message: {err}",
+        );
+
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn json() {
+        let dir = tempfile::TempDir::new().unwrap();
+
+        let json_path = dir.path().join("config.json");
+
+        fs::write(&json_path, "{}").unwrap();
+        let source = FileSource::new(&json_path);
+        let err = source.deserialize::<Option<SimpleConfig>>().unwrap_err();
+        assert!(
+            err.to_string().contains("missing field"),
+            "unexpected error message: {err}",
+        );
+
+        fs::write(&json_path, "{\"foo\":42}").unwrap();
+        let source = FileSource::new(&json_path);
+        let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
+        assert_eq!(config.unwrap().foo, 42);
+
+        dir.close().unwrap();
+    }
+
+    #[test]
+    fn toml() {
+        let dir = tempfile::TempDir::new().unwrap();
+
+        let toml_path = dir.path().join("config.toml");
+
+        fs::write(&toml_path, "").unwrap();
+        let source = FileSource::new(&toml_path);
+        let err = source.deserialize::<Option<SimpleConfig>>().unwrap_err();
+        assert!(
+            err.to_string().contains("missing field"),
+            "unexpected error message: {err}",
+        );
+
+        fs::write(&toml_path, "foo = 42").unwrap();
+        let source = FileSource::new(&toml_path);
+        let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
+        assert_eq!(config.unwrap().foo, 42);
+
+        dir.close().unwrap();
     }
 }

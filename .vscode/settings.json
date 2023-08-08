@@ -12,6 +12,7 @@
     "rustversion",
     "serde",
     "struct",
+    "tempfile",
     "thiserror",
     "trybuild",
     "usize"

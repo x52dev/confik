@@ -48,7 +48,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default() {
+    fn defaults() {
         let source = JsonSource::new("{}");
         assert!(!source.allows_secrets());
     }

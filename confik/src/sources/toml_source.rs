@@ -46,3 +46,21 @@ impl<'a> Debug for TomlSource<'a> {
             .finish_non_exhaustive()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn defaults() {
+        let source = TomlSource::new("");
+        assert!(!source.allows_secrets());
+    }
+
+    #[test]
+    fn clone() {
+        let source = TomlSource::new("").allow_secrets();
+        assert!(source.allows_secrets());
+        assert!(source.clone().allow_secrets);
+    }
+}

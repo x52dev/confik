@@ -60,6 +60,7 @@ humantime-serde = "1"
 indoc = "2"
 serde_with = "3"
 temp-env = "0.3"
+tempfile = "3"
 
 [[example]]
 name = "simple"
