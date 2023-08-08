@@ -9,7 +9,14 @@ clippy:
 test:
     cargo test --package=confik-macros
     cargo test --package=confik --no-default-features
-    cargo test --package=confik --all-features
+    @just test-coverage-codecov
+    @just test-coverage-lcov
+
+test-coverage-codecov:
+    cargo llvm-cov --workspace --all-features --codecov --output-path codecov.json
+
+test-coverage-lcov:
+    cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info
 
 doc:
     RUSTDOCFLAGS="--cfg=docsrs" cargo +nightly doc --no-deps --workspace --all-features

@@ -1,7 +1,5 @@
 use std::error::Error;
 
-use envious::Config;
-
 use crate::{ConfigurationBuilder, Source};
 
 /// A [`Source`] referring to environment variables.
@@ -27,13 +25,9 @@ use crate::{ConfigurationBuilder, Source};
 ///
 /// assert_eq!(config.port, 1234);
 /// ```
-///
-/// # Secrets
-///
-/// Secrets are allowed.
 #[derive(Debug, Clone)]
 pub struct EnvSource<'a> {
-    config: Config<'a>,
+    config: envious::Config<'a>,
     allow_secrets: bool,
 }
 
@@ -47,7 +41,7 @@ impl<'a> EnvSource<'a> {
     /// Creates a new [`Source`] referring to environment variables.
     pub fn new() -> Self {
         Self {
-            config: Config::new(),
+            config: envious::Config::new(),
             allow_secrets: false,
         }
     }
@@ -69,7 +63,7 @@ impl<'a> EnvSource<'a> {
     }
 
     /// Sets the envious config.
-    pub fn with_config(mut self, config: Config<'a>) -> Self {
+    pub fn with_config(mut self, config: envious::Config<'a>) -> Self {
         self.config = config;
         self
     }
@@ -88,5 +82,39 @@ impl<'a> Source for EnvSource<'a> {
 
     fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
         Ok(self.config.build_from_env()?)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default() {
+        let source = EnvSource::default();
+        assert!(!source.allow_secrets);
+        let _ = format!("{:?}", source);
+    }
+
+    #[test]
+    fn clone() {
+        let source = EnvSource::default().allow_secrets();
+        assert!(source.allow_secrets);
+        assert!(source.clone().allow_secrets);
+    }
+
+    #[test]
+    fn separator() {
+        let mut config = envious::Config::new();
+        config.with_separator("++");
+        config.with_prefix("CFG--");
+        let config_debug = format!("{config:?}");
+
+        let source = EnvSource::default()
+            .with_prefix("CFG--")
+            .with_separator("++");
+        let source_debug = format!("{source:?}");
+
+        assert!(source_debug.contains(&config_debug));
     }
 }

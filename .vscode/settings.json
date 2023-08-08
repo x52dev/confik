@@ -10,6 +10,7 @@
     "msrv",
     "rustc",
     "rustversion",
+    "serde",
     "struct",
     "thiserror",
     "trybuild",
