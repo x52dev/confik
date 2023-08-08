@@ -92,14 +92,13 @@ mod tests {
     #[test]
     fn default() {
         let source = EnvSource::default();
-        assert!(!source.allow_secrets);
-        let _ = format!("{:?}", source);
+        assert!(!source.allows_secrets());
     }
 
     #[test]
     fn clone() {
         let source = EnvSource::default().allow_secrets();
-        assert!(source.allow_secrets);
+        assert!(source.allows_secrets());
         assert!(source.clone().allow_secrets);
     }
 

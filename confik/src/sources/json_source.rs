@@ -1,8 +1,4 @@
-use std::{
-    borrow::Cow,
-    error::Error,
-    fmt::{Debug, Formatter},
-};
+use std::{borrow::Cow, error::Error, fmt};
 
 use crate::{ConfigurationBuilder, Source};
 
@@ -39,10 +35,28 @@ impl<'a> Source for JsonSource<'a> {
     }
 }
 
-impl<'a> Debug for JsonSource<'a> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+impl<'a> fmt::Debug for JsonSource<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("JsonSource")
             .field("allow_secrets", &self.allow_secrets)
             .finish_non_exhaustive()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default() {
+        let source = JsonSource::new("{}");
+        assert!(!source.allows_secrets());
+    }
+
+    #[test]
+    fn clone() {
+        let source = JsonSource::new("{}").allow_secrets();
+        assert!(source.allows_secrets());
+        assert!(source.clone().allow_secrets);
     }
 }
