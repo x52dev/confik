@@ -1,6 +1,8 @@
-//! Useful configuration types that services will likely otherwise re-implement
+//! Useful configuration types that services will likely otherwise re-implement.
 
-use std::{fmt, str::FromStr};
+use std::{fmt, str};
+
+use secrecy::{ExposeSecret, SecretString};
 
 use crate::{Configuration, MissingValue};
 
@@ -12,7 +14,7 @@ enum DatabaseKind {
     Postgres,
 }
 
-impl FromStr for DatabaseKind {
+impl str::FromStr for DatabaseKind {
     type Err = MissingValue;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
@@ -51,7 +53,7 @@ pub struct DatabaseConnectionConfig {
     username: String,
 
     #[confik(secret)]
-    password: String,
+    password: SecretString,
 
     path: String,
 }
@@ -72,12 +74,15 @@ impl fmt::Display for DatabaseConnectionConfig {
         write!(
             f,
             "{}://{}:{}@{}",
-            self.database, self.username, self.password, self.path
+            self.database,
+            self.username,
+            self.password.expose_secret(),
+            self.path
         )
     }
 }
 
-impl FromStr for DatabaseConnectionConfig {
+impl str::FromStr for DatabaseConnectionConfig {
     type Err = MissingValue;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
@@ -100,8 +105,24 @@ impl FromStr for DatabaseConnectionConfig {
         Ok(Self {
             database,
             username: username.to_owned(),
-            password: password.to_owned(),
+            password: SecretString::new(password.to_owned()),
             path: path.to_owned(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_connection_string() {
+        let db_config = "mysql://root:foo@localhost:3307"
+            .parse::<DatabaseConnectionConfig>()
+            .unwrap();
+        assert_eq!(db_config.database, DatabaseKind::Mysql);
+        assert_eq!(db_config.username, "root");
+        assert_eq!(db_config.password.expose_secret(), "foo");
+        assert_eq!(db_config.path, "localhost:3307");
     }
 }
