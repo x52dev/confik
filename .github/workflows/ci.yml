@@ -19,16 +19,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         toolchain:
-          - '1.66' # MSRV
-          - stable
+          - { name: msrv, version: '1.66' }
+          - { name: stable, version: stable }
+
+    name: Test / ${{ matrix.toolchain.name }}
     steps:
       - uses: actions/checkout@v3
-      - name: Install Rust
+      - name: Install Rust (${{ matrix.toolchain.name }})
         uses: actions-rust-lang/setup-rust-toolchain@v1.5.0
         with:
-          components: clippy
+          toolchain: ${{ matrix.toolchain.version }}
 
       - name: Test
         run: |
