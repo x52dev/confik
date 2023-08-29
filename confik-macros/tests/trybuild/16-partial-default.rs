@@ -26,18 +26,8 @@ fn def(num: usize) -> PartiallyPresent {
 }
 
 fn main() {
-    let target = ConfigBuilder::<Present>::default()
+    ConfigBuilder::<Present>::default()
         .override_with(TomlSource::new("[partial]\na = 10\n"))
         .try_build()
-        .expect("Failed to build from toml");
-
-    assert_eq!(
-        target,
-        Present {
-            partial: PartiallyPresent {
-                a: Num(3),
-                b: Num(3)
-            }
-        }
-    );
+        .expect_err("Partial configuration with defaults only at higher level should not build");
 }
