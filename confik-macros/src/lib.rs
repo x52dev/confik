@@ -682,11 +682,13 @@ impl RootImplementer {
             None
         };
 
+        let (_impl_generics, type_generics, where_clause) = generics.split_for_impl();
+
         quote_spanned! { target_name.span() =>
-            #[derive(::std::fmt::Debug, ::std::default::Default, ::confik::__exports::__serde::Deserialize, #additional_derives )]
+            #[derive(::std::default::Default, ::confik::__exports::__serde::Deserialize, #additional_derives )]
             #[serde(crate = "::confik::__exports::__serde")]
             #forward_serde
-            #vis #enum_or_struct_token #builder_name #generics
+            #vis #enum_or_struct_token #builder_name #type_generics #where_clause
                 #bracketed_data
             #terminator
         }
