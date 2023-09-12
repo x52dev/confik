@@ -4,9 +4,9 @@
 
 ## 0.10.2
 
-- Remove `Debug` implementation from configuration builders
-- Remove `Debug` implementation requirement for lead configuration
-- Fix `Configuration` derive with `where` clauses
+- Remove `Debug` implementation from configuration builders.
+- Remove `Debug` requirement for leaf configuration.
+- Fix `Configuration` derive with `where` clauses.
 
 ## 0.10.1
 
