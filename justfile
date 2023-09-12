@@ -6,18 +6,21 @@ clippy:
     cargo clippy --workspace --all-features
     cargo hack --feature-powerset --depth=3 clippy --workspace
 
-test:
-    cargo test --package=confik-macros
-    cargo test --package=confik --no-default-features
-    @just test-coverage-codecov
-    @just test-coverage-lcov
-    RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --all-features
+test-msrv:
+    @just test +1.66.0
 
-test-coverage-codecov:
-    cargo llvm-cov --workspace --all-features --codecov --output-path codecov.json
+test toolchain="":
+    cargo {{toolchain}} test --package=confik-macros
+    cargo {{toolchain}} test --package=confik --no-default-features
+    @just test-coverage-codecov {{toolchain}}
+    @just test-coverage-lcov {{toolchain}}
+    RUSTDOCFLAGS="-D warnings" cargo {{toolchain}} doc --workspace --no-deps --all-features
 
-test-coverage-lcov:
-    cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info
+test-coverage-codecov toolchain="":
+    cargo {{toolchain}} llvm-cov --workspace --all-features --codecov --output-path codecov.json
+
+test-coverage-lcov toolchain="":
+    cargo {{toolchain}} llvm-cov --workspace --all-features --lcov --output-path lcov.info
 
 doc:
     RUSTDOCFLAGS="--cfg=docsrs" cargo +nightly doc --no-deps --workspace --all-features
