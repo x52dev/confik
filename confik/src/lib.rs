@@ -6,6 +6,7 @@ use std::{borrow::Cow, ops::Not};
 
 #[doc(hidden)]
 pub use confik_macros::*;
+use serde::de::DeserializeOwned;
 
 use crate::{path::Path, sources::DynSource};
 
@@ -129,7 +130,7 @@ pub trait Configuration: Sized {
 /// missing is not an error.
 /// For trivial cases, this is solved by using an `Option<Configuration>`.
 /// See the worked example on [`Configuration`].
-pub trait ConfigurationBuilder: Default + serde::de::DeserializeOwned {
+pub trait ConfigurationBuilder: Default + DeserializeOwned {
     /// The target that will be converted into. See [`Configuration`].
     type Target;
 
@@ -156,7 +157,7 @@ pub trait ConfigurationBuilder: Default + serde::de::DeserializeOwned {
 /// the worked example on [`Configuration`].
 impl<T> ConfigurationBuilder for Option<T>
 where
-    T: serde::de::DeserializeOwned + Configuration,
+    T: DeserializeOwned + Configuration,
 {
     type Target = T;
 

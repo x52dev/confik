@@ -26,6 +26,7 @@ fn compile_macros() {
     t.pass("tests/trybuild/20-enum.rs");
     t.pass("tests/trybuild/21-field-from.rs");
     t.pass("tests/trybuild/22-dataless-types.rs");
+    t.pass("tests/trybuild/23-where-clause.rs");
 
     t.compile_fail("tests/trybuild/fail-default-parse.rs");
     t.compile_fail("tests/trybuild/fail-default-invalid-expr.rs");

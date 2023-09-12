@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Remove `Debug` implementation from configuration builders
+- Remove `Debug` implementation requirement for lead configuration
+- Fix `Configuration` derive with `where` clauses
+
 ## 0.10.1
 
 - Implement `Configuration` for [`secrecy::SecretString`](https://docs.rs/secrecy/0.8/secrecy/type.SecretString.html). This type is always considered a secret, and can only be loaded from `Source`s which `.allow_secrets()`.
