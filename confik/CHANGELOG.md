@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.11.0
+
 - Add support for `#[confik(try_from = "<ty>")]` field attribute, following the rules of `from` but using `TryFrom`. This will not break existing code unless it contains manual implementations of `Configuration`.
 - Add `FailedTryInto` type.
 - Add `Error::TryInto` variant.
