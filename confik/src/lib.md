@@ -65,16 +65,6 @@ Fields annotated with `#[confik(secret)]` will only be read from secure sources.
 
 If a secret is found in an insecure source, an error will be returned. You can opt into loading secrets on a source-by-source basis.
 
-## Foreign Types
-
-This crate provides implementations of [`Configuration`] for a number of `std` types and the following third-party crates. Implementations for third-party crates are feature gated.
-
-- `chrono`: v0.4
-- `rust_decimal`: v1
-- `url`: v1
-- `uuid`: v1
-- `secrecy`: v0.8
-
 ## Macro usage
 
 The derive macro is called `Configuration` and is used as normal:
@@ -189,7 +179,16 @@ Defaults are specified on a per-field basis.
 
 ### Handling Foreign Types
 
-If there's a foreign type used in your config, then you will not be able to implement [`Configuration`] for it. Instead any type that implements [`Into`] can be used.
+This crate provides implementations of [`Configuration`] for a number of `std` types and the following third-party crates. Implementations for third-party crates are feature gated.
+
+- `chrono`: v0.4
+- `rust_decimal`: v1
+- `url`: v1
+- `uuid`: v1
+- `secrecy`: v0.8
+  - Note: `#[config(secret)]` is not needed (although it is harmless) for `secrecy`'s types as they are always treated as secrets.
+
+If there's another foreign type used in your config, then you will not be able to implement [`Configuration`] for it. Instead any type that implements [`Into`] can be used.
 
 ```
 struct ForeignType {
