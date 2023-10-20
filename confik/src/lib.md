@@ -188,7 +188,7 @@ This crate provides implementations of [`Configuration`] for a number of `std` t
 - `secrecy`: v0.8
   - Note: `#[config(secret)]` is not needed (although it is harmless) for `secrecy`'s types as they are always treated as secrets.
 
-If there's another foreign type used in your config, then you will not be able to implement [`Configuration`] for it. Instead any type that implements [`Into`] can be used.
+If there's another foreign type used in your config, then you will not be able to implement [`Configuration`] for it. Instead any type that implements [`Into`] or [`TryInto`] can be used.
 
 ```
 struct ForeignType {
@@ -209,9 +209,27 @@ impl From<MyForeignTypeCopy> for ForeignType {
 }
 
 #[derive(confik::Configuration)]
+struct MyForeignTypeIsize {
+    data: isize
+}
+
+impl TryFrom<MyForeignTypeIsize> for ForeignType {
+    type Error = <usize as TryFrom<isize>>::Error;
+
+    fn try_from(copy: MyForeignTypeIsize) -> Result<Self, Self::Error> {
+        Ok(Self {
+            data: copy.data.try_into()?,
+        })
+    }
+}
+
+#[derive(confik::Configuration)]
 struct Config {
     #[confik(from = MyForeignTypeCopy)]
-    foreign_data: ForeignType
+    foreign_data: ForeignType,
+
+    #[confik(try_from = MyForeignTypeIsize)]
+    foreign_data_isized: ForeignType,
 }
 ```
 

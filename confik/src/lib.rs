@@ -2,7 +2,7 @@
 #![deny(rust_2018_idioms, nonstandard_style, future_incompatible)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-use std::{borrow::Cow, ops::Not};
+use std::{borrow::Cow, error::Error as StdError, ops::Not};
 
 #[doc(hidden)]
 pub use confik_macros::*;
@@ -55,6 +55,25 @@ pub use self::{
 pub struct MissingValue(Path);
 
 impl MissingValue {
+    /// Prepends a path segment as we return back up the call-stack.
+    #[must_use]
+    pub fn prepend(mut self, path_segment: impl Into<Cow<'static, str>>) -> Self {
+        self.0 .0.push(path_segment.into());
+        self
+    }
+}
+
+/// Captures the path and error of a failed conversion.
+#[derive(Debug, thiserror::Error)]
+#[error("Failed try_into for path `{0}`: {1}")]
+pub struct FailedTryInto(Path, #[source] Box<dyn StdError>);
+
+impl FailedTryInto {
+    /// Creates a new [`Self`] with a blank path.
+    pub fn new(err: impl StdError + 'static) -> Self {
+        Self(Path::new(), Box::new(err))
+    }
+
     /// Prepends a path segment as we return back up the call-stack.
     #[must_use]
     pub fn prepend(mut self, path_segment: impl Into<Cow<'static, str>>) -> Self {
@@ -140,7 +159,7 @@ pub trait ConfigurationBuilder: Default + DeserializeOwned {
 
     /// This will probably delegate to `TryInto` but allows it to be implemented for types foreign
     /// to the library.
-    fn try_build(self) -> Result<Self::Target, MissingValue>;
+    fn try_build(self) -> Result<Self::Target, Error>;
 
     /// Called recursively on each field, aiming to hit all [`SecretBuilder`]s. This is only called
     /// when [`Source::allows_secrets`] is `false`.
@@ -165,8 +184,8 @@ where
         self.or(other)
     }
 
-    fn try_build(self) -> Result<Self::Target, MissingValue> {
-        self.ok_or_else(|| MissingValue(Path::new()))
+    fn try_build(self) -> Result<Self::Target, Error> {
+        self.ok_or_else(|| Error::MissingValue(MissingValue::default()))
     }
 
     /// Should not have an `Option` wrapping a secret as `<Option<T> as ConfigurationBuilder` is

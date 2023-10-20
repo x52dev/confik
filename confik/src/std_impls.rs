@@ -13,7 +13,9 @@ use std::{
 
 use serde::{de::DeserializeOwned, Deserialize};
 
-use crate::{path::Path, Configuration, ConfigurationBuilder, MissingValue, UnexpectedSecret};
+use crate::{
+    path::Path, Configuration, ConfigurationBuilder, Error, MissingValue, UnexpectedSecret,
+};
 
 /// Convenience macro for the large number of foreign library types to implement the
 /// [`Configuration`] using an [`Option`] as their [`ConfigurationBuilder`].
@@ -104,9 +106,9 @@ where
         }
     }
 
-    fn try_build(self) -> Result<Self::Target, MissingValue> {
+    fn try_build(self) -> Result<Self::Target, Error> {
         match self {
-            Self::Unspecified => Err(MissingValue(Path::new())),
+            Self::Unspecified => Err(Error::MissingValue(Default::default())),
             Self::Some(val) => val
                 .into_iter()
                 .map(ConfigurationBuilder::try_build)
@@ -229,9 +231,9 @@ where
         }
     }
 
-    fn try_build(self) -> Result<Self::Target, MissingValue> {
+    fn try_build(self) -> Result<Self::Target, Error> {
         match self {
-            Self::Unspecified => Err(MissingValue(Path::new())),
+            Self::Unspecified => Err(Error::MissingValue(Default::default())),
             Self::Some(val) => val
                 .into_iter()
                 .map(|(key, value)| Ok((key, value.try_build()?)))
@@ -331,16 +333,20 @@ where
         self.map(|us| us.merge(iter.next().unwrap()))
     }
 
-    fn try_build(self) -> Result<Self::Target, MissingValue> {
+    fn try_build(self) -> Result<Self::Target, Error> {
         self.into_iter()
             .enumerate()
             .map(|(index, val)| {
-                val.try_build()
-                    .map_err(|err| err.prepend(index.to_string()))
+                val.try_build().map_err(|err| match err {
+                    Error::MissingValue(err) => Error::MissingValue(err.prepend(index.to_string())),
+                    err => err,
+                })
             })
             .collect::<Result<Vec<_>, _>>()?
             .try_into()
-            .map_err(|vec: Vec<_>| MissingValue(Path::new()).prepend(vec.len().to_string()))
+            .map_err(|vec: Vec<_>| {
+                Error::MissingValue(MissingValue(Path::new()).prepend(vec.len().to_string()))
+            })
     }
 
     fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
@@ -370,7 +376,7 @@ impl<T> ConfigurationBuilder for PhantomData<T> {
         self
     }
 
-    fn try_build(self) -> Result<Self::Target, MissingValue> {
+    fn try_build(self) -> Result<Self::Target, Error> {
         Ok(self)
     }
 
@@ -437,7 +443,7 @@ where
         }
     }
 
-    fn try_build(self) -> Result<Self::Target, MissingValue> {
+    fn try_build(self) -> Result<Self::Target, Error> {
         match self {
             Self::Unspecified | Self::None => Ok(None),
             Self::Some(val) => Ok(Some(val.try_build()?)),
