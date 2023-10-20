@@ -1,7 +1,7 @@
 //! User-facing error types.
 //!
-//! Although in theory [`UnexpectedSecret`] and [`MissingValue`] are also user facing, they are entirely
-//! handled by the `derive` internals, so is counted as internal.
+//! Although in theory [`UnexpectedSecret`] and [`MissingValue`] are also user facing, they are
+//! entirely handled by the `derive` internals, so is counted as internal.
 
 use std::{borrow::Cow, error::Error as StdError};
 

@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use serde::{de::DeserializeOwned, Deserialize};
 use thiserror::Error;
 
-use crate::{path::Path, Configuration, ConfigurationBuilder, Error};
+use crate::{path::Path, Configuration, ConfigurationBuilder, Error, MissingValue};
 
 /// Captures the path of a secret found in a non-secret source.
 #[derive(Debug, Default, Error)]
@@ -79,7 +79,7 @@ where
 
     fn try_build(self) -> Result<Self::Target, Error> {
         self.0
-            .ok_or_else(|| Error::MissingValue(Default::default()))
+            .ok_or_else(|| Error::MissingValue(MissingValue::default()))
     }
 
     /// Should not have an `Option` wrapping a secret as `<Option<T> as ConfigurationBuilder` is

@@ -2,8 +2,10 @@
 
 ## Unreleased
 
-- Add support for `try_from` attribute, following the rules of `from` but using `TryFrom`. Note: This required a change in the return type of `try_build` and a new `Error` variant.
-  - This will not break existing code unless it contains manual implementations of `Configuration`.
+- Add support for `#[confik(try_from = "<ty>")]` field attribute, following the rules of `from` but using `TryFrom`. This will not break existing code unless it contains manual implementations of `Configuration`.
+- Add `FailedTryInto` type.
+- Add `Error::TryInto` variant.
+- `.try_build()` methods now use `Error` as their return type.
 
 ## 0.10.2
 

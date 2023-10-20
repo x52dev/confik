@@ -13,9 +13,7 @@ use std::{
 
 use serde::{de::DeserializeOwned, Deserialize};
 
-use crate::{
-    path::Path, Configuration, ConfigurationBuilder, Error, MissingValue, UnexpectedSecret,
-};
+use crate::{Configuration, ConfigurationBuilder, Error, MissingValue, UnexpectedSecret};
 
 /// Convenience macro for the large number of foreign library types to implement the
 /// [`Configuration`] using an [`Option`] as their [`ConfigurationBuilder`].
@@ -108,7 +106,7 @@ where
 
     fn try_build(self) -> Result<Self::Target, Error> {
         match self {
-            Self::Unspecified => Err(Error::MissingValue(Default::default())),
+            Self::Unspecified => Err(Error::MissingValue(MissingValue::default())),
             Self::Some(val) => val
                 .into_iter()
                 .map(ConfigurationBuilder::try_build)
@@ -233,7 +231,7 @@ where
 
     fn try_build(self) -> Result<Self::Target, Error> {
         match self {
-            Self::Unspecified => Err(Error::MissingValue(Default::default())),
+            Self::Unspecified => Err(Error::MissingValue(MissingValue::default())),
             Self::Some(val) => val
                 .into_iter()
                 .map(|(key, value)| Ok((key, value.try_build()?)))
@@ -345,7 +343,7 @@ where
             .collect::<Result<Vec<_>, _>>()?
             .try_into()
             .map_err(|vec: Vec<_>| {
-                Error::MissingValue(MissingValue(Path::new()).prepend(vec.len().to_string()))
+                Error::MissingValue(MissingValue::default().prepend(vec.len().to_string()))
             })
     }
 
@@ -353,8 +351,8 @@ where
         self.iter()
             .map(ConfigurationBuilder::contains_non_secret_data)
             .enumerate()
-            .try_fold(false, |accum, (index, val)| {
-                Ok(val.map_err(|err| err.prepend(index.to_string()))? || accum)
+            .try_fold(false, |has_secret, (index, val)| {
+                Ok(val.map_err(|err| err.prepend(index.to_string()))? || has_secret)
             })
     }
 }

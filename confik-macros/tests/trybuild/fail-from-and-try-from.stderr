@@ -1,17 +1,17 @@
 error: Cannot support both `try_from` and `from` confik attributes
- --> tests/trybuild/fail-from-and-try_from.rs:6:25
+ --> tests/trybuild/fail-from-and-try-from.rs:6:25
   |
 6 |     #[confik(try_from = A, from = B)]
   |                         ^
 
 error: Cannot support both `try_from` and `from` confik attributes
- --> tests/trybuild/fail-from-and-try_from.rs:6:35
+ --> tests/trybuild/fail-from-and-try-from.rs:6:35
   |
 6 |     #[confik(try_from = A, from = B)]
   |                                   ^
 
 error[E0599]: no function or associated item named `builder` found for struct `Config` in the current scope
-  --> tests/trybuild/fail-from-and-try_from.rs:42:26
+  --> tests/trybuild/fail-from-and-try-from.rs:42:26
    |
 5  | struct Config {
    | ------------- function or associated item `builder` not found for this struct

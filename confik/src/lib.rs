@@ -8,8 +8,6 @@ use std::{borrow::Cow, error::Error as StdError, ops::Not};
 pub use confik_macros::*;
 use serde::de::DeserializeOwned;
 
-use crate::{path::Path, sources::DynSource};
-
 #[doc(hidden)]
 pub mod __exports {
     /// Re-export [`Deserialize`] for use in case `serde` is not otherwise used
@@ -48,6 +46,7 @@ pub use self::{
     secrets::{SecretBuilder, SecretOption, UnexpectedSecret},
     sources::{file_source::FileSource, Source},
 };
+use self::{path::Path, sources::DynSource};
 
 /// Captures the path of a missing value.
 #[derive(Debug, Default, thiserror::Error)]
@@ -65,12 +64,12 @@ impl MissingValue {
 
 /// Captures the path and error of a failed conversion.
 #[derive(Debug, thiserror::Error)]
-#[error("Failed try_into for path `{0}`: {1}")]
-pub struct FailedTryInto(Path, #[source] Box<dyn StdError>);
+#[error("Failed try_into for path `{0}`")]
+pub struct FailedTryInto(Path, #[source] Box<dyn StdError + Send + Sync>);
 
 impl FailedTryInto {
     /// Creates a new [`Self`] with a blank path.
-    pub fn new(err: impl StdError + 'static) -> Self {
+    pub fn new(err: impl StdError + Send + Sync + 'static) -> Self {
         Self(Path::new(), Box::new(err))
     }
 

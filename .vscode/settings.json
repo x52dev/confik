@@ -6,6 +6,7 @@
     "dataless",
     "deserializations",
     "docsrs",
+    "impls",
     "indoc",
     "msrv",
     "rustc",
