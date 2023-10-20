@@ -27,6 +27,7 @@ fn compile_macros() {
     t.pass("tests/trybuild/21-field-from.rs");
     t.pass("tests/trybuild/22-dataless-types.rs");
     t.pass("tests/trybuild/23-where-clause.rs");
+    t.pass("tests/trybuild/24-field-try_from.rs");
 
     t.compile_fail("tests/trybuild/fail-default-parse.rs");
     t.compile_fail("tests/trybuild/fail-default-invalid-expr.rs");
@@ -37,4 +38,5 @@ fn compile_macros() {
     t.compile_fail("tests/trybuild/fail-uncreatable-type.rs");
     t.compile_fail("tests/trybuild/fail-not-a-type.rs");
     t.compile_fail("tests/trybuild/fail-default-not-expression.rs");
+    t.compile_fail("tests/trybuild/fail-from-and-try_from.rs");
 }

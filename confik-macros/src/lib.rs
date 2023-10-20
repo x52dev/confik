@@ -46,6 +46,26 @@ impl FromMeta for FieldFrom {
     }
 }
 
+/// Handles `try_from` attributes for dealing with foreign types.
+#[derive(Debug)]
+struct FieldTryFrom {
+    ty: Type,
+}
+
+impl FromMeta for FieldTryFrom {
+    fn from_expr(ty: &Expr) -> darling::Result<Self> {
+        let Ok(ty) = parse2(ty.to_token_stream()) else {
+            return Err(syn::Error::new(
+                ty.span(),
+                format!("Unable to parse type from: {}", ty.to_token_stream()),
+            )
+            .into());
+        };
+
+        Ok(Self { ty })
+    }
+}
+
 /// Handles requesting to forward `serde` attributes.
 #[derive(Debug)]
 struct ForwardSerde {
@@ -115,7 +135,7 @@ struct VariantImplementer {
 
 impl VariantImplementer {
     /// Define the builder variant for a given target variant
-    fn define_builder(var_impl: &SpannedValue<Self>) -> TokenStream {
+    fn define_builder(var_impl: &SpannedValue<Self>) -> syn::Result<TokenStream> {
         let Self {
             ident,
             fields,
@@ -126,17 +146,17 @@ impl VariantImplementer {
         let field_vec = fields
             .iter()
             .map(FieldImplementer::define_builder)
-            .collect::<Vec<_>>();
+            .collect::<Result<Vec<_>, _>>()?;
         let fields = ast::Fields::new(fields.style, field_vec).into_token_stream();
 
         let discriminant = discriminant
             .as_ref()
             .map(|disc| quote_spanned!(disc.span() => = discriminant));
 
-        quote_spanned! { var_impl.span() =>
+        Ok(quote_spanned! { var_impl.span() =>
             #forward_serde
             #ident #fields #discriminant
-        }
+        })
     }
 
     fn impl_merge(var_impl: &SpannedValue<Self>) -> TokenStream {
@@ -297,6 +317,10 @@ struct FieldImplementer {
     /// Enables handling foreign types.
     from: Option<FieldFrom>,
 
+    /// A type which implements `Configuration`, for which the field implements `TryFrom`.
+    /// Enables handling foreign types.
+    try_from: Option<FieldTryFrom>,
+
     /// The field name, if a named field.
     ///
     /// If not, then you will probably want to enumerate through the list of these and
@@ -351,13 +375,14 @@ impl FieldImplementer {
     }
 
     /// Define the builder field for a given target field.
-    fn define_builder(field_impl: &SpannedValue<Self>) -> TokenStream {
+    fn define_builder(field_impl: &SpannedValue<Self>) -> syn::Result<TokenStream> {
         let Self {
             ty,
             ident,
             secret,
             forward_serde,
             from,
+            try_from,
             ..
         } = field_impl.as_ref();
 
@@ -367,7 +392,17 @@ impl FieldImplementer {
 
         // Builder type based on original field type via [`confik::Configuration`]
         // If `from` is set, then use that type instead.
-        let ty = from.as_ref().map_or(ty, |from| &from.ty);
+        let ty = match (from, try_from) {
+            (Some(from), Some(try_from)) => {
+                let msg = "Cannot support both `try_from` and `from` confik attributes";
+                let mut err = syn::Error::new(try_from.ty.span(), msg);
+                err.combine(syn::Error::new(from.ty.span(), msg));
+                return Err(err);
+            }
+            (Some(FieldFrom { ty }), None) | (None, Some(FieldTryFrom { ty })) => ty,
+            (None, None) => ty,
+        };
+
         let ty = quote_spanned!(ty.span() => <#ty as ::confik::Configuration>::Builder);
 
         // If secret then wrap in [`confik::SecretBuilder`]
@@ -377,11 +412,11 @@ impl FieldImplementer {
             ty
         };
 
-        quote_spanned! { ident.span() =>
+        Ok(quote_spanned! { ident.span() =>
                 #[serde(default)]
                 #forward_serde
                 #ident #ty
-        }
+        })
     }
 
     /// Define how to merge the given field in a struct impl.
@@ -476,6 +511,12 @@ impl FieldImplementer {
         if field_impl.from.is_some() {
             field_build = quote_spanned! {
                 field_build.span() => #field_build.into()
+            }
+        } else if field_impl.try_from.is_some() {
+            field_build = quote_spanned! {
+                field_build.span() => #field_build.try_into().map_err(|e|
+                    ::confik::FailedTryInto::new(e)
+                )?
             }
         }
 
@@ -618,7 +659,7 @@ impl RootImplementer {
     }
 
     /// Defines the builder for the target.
-    fn define_builder(&self) -> TokenStream {
+    fn define_builder(&self) -> syn::Result<TokenStream> {
         let Self {
             ident: target_name,
             data,
@@ -648,7 +689,7 @@ impl RootImplementer {
                 let variants = variants
                     .iter()
                     .map(VariantImplementer::define_builder)
-                    .collect::<Vec<_>>();
+                    .collect::<Result<Vec<_>, _>>()?;
 
                 quote_spanned! { target_name.span() =>
                     {
@@ -665,7 +706,7 @@ impl RootImplementer {
                 let field_vec = fields
                     .iter()
                     .map(FieldImplementer::define_builder)
-                    .collect::<Vec<_>>();
+                    .collect::<Result<Vec<_>, _>>()?;
                 ast::Fields::new(fields.style, field_vec).into_token_stream()
             }
         };
@@ -684,14 +725,14 @@ impl RootImplementer {
 
         let (_impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
-        quote_spanned! { target_name.span() =>
+        Ok(quote_spanned! { target_name.span() =>
             #[derive(::std::default::Default, ::confik::__exports::__serde::Deserialize, #additional_derives )]
             #[serde(crate = "::confik::__exports::__serde")]
             #forward_serde
             #vis #enum_or_struct_token #builder_name #type_generics #where_clause
                 #bracketed_data
             #terminator
-        }
+        })
     }
 
     /// Implement the `ConfigurationBuilder::merge` method for our builder.
@@ -757,7 +798,7 @@ impl RootImplementer {
                     .collect::<Vec<_>>();
                 quote! {
                     Ok(match self {
-                        Self::ConfigBuilderUndefined => return Err(<::confik::MissingValue as ::std::default::Default>::default()),
+                        Self::ConfigBuilderUndefined => return Err(::confik::Error::MissingValue(<::confik::MissingValue as ::std::default::Default>::default())),
                         #( #variants, )*
                     })
                 }
@@ -767,7 +808,7 @@ impl RootImplementer {
         quote! {
             // Allow useless conversions as the default handling may call `.into()` unnecessarily.
             #[allow(clippy::useless_conversion)]
-            fn try_build(self) -> ::std::result::Result<Self::Target, ::confik::MissingValue> {
+            fn try_build(self) -> ::std::result::Result<Self::Target, ::confik::Error> {
                 #field_build
             }
         }
@@ -859,7 +900,7 @@ impl RootImplementer {
 fn derive_macro_builder_inner(target_struct: DeriveInput) -> syn::Result<proc_macro::TokenStream> {
     let implementer = RootImplementer::from_derive_input(&target_struct)?;
     implementer.check_valid()?;
-    let builder_struct = implementer.define_builder();
+    let builder_struct = implementer.define_builder()?;
     let builder_impl = implementer.impl_builder();
     let target_impl = implementer.impl_target();
 
