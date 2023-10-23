@@ -7,7 +7,7 @@ clippy:
     cargo hack --feature-powerset --depth=3 clippy --workspace
 
 test-msrv:
-    @just test +1.66.0
+    @just test +1.67.0
 
 test toolchain="":
     cargo {{toolchain}} test --package=confik-macros
