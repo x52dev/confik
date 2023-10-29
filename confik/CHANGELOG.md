@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Minimum supported Rust version (MSRV) is now 1.67 due to `toml_edit` dependency.
+
 ## 0.11.0
 
 - Add support for `#[confik(try_from = "<ty>")]` field attribute, following the rules of `from` but using `TryFrom`. This will not break existing code unless it contains manual implementations of `Configuration`.
