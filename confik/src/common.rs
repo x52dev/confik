@@ -16,9 +16,9 @@ impl str::FromStr for DatabaseKind {
     type Err = MissingValue;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        match input {
-            "mysql" => Ok(Self::Mysql),
-            "postgres" => Ok(Self::Postgres),
+        match () {
+            _ if input.eq_ignore_ascii_case("mysql") => Ok(Self::Mysql),
+            _ if input.eq_ignore_ascii_case("postgres") => Ok(Self::Postgres),
             _ => Err(Self::Err::default()),
         }
     }
