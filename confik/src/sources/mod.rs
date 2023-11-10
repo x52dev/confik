@@ -35,8 +35,26 @@ where
     }
 }
 
+/// A source to fallback to the provided `Default::default()` implementation, where one exists.
+///
+/// This will take priority over any `#[confik(default = ...)]`. The main usecase for this would
+/// be where the default values for a set of fields require some processing and so you might end up
+/// with a struct like:
+/// ```
+/// #[derive(Configuration)]
+/// struct Config {
+///     #[confik(default = "Config::default().field_1")]
+///     field_1: usize,
+///     #[confik(default = "Config::default().field_2")]
+///     field_2: usize,
+///     #[confik(default = "Config::default().field_3")]
+///     field_3: usize,
+/// }
+/// ```
+///
+/// Otherwise it is recommended to use `#[confik(default = ...)]` for its finer grained control.
 #[derive(Debug)]
-pub(crate) struct DefaultSource;
+pub struct DefaultSource;
 
 impl<T> DynSource<T> for DefaultSource
 where

@@ -44,7 +44,7 @@ pub use self::{
     builder::ConfigBuilder,
     errors::Error,
     secrets::{SecretBuilder, SecretOption, UnexpectedSecret},
-    sources::{file_source::FileSource, Source},
+    sources::{file_source::FileSource, DefaultSource, Source},
 };
 use self::{path::Path, sources::DynSource};
 
