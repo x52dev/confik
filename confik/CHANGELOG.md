@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Implement `Configuration` for  [`ipnetwork::IpNetwork`](https://docs.rs/ipnetwork/latest/ipnetwork/enum.IpNetwork.html).
+## 0.11.2
+
+- Implement `Configuration` for [`ipnetwork::IpNetwork`](https://docs.rs/ipnetwork/0.20/ipnetwork/enum.IpNetwork.html).
 
 ## 0.11.1
 

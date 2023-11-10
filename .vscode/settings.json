@@ -8,6 +8,7 @@
     "docsrs",
     "impls",
     "indoc",
+    "ipnetwork",
     "msrv",
     "rustc",
     "rustversion",

@@ -3,8 +3,8 @@
 <!-- prettier-ignore-start -->
 
 [![crates.io](https://img.shields.io/crates/v/confik?label=latest)](https://crates.io/crates/confik)
-[![Documentation](https://docs.rs/confik/badge.svg?version=0.11.1)](https://docs.rs/confik/0.11.1)
-[![dependency status](https://deps.rs/crate/confik/0.11.1/status.svg)](https://deps.rs/crate/confik/0.11.1)
+[![Documentation](https://docs.rs/confik/badge.svg?version=0.11.2)](https://docs.rs/confik/0.11.2)
+[![dependency status](https://deps.rs/crate/confik/0.11.2/status.svg)](https://deps.rs/crate/confik/0.11.2)
 ![MIT or Apache 2.0 licensed](https://img.shields.io/crates/l/confik.svg)
 <br />
 [![CI](https://github.com/x52dev/confik/actions/workflows/ci.yml/badge.svg)](https://github.com/x52dev/confik/actions/workflows/ci.yml)
