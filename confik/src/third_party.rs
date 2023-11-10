@@ -16,6 +16,17 @@ mod chrono {
     }
 }
 
+#[cfg(feature = "ipnetwork")]
+mod ipnetwork {
+    use ipnetwork::IpNetwork;
+
+    use crate::Configuration;
+
+    impl Configuration for IpNetwork {
+        type Builder = Option<Self>;
+    }
+}
+
 #[cfg(feature = "rust_decimal")]
 mod decimal {
     use rust_decimal::Decimal;
@@ -24,6 +35,17 @@ mod decimal {
 
     impl Configuration for Decimal {
         type Builder = Option<Self>;
+    }
+}
+
+#[cfg(feature = "secrecy")]
+mod secrecy {
+    use secrecy::SecretString;
+
+    use crate::{Configuration, SecretOption};
+
+    impl Configuration for SecretString {
+        type Builder = SecretOption<Self>;
     }
 }
 
@@ -46,16 +68,5 @@ mod uuid {
 
     impl Configuration for Uuid {
         type Builder = Option<Self>;
-    }
-}
-
-#[cfg(feature = "secrecy")]
-mod secrecy {
-    use secrecy::SecretString;
-
-    use crate::{Configuration, SecretOption};
-
-    impl Configuration for SecretString {
-        type Builder = SecretOption<Self>;
     }
 }

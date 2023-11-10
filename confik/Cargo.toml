@@ -31,6 +31,7 @@ toml = ["dep:toml"]
 # Destination types
 common = []
 chrono = ["dep:chrono"]
+ipnetwork = ["dep:ipnetwork"]
 rust_decimal = ["dep:rust_decimal"]
 url = ["dep:url"]
 uuid = ["dep:uuid"]
@@ -48,6 +49,7 @@ serde_json = { version = "1", optional = true }
 toml = { version = "0.8", optional = true, default-features = false, features = ["parse"] }
 
 chrono = { version = "0.4.20", optional = true, default-features = false }
+ipnetwork = { version = "0.20", optional = true, features = [ "serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
 secrecy = { version = "0.8", optional = true, features = ["serde"] }
 url = { version = "2", optional = true, features = ["serde"] }

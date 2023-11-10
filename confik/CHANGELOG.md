@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Implement `Configuration` for  [`ipnetwork::IpNetwork`](https://docs.rs/ipnetwork/latest/ipnetwork/enum.IpNetwork.html).
+
 ## 0.11.1
 
 - Parsing of database kind is now case-insensitive.
