@@ -30,6 +30,7 @@ toml = ["dep:toml"]
 
 # Destination types
 common = []
+camino = ["dep:camino"]
 chrono = ["dep:chrono"]
 ipnetwork = ["dep:ipnetwork"]
 rust_decimal = ["dep:rust_decimal"]
@@ -48,16 +49,16 @@ envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.8", optional = true, default-features = false, features = ["parse"] }
 
+camino = { version = "1", optional = true, features = ["serde1"] }
 chrono = { version = "0.4.20", optional = true, default-features = false }
-ipnetwork = { version = "0.20", optional = true, features = [ "serde"] }
+ipnetwork = { version = "0.20", optional = true, features = ["serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
 secrecy = { version = "0.8", optional = true, features = ["serde"] }
 url = { version = "2", optional = true, features = ["serde"] }
 uuid = { version = "1", optional = true, features = ["serde"] }
 
-
 [dev-dependencies]
-assert_matches = "1.5.0"
+assert_matches = "1.5"
 humantime-serde = "1"
 indoc = "2"
 serde_with = "3"
@@ -70,7 +71,7 @@ required-features = ["toml"]
 
 [[example]]
 name = "derives"
-required-features = ["toml"]
+required-features = ["toml", "camino"]
 
 [[example]]
 name = "secret_string"

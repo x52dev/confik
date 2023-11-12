@@ -10,17 +10,18 @@ test-msrv:
     @just test +1.67.0
 
 test toolchain="":
-    cargo {{toolchain}} test --package=confik-macros
-    cargo {{toolchain}} test --package=confik --no-default-features
-    @just test-coverage-codecov {{toolchain}}
-    @just test-coverage-lcov {{toolchain}}
-    RUSTDOCFLAGS="-D warnings" cargo {{toolchain}} doc --workspace --no-deps --all-features
+    cargo {{ toolchain }} test --package=confik-macros
+    cargo {{ toolchain }} test --package=confik --no-default-features
+    cargo {{ toolchain }} test --package=confik --all-features
+    @just test-coverage-codecov {{ toolchain }}
+    @just test-coverage-lcov {{ toolchain }}
+    RUSTDOCFLAGS="-D warnings" cargo {{ toolchain }} doc --workspace --no-deps --all-features
 
 test-coverage-codecov toolchain="":
-    cargo {{toolchain}} llvm-cov --workspace --all-features --codecov --output-path codecov.json
+    cargo {{ toolchain }} llvm-cov --workspace --all-features --codecov --output-path codecov.json
 
 test-coverage-lcov toolchain="":
-    cargo {{toolchain}} llvm-cov --workspace --all-features --lcov --output-path lcov.info
+    cargo {{ toolchain }} llvm-cov --workspace --all-features --lcov --output-path lcov.info
 
 doc:
     RUSTDOCFLAGS="--cfg=docsrs" cargo +nightly doc --no-deps --workspace --all-features

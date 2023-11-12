@@ -1,6 +1,13 @@
 //! Implementations of [`Configuration`](crate::Configuration) for frequently used types from other
 //! crates.
 
+#[cfg(feature = "camino")]
+mod camino {
+    impl crate::Configuration for camino::Utf8PathBuf {
+        type Builder = Option<Self>;
+    }
+}
+
 #[cfg(feature = "chrono")]
 mod chrono {
     use chrono::{DateTime, TimeZone};
