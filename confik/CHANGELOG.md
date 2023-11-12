@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.11.3
+
 - Implement `Configuration` for [`camino::Utf8PathBuf`](https://docs.rs/camino/1/camino/struct.Utf8PathBuf.html).
 
 ## 0.11.2
