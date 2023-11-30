@@ -1,4 +1,5 @@
 //! Check that the `from` attribute works
+
 use confik::{Configuration, TomlSource};
 
 #[derive(Debug, Configuration, PartialEq, Eq)]

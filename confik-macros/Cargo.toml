@@ -22,7 +22,9 @@ syn = { version = "2", features = ["extra-traits"] }
 [dev-dependencies]
 assert_matches = "1.5"
 confik = "0.11"
+indoc = "2"
 rustversion = "1"
 serde = { version = "1", features = ["derive"] }
+serde-bool = "0.1"
 toml = "0.8"
 trybuild = { version = "1", features = ["diff"] }
