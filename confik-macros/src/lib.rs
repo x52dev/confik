@@ -863,8 +863,6 @@ impl RootImplementer {
         let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
         quote! {
-            #[allow(clippy::needless_question_mark)]
-            #[automatically_derived]
             impl #impl_generics ::confik::ConfigurationBuilder  for #builder_name #type_generics #where_clause {
                 type Target = #target_name #type_generics;
 
@@ -904,13 +902,36 @@ fn derive_macro_builder_inner(target_struct: DeriveInput) -> syn::Result<proc_ma
     let builder_impl = implementer.impl_builder();
     let target_impl = implementer.impl_target();
 
+    let overall_lint_overrides = quote! {
+        #[doc(hidden)] // crate docs should cover builders' uses.
+    };
+
+    let impl_lint_overrides = quote! {
+        #[allow(clippy::needless_question_mark)] // Some `?` are used to simplify code generation even when they're not needed
+        #[automatically_derived] // Turns off some passes that make sense for automatically derived impls.
+    };
+
+    // These lints mostly consist of lints that are [allowed by default] but may be enabled by users.
+    //
+    // [allow by default]: https://doc.rust-lang.org/rustc/lints/listing/allowed-by-default.html
+    let struct_lint_overrides = quote! {
+        #[allow(
+            missing_copy_implementations, // Some builders may be able to be `Copy` but do not benefit from it.
+            missing_debug_implementations, // Builders do not need `Debug` by default, can be opted in where needed.
+            variant_size_differences, // We add an empty enum varaint (`*Undefined`) which may be much smaller than other variants.
+        )]
+    };
+
     let full_derive = quote! {
-        #[doc(hidden)]
+        #overall_lint_overrides
         const _: () = {
+            #impl_lint_overrides
             #target_impl
 
+            #struct_lint_overrides
             #builder_struct
 
+            #impl_lint_overrides
             #builder_impl
         };
     };
