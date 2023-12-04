@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.11.4
+
 - Override the following lints in macro generated code: `missing_copy_implementations`, `missing_debug_implementations`, `variant_size_differences`
 
 ## 0.11.3
