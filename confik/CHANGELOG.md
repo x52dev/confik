@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Override the following lints in macro generated code: `missing_copy_implementations`, `missing_debug_implementations`, `variant_size_differences`
+
 ## 0.11.3
 
 - Implement `Configuration` for [`camino::Utf8PathBuf`](https://docs.rs/camino/1/camino/struct.Utf8PathBuf.html).
