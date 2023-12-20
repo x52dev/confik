@@ -30,13 +30,13 @@ mod hashbrown {
         hash::{BuildHasher, Hash},
     };
 
+    use hashbrown::{HashMap, HashSet};
+    use serde::de::DeserializeOwned;
+
     use crate::{
         std_impls::{BuilderOf, KeyedContainer, KeyedContainerBuilder, UnkeyedContainerBuilder},
         Configuration,
     };
-
-    use hashbrown::{HashMap, HashSet};
-    use serde::de::DeserializeOwned;
 
     impl<K, V, S> KeyedContainer for HashMap<K, V, S>
     where

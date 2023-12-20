@@ -127,8 +127,9 @@ where
                 .map(ConfigurationBuilder::contains_non_secret_data)
                 .enumerate()
                 .find(|(_index, result)| result.is_err())
-                .map(|(index, result)| result.map_err(|err| err.prepend(index.to_string())))
-                .unwrap_or(Ok(true)),
+                .map_or(Ok(true), |(index, result)| {
+                    result.map_err(|err| err.prepend(index.to_string()))
+                }),
 
             Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
         }
@@ -251,8 +252,9 @@ where
                 .into_iter()
                 .map(|(key, value)| (key, value.contains_non_secret_data()))
                 .find(|(_key, result)| result.is_err())
-                .map(|(key, result)| result.map_err(|err| err.prepend(key.to_string())))
-                .unwrap_or(Ok(true)),
+                .map_or(Ok(true), |(key, result)| {
+                    result.map_err(|err| err.prepend(key.to_string()))
+                }),
 
             Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
         }

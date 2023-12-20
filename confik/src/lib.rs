@@ -92,7 +92,7 @@ where
         .into_iter()
         // Convert each source to a `Target::Builder`
         .map::<Result<Target::Builder, Error>, _>(|s: Box<dyn DynSource<Target::Builder> + 'a>| {
-            let debug = || format!("{:?}", s);
+            let debug = || format!("{s:?}");
             let res = s.provide().map_err(|e| Error::Source(e, debug()))?;
             if s.allows_secrets().not() {
                 res.contains_non_secret_data()
