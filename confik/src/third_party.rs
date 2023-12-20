@@ -23,6 +23,58 @@ mod chrono {
     }
 }
 
+#[cfg(feature = "hashbrown")]
+mod hashbrown {
+    use std::{
+        fmt::Display,
+        hash::{BuildHasher, Hash},
+    };
+
+    use crate::{
+        std_impls::{BuilderOf, KeyedContainer, KeyedContainerBuilder, UnkeyedContainerBuilder},
+        Configuration,
+    };
+
+    use hashbrown::{HashMap, HashSet};
+    use serde::de::DeserializeOwned;
+
+    impl<K, V, S> KeyedContainer for HashMap<K, V, S>
+    where
+        K: Hash + Eq,
+        S: BuildHasher + Default,
+    {
+        type Key = K;
+        type Value = V;
+
+        fn insert(&mut self, k: Self::Key, v: Self::Value) {
+            self.insert(k, v);
+        }
+
+        fn remove(&mut self, k: &Self::Key) -> Option<Self::Value> {
+            self.remove(k)
+        }
+    }
+
+    impl<K, V, S> Configuration for HashMap<K, V, S>
+    where
+        K: Hash + Eq + Display + DeserializeOwned + 'static,
+        V: Configuration,
+        BuilderOf<V>: 'static,
+        S: Default + BuildHasher + 'static,
+    {
+        type Builder = KeyedContainerBuilder<HashMap<K, BuilderOf<V>, S>, Self>;
+    }
+
+    impl<T, S> Configuration for HashSet<T, S>
+    where
+        T: Configuration + Eq + Hash,
+        BuilderOf<T>: Hash + Eq + 'static,
+        S: BuildHasher + Default + 'static,
+    {
+        type Builder = UnkeyedContainerBuilder<HashSet<BuilderOf<T>, S>, Self>;
+    }
+}
+
 #[cfg(feature = "ipnetwork")]
 mod ipnetwork {
     use ipnetwork::IpNetwork;

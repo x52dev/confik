@@ -54,11 +54,11 @@ impl_multi_source_via_option! {
 // Containers
 
 // Type aliases for easier reading
-type KeyOf<C> = <C as KeyedContainer>::Key;
-type ItemOf<C> = <C as IntoIterator>::Item;
-type ValueOf<C> = <C as KeyedContainer>::Value;
-type TargetOf<B> = <B as ConfigurationBuilder>::Target;
-type BuilderOf<T> = <T as Configuration>::Builder;
+pub type KeyOf<C> = <C as KeyedContainer>::Key;
+pub type ItemOf<C> = <C as IntoIterator>::Item;
+pub type ValueOf<C> = <C as KeyedContainer>::Value;
+pub type TargetOf<B> = <B as ConfigurationBuilder>::Target;
+pub type BuilderOf<T> = <T as Configuration>::Builder;
 
 /// Builder type for unkeyed containers such as [`Vec`] (as opposed to keyed containers like
 /// [`HashMap`]).
@@ -161,7 +161,7 @@ where
 }
 
 /// Trait governing access to keyed containers
-trait KeyedContainer {
+pub trait KeyedContainer {
     type Key;
     type Value;
 
