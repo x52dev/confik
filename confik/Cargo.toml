@@ -1,6 +1,6 @@
 [package]
 name = "confik"
-version = "0.11.4"
+version = "0.11.5"
 description = "A library for reading application configuration split across multiple sources"
 authors = ["Rob Ede <robjtede@icloud.com>"]
 keywords = ["parser", "serde", "utility", "config"]

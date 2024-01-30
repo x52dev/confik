@@ -2,8 +2,10 @@
 
 ## Unreleased
 
-- Implement `Configuration` for [`chrono::NaiveDate`](https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDate.html)
-- Implement `Configuration` for [`chrono::NaiveTime`](https://docs.rs/chrono/latest/chrono/naive/struct.NaiveTime.html)
+## 0.11.5
+
+- Implement `Configuration` for [`chrono::NaiveDate`](https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html).
+- Implement `Configuration` for [`chrono::NaiveTime`](https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveTime.html).
 
 ## 0.11.4
 
