@@ -10,7 +10,7 @@ mod camino {
 
 #[cfg(feature = "chrono")]
 mod chrono {
-    use chrono::{DateTime, TimeZone};
+    use chrono::{DateTime, NaiveDate, NaiveTime, TimeZone};
     use serde::de::DeserializeOwned;
 
     use crate::Configuration;
@@ -20,6 +20,69 @@ mod chrono {
         Self: DeserializeOwned,
     {
         type Builder = Option<Self>;
+    }
+
+    impl Configuration for NaiveTime {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for NaiveDate {
+        type Builder = Option<Self>;
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use crate::TomlSource;
+
+        #[test]
+        fn naive_time_format() {
+            use chrono::NaiveTime;
+
+            use crate::Configuration;
+
+            #[derive(Configuration)]
+            struct Config {
+                time: NaiveTime,
+            }
+
+            let toml = r#"
+                time = "10:00"
+            "#;
+
+            assert_eq!(
+                Config::builder()
+                    .override_with(TomlSource::new(toml))
+                    .try_build()
+                    .unwrap()
+                    .time,
+                NaiveTime::from_hms_opt(10, 0, 0).unwrap()
+            );
+        }
+
+        #[test]
+        fn naive_date_format() {
+            use chrono::NaiveDate;
+
+            use crate::Configuration;
+
+            #[derive(Configuration)]
+            struct Config {
+                date: NaiveDate,
+            }
+
+            let toml = r#"
+                date = "2013-08-09"
+            "#;
+
+            assert_eq!(
+                Config::builder()
+                    .override_with(TomlSource::new(toml))
+                    .try_build()
+                    .unwrap()
+                    .date,
+                NaiveDate::from_ymd_opt(2013, 8, 9).unwrap()
+            );
+        }
     }
 }
 
