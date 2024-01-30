@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Implement `Configuration` for [`chrono::NaiveDate`](https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDate.html)
+- Implement `Configuration` for [`chrono::NaiveTime`](https://docs.rs/chrono/latest/chrono/naive/struct.NaiveTime.html)
+
 ## 0.11.4
 
 - Override the following lints in macro generated code: `missing_copy_implementations`, `missing_debug_implementations`, `variant_size_differences`
