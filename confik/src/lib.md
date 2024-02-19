@@ -181,6 +181,7 @@ Defaults are specified on a per-field basis.
 
 This crate provides implementations of [`Configuration`] for a number of `std` types and the following third-party crates. Implementations for third-party crates are feature gated.
 
+- `bytesize`: v1
 - `camino`: v1
 - `chrono`: v0.4
 - `ipnetwork`: v0.20

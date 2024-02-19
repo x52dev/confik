@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.11.6
+
+- Implement `Configuration` for [`bytesize::ByteSize`](https://docs.rs/bytesize/1/bytesize/struct.ByteSize.html).
+
 ## 0.11.5
 
 - Implement `Configuration` for [`chrono::NaiveDate`](https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html).
