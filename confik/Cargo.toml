@@ -29,6 +29,7 @@ json = ["dep:serde_json"]
 toml = ["dep:toml"]
 
 # Destination types
+bytesize = ["dep:bytesize"]
 common = []
 camino = ["dep:camino"]
 chrono = ["dep:chrono"]
@@ -49,6 +50,7 @@ envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.8", optional = true, default-features = false, features = ["parse"] }
 
+bytesize = { version = "1", optional = true, features = ["serde"] }
 camino = { version = "1", optional = true, features = ["serde1"] }
 chrono = { version = "0.4.20", optional = true, default-features = false, features = ["serde"] }
 ipnetwork = { version = "0.20", optional = true, features = ["serde"] }

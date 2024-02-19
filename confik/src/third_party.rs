@@ -1,6 +1,13 @@
 //! Implementations of [`Configuration`](crate::Configuration) for frequently used types from other
 //! crates.
 
+#[cfg(feature = "bytesize")]
+mod bytesize {
+    impl crate::Configuration for bytesize::ByteSize {
+        type Builder = Option<Self>;
+    }
+}
+
 #[cfg(feature = "camino")]
 mod camino {
     impl crate::Configuration for camino::Utf8PathBuf {
@@ -86,17 +93,6 @@ mod chrono {
     }
 }
 
-#[cfg(feature = "ipnetwork")]
-mod ipnetwork {
-    use ipnetwork::IpNetwork;
-
-    use crate::Configuration;
-
-    impl Configuration for IpNetwork {
-        type Builder = Option<Self>;
-    }
-}
-
 #[cfg(feature = "rust_decimal")]
 mod decimal {
     use rust_decimal::Decimal;
@@ -104,6 +100,17 @@ mod decimal {
     use crate::Configuration;
 
     impl Configuration for Decimal {
+        type Builder = Option<Self>;
+    }
+}
+
+#[cfg(feature = "ipnetwork")]
+mod ipnetwork {
+    use ipnetwork::IpNetwork;
+
+    use crate::Configuration;
+
+    impl Configuration for IpNetwork {
         type Builder = Option<Self>;
     }
 }
