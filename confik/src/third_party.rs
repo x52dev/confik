@@ -1,6 +1,13 @@
 //! Implementations of [`Configuration`](crate::Configuration) for frequently used types from other
 //! crates.
 
+#[cfg(feature = "bytesize")]
+mod bytesize {
+    impl crate::Configuration for bytesize::ByteSize {
+        type Builder = Option<Self>;
+    }
+}
+
 #[cfg(feature = "camino")]
 mod camino {
     impl crate::Configuration for camino::Utf8PathBuf {
