@@ -147,3 +147,14 @@ mod uuid {
         type Builder = Option<Self>;
     }
 }
+
+#[cfg(feature = "bigdecimal")]
+mod bigdecimal {
+    use bigdecimal::BigDecimal;
+
+    use crate::Configuration;
+
+    impl Configuration for BigDecimal {
+        type Builder = Option<Self>;
+    }
+}

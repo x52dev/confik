@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Implement `Configuration` for [`bigdecimal::BigDecimal`](https://docs.rs/bigdecimal/0.4.3/bigdecimal/struct.BigDecimal.html).
+
 ## 0.11.6
 
 - Implement `Configuration` for [`bytesize::ByteSize`](https://docs.rs/bytesize/1/bytesize/struct.ByteSize.html).

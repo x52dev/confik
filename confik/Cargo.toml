@@ -16,8 +16,8 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [package.metadata.cargo-machete]
 ignored = [
-  "humantime_serde", # used in serde macro attributes
-  "serde_with",      # used in doctests
+    "humantime_serde", # used in serde macro attributes
+    "serde_with", # used in doctests
 ]
 
 [features]
@@ -38,6 +38,7 @@ rust_decimal = ["dep:rust_decimal"]
 url = ["dep:url"]
 uuid = ["dep:uuid"]
 secrecy = ["dep:secrecy"]
+bigdecimal = ["dep:bigdecimal"]
 
 [dependencies]
 confik-macros = "=0.11.1"
@@ -50,6 +51,7 @@ envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.8", optional = true, default-features = false, features = ["parse"] }
 
+bigdecimal = { version = "0.4.3", optional = true, features = ["serde"] }
 bytesize = { version = "1", optional = true, features = ["serde"] }
 camino = { version = "1", optional = true, features = ["serde1"] }
 chrono = { version = "0.4.20", optional = true, default-features = false, features = ["serde"] }
@@ -78,3 +80,7 @@ required-features = ["toml", "camino"]
 [[example]]
 name = "secret_string"
 required-features = ["toml", "secrecy"]
+
+[[example]]
+name = "bigdecimal"
+required-features = ["toml", "bigdecimal"]
