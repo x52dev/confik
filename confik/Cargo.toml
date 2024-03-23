@@ -16,8 +16,8 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [package.metadata.cargo-machete]
 ignored = [
-    "humantime_serde", # used in serde macro attributes
-    "serde_with", # used in doctests
+  "humantime_serde", # used in serde macro attributes
+  "serde_with",      # used in doctests
 ]
 
 [features]
