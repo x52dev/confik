@@ -181,16 +181,15 @@ Defaults are specified on a per-field basis.
 
 This crate provides implementations of [`Configuration`] for a number of `std` types and the following third-party crates. Implementations for third-party crates are feature gated.
 
+- `bigdecimal`: v0.4
 - `bytesize`: v1
 - `camino`: v1
 - `chrono`: v0.4
 - `ipnetwork`: v0.20
 - `rust_decimal`: v1
+- `secrecy`: v0.8 (Note that `#[config(secret)]` is not needed, although it is harmless, for these types as they are always treated as secrets.)
 - `url`: v1
 - `uuid`: v1
-- `secrecy`: v0.8
-  - Note: `#[config(secret)]` is not needed (although it is harmless) for `secrecy`'s types as they are always treated as secrets.
-- `bigdecimal`: v0.4
 
 If there's another foreign type used in your config, then you will not be able to implement [`Configuration`] for it. Instead any type that implements [`Into`] or [`TryInto`] can be used.
 

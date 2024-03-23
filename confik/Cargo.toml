@@ -1,6 +1,6 @@
 [package]
 name = "confik"
-version = "0.11.6"
+version = "0.11.7"
 description = "A library for reading application configuration split across multiple sources"
 authors = ["Rob Ede <robjtede@icloud.com>"]
 keywords = ["parser", "serde", "utility", "config"]
@@ -29,16 +29,16 @@ json = ["dep:serde_json"]
 toml = ["dep:toml"]
 
 # Destination types
+bigdecimal = ["dep:bigdecimal"]
 bytesize = ["dep:bytesize"]
-common = []
 camino = ["dep:camino"]
 chrono = ["dep:chrono"]
+common = []
 ipnetwork = ["dep:ipnetwork"]
 rust_decimal = ["dep:rust_decimal"]
+secrecy = ["dep:secrecy"]
 url = ["dep:url"]
 uuid = ["dep:uuid"]
-secrecy = ["dep:secrecy"]
-bigdecimal = ["dep:bigdecimal"]
 
 [dependencies]
 confik-macros = "=0.11.1"
