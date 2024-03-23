@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Implement `Configuration` for [`bigdecimal::BigDecimal`](https://docs.rs/bigdecimal/0.4.3/bigdecimal/struct.BigDecimal.html).
+- Implement `Configuration` for [`bigdecimal::BigDecimal`](https://docs.rs/bigdecimal/0.4/bigdecimal/struct.BigDecimal.html).
 
 ## 0.11.6
 
