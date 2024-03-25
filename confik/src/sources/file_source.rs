@@ -1,6 +1,7 @@
 use std::{error::Error, path::PathBuf};
 
 use cfg_if::cfg_if;
+use log::debug;
 use thiserror::Error;
 
 use crate::{ConfigurationBuilder, Source};
@@ -40,6 +41,7 @@ enum FileErrorKind {
 pub struct FileSource {
     path: PathBuf,
     allow_secrets: bool,
+    can_be_optional: bool,
 }
 
 impl FileSource {
@@ -54,12 +56,19 @@ impl FileSource {
         Self {
             path: path.into(),
             allow_secrets: false,
+            can_be_optional: false,
         }
     }
 
     /// Allows this source to contain secrets.
     pub fn allow_secrets(mut self) -> Self {
         self.allow_secrets = true;
+        self
+    }
+    /// Allows the underlying configuration file represented by this [FileSource] to be missing.
+    /// It won't be considered an error if the file is not found.
+    pub fn allow_missing(mut self) -> Self {
+        self.can_be_optional = true;
         self
     }
 
@@ -98,12 +107,24 @@ impl Source for FileSource {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
-        self.deserialize().map_err(|err| {
-            Box::new(FileError {
-                path: self.path.clone(),
-                kind: err,
-            }) as _
+    fn provide<T: ConfigurationBuilder>(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>> {
+        let deserialized = self.deserialize();
+
+        Some(match deserialized {
+            Ok(configuration) => Ok(configuration),
+            Err(file_error_kind) => {
+                if let FileErrorKind::CouldNotReadFile(_) = file_error_kind {
+                    if self.can_be_optional {
+                        // Optional resources are allowed to be missing
+                        debug!("Optional file source {:?} not found. Ignoring.", self.path);
+                        return None;
+                    }
+                }
+                Err(Box::new(FileError {
+                    path: self.path.clone(),
+                    kind: file_error_kind,
+                }) as _)
+            }
         })
     }
 }
@@ -163,6 +184,13 @@ mod tests {
         );
 
         dir.close().unwrap();
+    }
+
+    #[test]
+    fn allow_missing() {
+        let source = FileSource::new("non-existent-config.toml").allow_missing();
+        let config = source.provide::<Option<NoopConfig>>();
+        assert!(config.is_none());
     }
 
     #[cfg(feature = "json")]

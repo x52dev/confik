@@ -2,37 +2,15 @@
 #![deny(rust_2018_idioms, nonstandard_style, future_incompatible)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
+// Enable use of macros inside the crate
+#[allow(unused_extern_crates)] // false positive
+extern crate self as confik;
+
 use std::{borrow::Cow, error::Error as StdError, ops::Not};
 
 #[doc(hidden)]
 pub use confik_macros::*;
 use serde::de::DeserializeOwned;
-
-#[doc(hidden)]
-pub mod __exports {
-    /// Re-export [`Deserialize`] for use in case `serde` is not otherwise used
-    /// whilst we are.
-    ///
-    /// As serde then calls into other serde functions, we need to re-export the whole of serde,
-    /// instead of just [`Deserialize`].
-    ///
-    /// [`Deserialize`]: serde::Deserialize
-    pub use serde as __serde;
-}
-
-// Enable use of macros inside the crate
-#[allow(unused_extern_crates)] // false positive
-extern crate self as confik;
-
-mod builder;
-#[cfg(feature = "common")]
-pub mod common;
-mod errors;
-mod path;
-mod secrets;
-mod sources;
-mod std_impls;
-mod third_party;
 
 #[cfg(feature = "env")]
 pub use self::sources::env_source::EnvSource;
@@ -47,6 +25,28 @@ pub use self::{
     sources::{file_source::FileSource, Source},
 };
 use self::{path::Path, sources::DynSource};
+
+#[doc(hidden)]
+pub mod __exports {
+    /// Re-export [`Deserialize`] for use in case `serde` is not otherwise used
+    /// whilst we are.
+    ///
+    /// As serde then calls into other serde functions, we need to re-export the whole of serde,
+    /// instead of just [`Deserialize`].
+    ///
+    /// [`Deserialize`]: serde::Deserialize
+    pub use serde as __serde;
+}
+
+mod builder;
+#[cfg(feature = "common")]
+pub mod common;
+mod errors;
+mod path;
+mod secrets;
+mod sources;
+mod std_impls;
+mod third_party;
 
 /// Captures the path of a missing value.
 #[derive(Debug, Default, thiserror::Error)]
@@ -91,15 +91,26 @@ where
     sources
         .into_iter()
         // Convert each source to a `Target::Builder`
-        .map::<Result<Target::Builder, Error>, _>(|s: Box<dyn DynSource<Target::Builder> + 'a>| {
-            let debug = || format!("{:?}", s);
-            let res = s.provide().map_err(|e| Error::Source(e, debug()))?;
-            if s.allows_secrets().not() {
-                res.contains_non_secret_data()
-                    .map_err(|e| Error::UnexpectedSecret(e, debug()))?;
-            }
-            Ok(res)
-        })
+        .filter_map::<Result<Target::Builder, Error>, _>(
+            |s: Box<dyn DynSource<Target::Builder> + 'a>| {
+                let debug = || format!("{:?}", s);
+                let content = s.provide()?;
+                let res = content.map_err(|e| Error::Source(e, debug()));
+
+                Some(match res {
+                    Ok(result) => {
+                        if let (true, Err(unexpected_secret)) =
+                            (s.allows_secrets().not(), result.contains_non_secret_data())
+                        {
+                            Err(Error::UnexpectedSecret(unexpected_secret, debug()))
+                        } else {
+                            Ok(result)
+                        }
+                    }
+                    Err(err) => Err(err),
+                })
+            },
+        )
         // Merge the builders
         .reduce(|first, second| Ok(Target::Builder::merge(first?, second?)))
         // If there was no data then we're missing values

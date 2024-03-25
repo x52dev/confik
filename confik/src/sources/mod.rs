@@ -13,12 +13,13 @@ pub trait Source: Debug {
     }
 
     /// Attempts to provide a partial configuration object from this source.
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>>;
+    /// If the source is optional and not present, this method should return `None`.
+    fn provide<T: ConfigurationBuilder>(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>>;
 }
 
 pub(crate) trait DynSource<T>: Debug {
     fn allows_secrets(&self) -> bool;
-    fn provide(&self) -> Result<T, Box<dyn Error + Sync + Send>>;
+    fn provide(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>>;
 }
 
 impl<S, T> DynSource<T> for S
@@ -30,7 +31,7 @@ where
         <S as Source>::allows_secrets(self)
     }
 
-    fn provide(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
+    fn provide(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>> {
         <S as Source>::provide(self)
     }
 }
@@ -46,8 +47,8 @@ where
         true
     }
 
-    fn provide(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
-        Ok(T::default())
+    fn provide(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>> {
+        Some(Ok(T::default()))
     }
 }
 

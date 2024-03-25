@@ -34,8 +34,12 @@ impl<'a> Source for TomlSource<'a> {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
-        Ok(toml::from_str(&self.contents)?)
+    fn provide<T: ConfigurationBuilder>(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>> {
+        let configuration = toml::from_str(&self.contents);
+        match configuration {
+            Ok(configuration) => Some(Ok(configuration)),
+            Err(error) => Some(Err(Box::new(error))),
+        }
     }
 }
 

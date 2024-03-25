@@ -30,8 +30,12 @@ impl<'a> Source for JsonSource<'a> {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
-        Ok(serde_json::from_str(&self.contents)?)
+    fn provide<T: ConfigurationBuilder>(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>> {
+        let configuration = serde_json::from_str(&self.contents);
+        match configuration {
+            Ok(configuration) => Some(Ok(configuration)),
+            Err(error) => Some(Err(Box::new(error))),
+        }
     }
 }
 

@@ -80,8 +80,12 @@ impl<'a> Source for EnvSource<'a> {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
-        Ok(self.config.build_from_env()?)
+    fn provide<T: ConfigurationBuilder>(&self) -> Option<Result<T, Box<dyn Error + Sync + Send>>> {
+        let configuration = self.config.build_from_env();
+        match configuration {
+            Ok(configuration) => Some(Ok(configuration)),
+            Err(error) => Some(Err(Box::new(error))),
+        }
     }
 }
 
