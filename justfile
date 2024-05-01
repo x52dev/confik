@@ -1,9 +1,10 @@
 _list:
     @just --list
 
+# Lint workspace with Clippy
 clippy:
     cargo clippy --workspace --no-default-features
-    cargo clippy --workspace --all-features
+    cargo clippy --workspace --no-default-features --all-features
     cargo hack --feature-powerset --depth=3 clippy --workspace
 
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
@@ -31,27 +32,33 @@ test toolchain="": (test-no-coverage toolchain)
     @just test-coverage-codecov {{ toolchain }}
     @just test-coverage-lcov {{ toolchain }}
 
+# Test workspace and generate Codecov coverage file
 test-coverage-codecov toolchain="":
     cargo {{ toolchain }} llvm-cov --workspace --all-features --codecov --output-path codecov.json
 
+# Test workspace and generate LCOV coverage file
 test-coverage-lcov toolchain="":
     cargo {{ toolchain }} llvm-cov --workspace --all-features --lcov --output-path lcov.info
 
+# Document workspace
 doc:
     RUSTDOCFLAGS="--cfg=docsrs" cargo +nightly doc --no-deps --workspace --all-features
 
+# Document workspace and watch for changes
 doc-watch:
     RUSTDOCFLAGS="--cfg=docsrs" cargo +nightly doc --no-deps --workspace --all-features --open
     cargo watch -- RUSTDOCFLAGS="--cfg=docsrs" cargo +nightly doc --no-deps --workspace --all-features
 
+# Check project
 check:
     just --unstable --fmt --check
-    npx -y prettier --check '**/*.md'
-    taplo lint
+    prettier --check $(fd --hidden --extension=md --extension=yml)
+    taplo lint $(fd --hidden --extension=toml)
     cargo +nightly fmt -- --check
 
+# Format project
 fmt:
     just --unstable --fmt
-    npx -y prettier --write '**/*.md'
-    taplo format
+    prettier --write $(fd --hidden --extension=md --extension=yml)
+    taplo format $(fd --hidden --extension=toml)
     cargo +nightly fmt

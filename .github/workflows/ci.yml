@@ -44,4 +44,4 @@ jobs:
         run: just downgrade-msrv
 
       - name: Test
-        run: just test
+        run: just test-no-coverage
