@@ -1,14 +1,14 @@
 [package]
 name = "confik-macros"
 version = "0.11.1"
-authors = ["Rob Ede <robjtede@icloud.com>"]
 description = "Macros for confik"
-keywords = ["parser", "serde", "utility", "config"]
-categories = ["config"]
-repository = "https://github.com/x52dev/confik"
-license = "MIT OR Apache-2.0"
-edition = "2021"
-rust-version = "1.67"
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [lib]
 proc-macro = true
