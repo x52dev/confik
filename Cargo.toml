@@ -1,6 +1,15 @@
 [workspace]
-members = ["confik", "confik-macros"]
 resolver = "2"
+members = ["./confik", "./confik-macros"]
+
+[workspace.package]
+authors = ["Rob Ede <robjtede@icloud.com>"]
+keywords = ["parser", "serde", "utility", "config"]
+categories = ["config"]
+repository = "https://github.com/x52dev/confik"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+rust-version = "1.67"
 
 [patch.crates-io]
 confik = { path = "confik" }

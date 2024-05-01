@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Minimum supported Rust version (MSRV) is now 1.67 due to `toml_edit` dependency.
+
 ## 0.11.7
 
 - Implement `Configuration` for [`bigdecimal::BigDecimal`](https://docs.rs/bigdecimal/0.4/bigdecimal/struct.BigDecimal.html).

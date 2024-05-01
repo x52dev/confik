@@ -28,19 +28,20 @@ jobs:
     name: Test / ${{ matrix.toolchain.name }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Rust (${{ matrix.toolchain.name }})
         uses: actions-rust-lang/setup-rust-toolchain@v1.8.0
         with:
           toolchain: ${{ matrix.toolchain.version }}
 
+      - name: Install just & nextest
+        uses: taiki-e/install-action@v2.29.7
+        with:
+          tool: just,nextest
+
       - name: workaround MSRV issues
         if: matrix.toolchain.name == 'msrv'
-        run: |
-          cargo update -p=toml --precise=0.8.8
-          cargo update -p=toml_edit --precise=0.21.0
+        run: just downgrade-msrv
 
       - name: Test
-        run: |
-          cargo test --package=confik-macros
-          cargo test --package=confik --no-default-features
-          cargo test --package=confik --no-default-features --all-features
+        run: just test
