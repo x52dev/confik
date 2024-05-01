@@ -34,9 +34,6 @@ jobs:
 
       - name: Clippy
         run: just clippy
-          cargo clippy --workspace --no-default-features
-          cargo clippy --workspace --no-default-features --all-features
-          cargo hack --feature-powerset --depth=3 clippy --workspace
 
   rustfmt:
     runs-on: ubuntu-latest
