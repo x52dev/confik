@@ -10,6 +10,6 @@ coverage:
         threshold: 100% # make CI green
 
 ignore:
-  - '**/tests'
-  - '**/benches'
-  - '**/examples'
+  - "**/tests"
+  - "**/benches"
+  - "**/examples"

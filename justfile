@@ -52,13 +52,13 @@ doc-watch:
 # Check project
 check:
     just --unstable --fmt --check
-    prettier --check $(fd --hidden --extension=md --extension=yml)
+    prettier --check $(fd --type=file --hidden --extension=md --extension=yml)
     taplo lint $(fd --hidden --extension=toml)
     cargo +nightly fmt -- --check
 
 # Format project
 fmt:
     just --unstable --fmt
-    prettier --write $(fd --hidden --extension=md --extension=yml)
+    prettier --write $(fd --type=file --hidden --extension=md --extension=yml)
     taplo format $(fd --hidden --extension=toml)
     cargo +nightly fmt
