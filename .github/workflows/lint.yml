@@ -39,6 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Rust (nightly)
         uses: actions-rust-lang/setup-rust-toolchain@v1.8.0
         with:
@@ -51,6 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1.8.0
         with:
