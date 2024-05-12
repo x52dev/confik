@@ -7,6 +7,13 @@ clippy:
     cargo clippy --workspace --no-default-features --all-features
     cargo hack --feature-powerset --depth=3 clippy --workspace
 
+msrv := ```
+    cargo metadata --format-version=1 \
+    | jq -r 'first(.packages[] | select(.source == null and .name == "actix-tls")) | .rust_version' \
+    | sed -E 's/^1\.([0-9]{2})$/1\.\1\.0/'
+```
+msrv_rustup := "+" + msrv
+
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-msrv:
@@ -15,8 +22,7 @@ downgrade-msrv:
     cargo update -p=trybuild --precise=1.0.90
 
 # Test workspace using MSRV
-test-msrv: downgrade-msrv
-    @just test-no-coverage +1.67.0
+test-msrv: downgrade-msrv (test-no-coverage msrv_rustup)
 
 # Test workspace without generating coverage files
 [private]
