@@ -1,5 +1,5 @@
 // only run on MSRV to avoid changes to compiler output causing CI failures
-#[rustversion::stable(1.67)]
+#[rustversion_msrv::msrv]
 #[test]
 fn compile_macros() {
     let t = trybuild::TestCases::new();
