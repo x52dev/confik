@@ -103,6 +103,12 @@ impl<'a, Target: Configuration> ConfigBuilder<'a, Target> {
     }
 
     /// Attempt to build from the provided sources.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if a required value is missing, a secret value was provided in a non-secret
+    /// source, or an error is returned from a source (e.g., invalid TOML). See [`Error`] for more
+    /// details.
     pub fn try_build(&mut self) -> Result<Target, Error> {
         if self.sources.is_empty() {
             build_from_sources([Box::new(DefaultSource) as Box<dyn DynSource<_>>])

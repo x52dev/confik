@@ -20,7 +20,7 @@ mod tests;
 pub fn derive_macro_builder(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let target_struct = parse_macro_input!(input as DeriveInput);
 
-    match derive_macro_builder_inner(target_struct) {
+    match derive_macro_builder_inner(&target_struct) {
         Ok(token_stream) => token_stream,
         Err(err) => err.to_compile_error().into(),
     }
@@ -599,7 +599,7 @@ impl ToTokens for Derive {
 struct RootImplementer {
     /// The ident/name of the target (the struct/enum the derive was called on).
     ///
-    /// To get the builder_name, see [`RootImplementer::builder_name`].
+    /// To get the builder name, see [`RootImplementer::builder_name`].
     ident: Ident,
 
     // #[darling(rename = "ident")]
@@ -716,12 +716,11 @@ impl RootImplementer {
         // present...
         //
         // Therefore, conditionally add the `;`.
-        let terminator = if matches!(&self.data, ast::Data::Struct(fields) if fields.style.is_tuple())
-        {
-            Some(quote!(;))
-        } else {
-            None
-        };
+        let terminator = matches!(
+            &self.data,
+            ast::Data::Struct(fields) if fields.style.is_tuple(),
+        )
+        .then_some(quote!(;));
 
         let (_impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
@@ -895,8 +894,8 @@ impl RootImplementer {
     }
 }
 
-fn derive_macro_builder_inner(target_struct: DeriveInput) -> syn::Result<proc_macro::TokenStream> {
-    let implementer = RootImplementer::from_derive_input(&target_struct)?;
+fn derive_macro_builder_inner(target_struct: &DeriveInput) -> syn::Result<proc_macro::TokenStream> {
+    let implementer = RootImplementer::from_derive_input(target_struct)?;
     implementer.check_valid()?;
     let builder_struct = implementer.define_builder()?;
     let builder_impl = implementer.impl_builder();

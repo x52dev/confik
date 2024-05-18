@@ -14,7 +14,7 @@ const FIELD2_DEFAULT: &str = "Hello World";
 
 #[derive(Configuration, Debug, PartialEq, Eq)]
 struct Config {
-    #[confik(default = 5usize)]
+    #[confik(default = 5_usize)]
     field1: usize,
     #[confik(default = FIELD2_DEFAULT)]
     field2: String,

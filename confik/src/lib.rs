@@ -91,15 +91,17 @@ where
     sources
         .into_iter()
         // Convert each source to a `Target::Builder`
-        .map::<Result<Target::Builder, Error>, _>(|s: Box<dyn DynSource<Target::Builder> + 'a>| {
-            let debug = || format!("{:?}", s);
-            let res = s.provide().map_err(|e| Error::Source(e, debug()))?;
-            if s.allows_secrets().not() {
-                res.contains_non_secret_data()
-                    .map_err(|e| Error::UnexpectedSecret(e, debug()))?;
-            }
-            Ok(res)
-        })
+        .map::<Result<Target::Builder, Error>, _>(
+            |source: Box<dyn DynSource<Target::Builder> + 'a>| {
+                let debug = || format!("{source:?}");
+                let res = source.provide().map_err(|e| Error::Source(e, debug()))?;
+                if source.allows_secrets().not() {
+                    res.contains_non_secret_data()
+                        .map_err(|e| Error::UnexpectedSecret(e, debug()))?;
+                }
+                Ok(res)
+            },
+        )
         // Merge the builders
         .reduce(|first, second| Ok(Target::Builder::merge(first?, second?)))
         // If there was no data then we're missing values

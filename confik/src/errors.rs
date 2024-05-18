@@ -37,6 +37,7 @@ pub enum Error {
 impl Error {
     /// Used in chaining [`MissingValue`] errors during [`crate::Configuration::try_build`].
     #[doc(hidden)]
+    #[must_use]
     pub fn prepend(self, path_segment: impl Into<Cow<'static, str>>) -> Self {
         match self {
             Self::MissingValue(err) => Self::MissingValue(err.prepend(path_segment)),

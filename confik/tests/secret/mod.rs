@@ -113,7 +113,7 @@ mod toml {
 
         assert_matches!(
             &target,
-            Error::UnexpectedSecret(path, _) if path.to_string().contains(&format!("`{}`", expected_path))
+            Error::UnexpectedSecret(path, _) if path.to_string().contains(&format!("`{expected_path}`"))
         );
     }
 
