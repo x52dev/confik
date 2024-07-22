@@ -23,7 +23,7 @@ syn = { version = "2", features = ["extra-traits"] }
 assert_matches = "1.5"
 confik = "0.11"
 indoc = "2"
-rustversion-msrv = "0.99"
+rustversion-msrv = "0.100"
 serde = { version = "1", features = ["derive"] }
 serde-bool = "0.1"
 toml = "0.8"
