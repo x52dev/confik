@@ -56,6 +56,9 @@ pub(crate) mod file_source;
 #[cfg(feature = "toml")]
 pub(crate) mod toml_source;
 
+#[cfg(feature = "json5")]
+pub(crate) mod json5_source;
+
 #[cfg(feature = "json")]
 pub(crate) mod json_source;
 

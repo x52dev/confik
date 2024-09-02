@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Minimum supported Rust version (MSRV) is now 1.67 due to `toml_edit` dependency.
+- Add `Json5` source support under `Json5Source`
 
 ## 0.11.7
 

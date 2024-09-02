@@ -36,6 +36,8 @@ mod third_party;
 
 #[cfg(feature = "env")]
 pub use self::sources::env_source::EnvSource;
+#[cfg(feature = "json5")]
+pub use self::sources::json5_source::Json5Source;
 #[cfg(feature = "json")]
 pub use self::sources::json_source::JsonSource;
 #[cfg(feature = "toml")]
