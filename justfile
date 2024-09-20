@@ -17,8 +17,6 @@ msrv_rustup := "+" + msrv
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-msrv:
-    cargo update -p=toml --precise=0.8.8
-    cargo update -p=toml_edit --precise=0.21.0
     cargo update -p=trybuild --precise=1.0.90
 
 # Test workspace using MSRV

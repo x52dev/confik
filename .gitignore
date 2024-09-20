@@ -1,6 +1,5 @@
 # rust
 /target/
-Cargo.lock
 
 # direnv
 /.direnv/
