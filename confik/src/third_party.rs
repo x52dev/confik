@@ -17,7 +17,7 @@ mod camino {
 
 #[cfg(feature = "chrono")]
 mod chrono {
-    use chrono::{DateTime, NaiveDate, NaiveTime, TimeZone};
+    use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
     use serde::de::DeserializeOwned;
 
     use crate::Configuration;
@@ -34,6 +34,10 @@ mod chrono {
     }
 
     impl Configuration for NaiveDate {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for NaiveDateTime {
         type Builder = Option<Self>;
     }
 

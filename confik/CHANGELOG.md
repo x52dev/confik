@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Minimum supported Rust version (MSRV) is now 1.67 due to `toml_edit` dependency.
+- Implement `Configuration` for [`chrono::NaiveDateTime`](https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html)
 
 ## 0.11.7
 
