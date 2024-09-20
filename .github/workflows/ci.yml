@@ -18,10 +18,9 @@ concurrency:
 jobs:
   read_msrv:
     name: Read MSRV
-    uses: actions-rust-lang/msrv/.github/workflows/msrv.yml@main
+    uses: actions-rust-lang/msrv/.github/workflows/msrv.yml@v0.1.0
 
   test:
-    runs-on: ubuntu-latest
     needs: read_msrv
 
     strategy:
@@ -31,7 +30,10 @@ jobs:
           - { name: msrv, version: "${{ needs.read_msrv.outputs.msrv }}" }
           - { name: stable, version: stable }
 
+    runs-on: ubuntu-latest
+
     name: Test / ${{ matrix.toolchain.name }}
+
     steps:
       - uses: actions/checkout@v4
 
