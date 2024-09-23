@@ -57,7 +57,7 @@ camino = { version = "1", optional = true, features = ["serde1"] }
 chrono = { version = "0.4.20", optional = true, default-features = false, features = ["serde"] }
 ipnetwork = { version = "0.20", optional = true, features = ["serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
-secrecy = { version = "0.8", optional = true, features = ["serde"] }
+secrecy = { version = "0.10", optional = true, features = ["serde"] }
 url = { version = "2", optional = true, features = ["serde"] }
 uuid = { version = "1", optional = true, features = ["serde"] }
 
