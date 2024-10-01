@@ -2,7 +2,7 @@
 mod secrecy {
     use confik::{Configuration, TomlSource};
     use indoc::indoc;
-    use secrecy::{ExposeSecret, SecretString};
+    use secrecy::{ExposeSecret as _, SecretString};
 
     #[test]
     fn secret_string() {
@@ -23,11 +23,11 @@ mod secrecy {
 
         assert_eq!(
             format!("{:?}", config.secret_string),
-            "Secret([REDACTED alloc::string::String])",
+            "SecretBox<str>([REDACTED])",
         );
         assert_eq!(
             format!("{config:?}"),
-            "Config { secret_string: Secret([REDACTED alloc::string::String]) }",
+            "Config { secret_string: SecretBox<str>([REDACTED]) }",
         );
         assert_eq!(config.secret_string.expose_secret(), "SeriouslySecret");
     }
@@ -57,11 +57,11 @@ mod secrecy {
 
         assert_eq!(
             format!("{:?}", config.secret_string),
-            "Secret([REDACTED alloc::string::String])",
+            "SecretBox<str>([REDACTED])",
         );
         assert_eq!(
             format!("{config:?}"),
-            "Config { secret_string: Secret([REDACTED alloc::string::String]) }",
+            "Config { secret_string: SecretBox<str>([REDACTED]) }",
         );
         assert_eq!(config.secret_string.expose_secret(), "SeriouslySecret");
     }

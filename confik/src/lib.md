@@ -187,7 +187,7 @@ This crate provides implementations of [`Configuration`] for a number of `std` t
 - `chrono`: v0.4
 - `ipnetwork`: v0.20
 - `rust_decimal`: v1
-- `secrecy`: v0.8 (Note that `#[config(secret)]` is not needed, although it is harmless, for these types as they are always treated as secrets.)
+- `secrecy`: v0.10 (Note that `#[config(secret)]` is not needed, although it is harmless, for these types as they are always treated as secrets.)
 - `url`: v1
 - `uuid`: v1
 
