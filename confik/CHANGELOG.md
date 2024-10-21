@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.12.0
+
 - Update `secrecy` dependency to `0.10`.
 
 ## 0.11.8
