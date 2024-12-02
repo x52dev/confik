@@ -605,14 +605,14 @@ struct RootImplementer {
     // #[darling(rename = "ident")]
     // target_name: Ident,
     //
-    /// The ident/name of the builder that this will use.
-    ///
-    /// In most cases, this will be a new struct/enum, but in some cases a pre-existing builder,
-    /// e.g. `Option` may be used.
-
+    // /// The ident/name of the builder that this will use.
+    // ///
+    // /// In most cases, this will be a new struct/enum, but in some cases a pre-existing builder,
+    // /// e.g. `Option` may be used.
+    //
     // #[darling(rename = "ident", map = "builder_name")]
     // builder_name: Ident,
-
+    //
     /// Generics from the target, these will be propagated to the builder.
     generics: Generics,
 
