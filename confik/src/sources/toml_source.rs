@@ -29,7 +29,7 @@ impl<'a> TomlSource<'a> {
     }
 }
 
-impl<'a> Source for TomlSource<'a> {
+impl Source for TomlSource<'_> {
     fn allows_secrets(&self) -> bool {
         self.allow_secrets
     }
@@ -39,7 +39,7 @@ impl<'a> Source for TomlSource<'a> {
     }
 }
 
-impl<'a> Debug for TomlSource<'a> {
+impl Debug for TomlSource<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("TomlSource")
             .field("allow_secrets", &self.allow_secrets)

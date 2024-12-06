@@ -25,7 +25,7 @@ impl<'a> JsonSource<'a> {
     }
 }
 
-impl<'a> Source for JsonSource<'a> {
+impl Source for JsonSource<'_> {
     fn allows_secrets(&self) -> bool {
         self.allow_secrets
     }
@@ -35,7 +35,7 @@ impl<'a> Source for JsonSource<'a> {
     }
 }
 
-impl<'a> fmt::Debug for JsonSource<'a> {
+impl fmt::Debug for JsonSource<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("JsonSource")
             .field("allow_secrets", &self.allow_secrets)

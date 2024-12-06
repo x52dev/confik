@@ -118,7 +118,7 @@ impl<'a, Target: Configuration> ConfigBuilder<'a, Target> {
     }
 }
 
-impl<'a, Target: Configuration> Default for ConfigBuilder<'a, Target> {
+impl<Target: Configuration> Default for ConfigBuilder<'_, Target> {
     fn default() -> Self {
         Self {
             sources: Vec::new(),
