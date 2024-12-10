@@ -31,7 +31,7 @@ pub struct EnvSource<'a> {
     allow_secrets: bool,
 }
 
-impl<'a> Default for EnvSource<'a> {
+impl Default for EnvSource<'_> {
     fn default() -> Self {
         Self::new()
     }
@@ -75,7 +75,7 @@ impl<'a> EnvSource<'a> {
     }
 }
 
-impl<'a> Source for EnvSource<'a> {
+impl Source for EnvSource<'_> {
     fn allows_secrets(&self) -> bool {
         self.allow_secrets
     }
