@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Update `ipnetwork` dependency to `0.21`.
+
 ## 0.12.0
 
 - Update `secrecy` dependency to `0.10`.

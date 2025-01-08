@@ -18,6 +18,7 @@ msrv_rustup := "+" + msrv
 [private]
 downgrade-msrv:
     cargo update -p=trybuild --precise=1.0.90
+    cargo update -p=serde_with --precise=3.11.0
 
 # Test workspace using MSRV
 test-msrv: downgrade-msrv (test-no-coverage msrv_rustup)
