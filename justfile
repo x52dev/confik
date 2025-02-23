@@ -16,12 +16,11 @@ msrv_rustup := "+" + msrv
 
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
-downgrade-msrv:
-    cargo update -p=trybuild --precise=1.0.90
-    cargo update -p=serde_with --precise=3.11.0
+downgrade-for-msrv:
+    # no downgrades currently needed
 
 # Test workspace using MSRV
-test-msrv: downgrade-msrv (test-no-coverage msrv_rustup)
+test-msrv: downgrade-for-msrv (test-no-coverage msrv_rustup)
 
 # Test workspace without generating coverage files
 [private]

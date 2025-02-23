@@ -3,6 +3,7 @@ words:
   - bigdecimal
   - bytesize
   - chrono
+  - clippy
   - codecov
   - confik
   - dataless
@@ -15,11 +16,16 @@ words:
   - indoc
   - ipnetwork
   - msrv
+  - nextest
+  - nixpkgs
+  - powerset
   - rustc
   - rustdoc
+  - rustup
   - rustversion
   - serde
   - struct
+  - taplo
   - tempfile
   - thiserror
   - trybuild

@@ -5,7 +5,7 @@ error[E0277]: the trait bound `usize: From<i32>` is not satisfied
   |                        ^----
   |                        |
   |                        the trait `From<i32>` is not implemented for `usize`
-  |                        this tail expression is of type `_`
+  |                        this tail expression is of type `i32`
   |
   = help: the following other types implement trait `From<T>`:
             <usize as From<NonZeroUsize>>
