@@ -1,0 +1,26 @@
+version: "0.2"
+words:
+  - bigdecimal
+  - bytesize
+  - chrono
+  - codecov
+  - confik
+  - dataless
+  - deserializations
+  - docsrs
+  - doctests
+  - formatdoc
+  - humantime
+  - impls
+  - indoc
+  - ipnetwork
+  - msrv
+  - rustc
+  - rustdoc
+  - rustversion
+  - serde
+  - struct
+  - tempfile
+  - thiserror
+  - trybuild
+  - usize
