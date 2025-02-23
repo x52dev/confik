@@ -150,9 +150,9 @@ checksum = "428d9aa8fbc0670b7b8d6030a7fadd0f86151cae55e4dbbece15f3780a3dfaf3"
 
 [[package]]
 name = "bytesize"
-version = "2.0.0-beta.1"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b26f32426af550ab3195cc3da7b115a6f4599b79dd180bb7f1d77d978aa6aaa"
+checksum = "ce3dbc6ab70a821f3e9c36084d4c1a96f50006fd41697123d3fe0a5f03d5912c"
 dependencies = [
  "serde",
 ]
