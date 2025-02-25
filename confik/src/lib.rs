@@ -107,7 +107,6 @@ where
         // If there was no data then we're missing values
         .ok_or_else(|| Error::MissingValue(MissingValue::default()))??
         .try_build()
-        .map_err(Into::into)
 }
 
 /// The target to be deserialized from multiple sources.
