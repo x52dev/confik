@@ -17,7 +17,9 @@ msrv_rustup := "+" + msrv
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-for-msrv:
-    # no downgrades currently needed
+    cargo update -p=litemap --precise=0.7.3 # next ver: 1.71.1
+    cargo update -p=zerofrom --precise=0.1.4 # next ver: 1.71.1
+    cargo update -p=yoke --precise=0.7.4 # next ver: 1.71.1
 
 # Test workspace using MSRV
 test-msrv: downgrade-for-msrv (test-no-coverage msrv_rustup)
