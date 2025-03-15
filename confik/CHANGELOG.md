@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.13.0
+
 - Update `bytesize` dependency to `2`.
 - Update `ipnetwork` dependency to `0.21`.
 - Minimum supported Rust version (MSRV) is now 1.70.
