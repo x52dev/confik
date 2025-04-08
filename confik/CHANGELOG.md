@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Implement `Configuration` for [`js_option::JsOption`](https://docs.rs/js_option/0.1.1/js_option/enum.JsOption.html)
+
 ## 0.13.0
 
 - Update `bytesize` dependency to `2`.
