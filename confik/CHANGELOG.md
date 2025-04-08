@@ -3,6 +3,15 @@
 ## Unreleased
 
 - Implement `Configuration` for [`js_option::JsOption`](https://docs.rs/js_option/0.1.1/js_option/enum.JsOption.html)
+- Add a new `confik(forward(...))` attribute. As well as allowing for forwarding general attributes to the builder, this:
+  - Replaces `confik(forward_serde(...))`. E.g.
+    ```rust
+    #[derive(Configuration)]
+    struct Config {
+      #[confik(forward(serde(default)))]
+      num: usize,
+    }
+    ```
 
 ## 0.13.0
 

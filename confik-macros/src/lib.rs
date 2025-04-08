@@ -66,13 +66,13 @@ impl FromMeta for FieldTryFrom {
     }
 }
 
-/// Handles requesting to forward `serde` attributes.
+/// Handles requesting to forward attributes.
 #[derive(Debug)]
-struct ForwardSerde {
+struct Forward {
     items: Vec<NestedMeta>,
 }
 
-impl ToTokens for ForwardSerde {
+impl ToTokens for Forward {
     fn into_token_stream(self) -> TokenStream {
         self.to_token_stream()
     }
@@ -83,11 +83,11 @@ impl ToTokens for ForwardSerde {
 
     fn to_token_stream(&self) -> TokenStream {
         let Self { items } = self;
-        quote!(#[serde(#( #items ),*)])
+        quote!(#( #[ #items ] )*)
     }
 }
 
-impl FromMeta for ForwardSerde {
+impl FromMeta for Forward {
     fn from_list(items: &[NestedMeta]) -> darling::Result<Self> {
         let items = items.to_vec();
 
@@ -129,8 +129,8 @@ struct VariantImplementer {
     /// Optional explicit override of the variant's discriminant.
     discriminant: Option<Expr>,
 
-    /// Optional attributes to forward to serde.
-    forward_serde: Option<ForwardSerde>,
+    /// Optional attributes to forward to the builder's variant.
+    forward: Option<Forward>,
 }
 
 impl VariantImplementer {
@@ -140,7 +140,7 @@ impl VariantImplementer {
             ident,
             fields,
             discriminant,
-            forward_serde,
+            forward,
         } = var_impl.as_ref();
 
         let field_vec = fields
@@ -154,7 +154,7 @@ impl VariantImplementer {
             .map(|disc| quote_spanned!(disc.span() => = discriminant));
 
         Ok(quote_spanned! { var_impl.span() =>
-            #forward_serde
+            #forward
             #ident #fields #discriminant
         })
     }
@@ -330,8 +330,8 @@ struct FieldImplementer {
     /// The field type.
     ty: Type,
 
-    /// Optional attributes to forward to serde.
-    forward_serde: Option<ForwardSerde>,
+    /// Optional attributes to forward to the builder's field.
+    forward: Option<Forward>,
 }
 
 impl FieldImplementer {
@@ -380,7 +380,7 @@ impl FieldImplementer {
             ty,
             ident,
             secret,
-            forward_serde,
+            forward,
             from,
             try_from,
             ..
@@ -414,7 +414,7 @@ impl FieldImplementer {
 
         Ok(quote_spanned! { ident.span() =>
                 #[serde(default)]
-                #forward_serde
+                #forward
                 #ident #ty
         })
     }
@@ -623,8 +623,8 @@ struct RootImplementer {
     /// `pub`, `pub(crate)`, etc.
     vis: Visibility,
 
-    /// Optional attributes to forward to serde.
-    forward_serde: Option<ForwardSerde>,
+    /// Optional attributes to forward to the builder struct/enum.
+    forward: Option<Forward>,
 
     /// Derives needed by the builder, e.g. `Hash`.
     derive: Option<Derive>,
@@ -665,7 +665,7 @@ impl RootImplementer {
             data,
             generics,
             vis,
-            forward_serde,
+            forward,
             derive: additional_derives,
             ..
         } = self;
@@ -727,7 +727,7 @@ impl RootImplementer {
         Ok(quote_spanned! { target_name.span() =>
             #[derive(::std::default::Default, ::confik::__exports::__serde::Deserialize, #additional_derives )]
             #[serde(crate = "::confik::__exports::__serde")]
-            #forward_serde
+            #forward
             #vis #enum_or_struct_token #builder_name #type_generics #where_clause
                 #bracketed_data
             #terminator

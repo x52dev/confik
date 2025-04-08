@@ -1,22 +1,22 @@
 use confik::Configuration;
 
 #[derive(Configuration, Debug, PartialEq, Eq)]
-#[confik(forward_serde(rename_all = "UPPERCASE"))]
+#[confik(forward(serde(rename_all = "UPPERCASE")))]
 struct Container {
     field: usize,
 }
 
 #[derive(Configuration, Debug, PartialEq, Eq)]
 struct Inner {
-    #[confik(forward_serde(rename = "outer"))]
+    #[confik(forward(serde(rename = "outer")))]
     inner: usize,
 }
 
 #[derive(Configuration, Debug, PartialEq, Eq)]
 struct Field {
-    #[confik(forward_serde(rename = "other_name"))]
+    #[confik(forward(serde(rename = "other_name")))]
     field1: usize,
-    #[confik(forward_serde(flatten))]
+    #[confik(forward(serde(flatten)))]
     field2: Inner,
 }
 
@@ -25,7 +25,7 @@ enum Clothes {
     Hat,
     // Put some data in to force use of a custom builder
     Scarf(usize),
-    #[confik(forward_serde(alias = "Gloves", alias = "SomethingElse"))]
+    #[confik(forward(serde(alias = "Gloves", alias = "SomethingElse")))]
     Other,
 }
 

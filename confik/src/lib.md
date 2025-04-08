@@ -76,19 +76,21 @@ struct Config {
 }
 ```
 
-### Forwarding Attributes To `Deserialize`
+### Forwarding Attributes
 
-The serde attributes used for customizing a `Deserialize` derive typically are achieved by adding `#[confik(forward_serde(...))` attributes.
+The serde attributes used for customizing a `Deserialize` derive typically are achieved by adding `#[confik(forward(serde(...)))]` attributes.
 
 For example:
 
 ```
 #[derive(confik::Configuration)]
 struct Config {
-    #[confik(forward_serde(rename = "other_data"))]
+    #[confik(forward(serde(rename = "other_data")))]
     data: usize,
 }
 ```
+
+This can also be used for non-serde attributes, but this is less commonly needed.
 
 ### Defaults
 
