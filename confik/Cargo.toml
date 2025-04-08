@@ -35,6 +35,7 @@ camino = ["dep:camino"]
 chrono = ["dep:chrono"]
 common = []
 ipnetwork = ["dep:ipnetwork"]
+js_option = ["dep:js_option"]
 rust_decimal = ["dep:rust_decimal"]
 secrecy = ["dep:secrecy"]
 url = ["dep:url"]
@@ -56,6 +57,7 @@ bytesize = { version = "2", optional = true, features = ["serde"] }
 camino = { version = "1", optional = true, features = ["serde1"] }
 chrono = { version = "0.4.40", optional = true, default-features = false, features = ["serde"] }
 ipnetwork = { version = "0.21", optional = true, features = ["serde"] }
+js_option = { version = "0.1", optional = true, features = ["serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
 secrecy = { version = "0.10", optional = true, features = ["serde"] }
 url = { version = "2", optional = true, features = ["serde"] }

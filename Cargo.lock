@@ -208,6 +208,7 @@ dependencies = [
  "humantime-serde",
  "indoc",
  "ipnetwork",
+ "js_option",
  "rust_decimal",
  "secrecy",
  "serde",
@@ -645,6 +646,15 @@ checksum = "1cfaf33c695fc6e08064efbc1f72ec937429614f25eef83af942d0e227c3a28f"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "js_option"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68421373957a1593a767013698dbf206e2b221eefe97a44d98d18672ff38423c"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
