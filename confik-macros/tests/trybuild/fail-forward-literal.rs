@@ -1,5 +1,5 @@
 #[derive(confik::Configuration)]
-#[confik(derive("hello world"))]
+#[confik(forward("hello world"))]
 struct A;
 
 fn main() {}

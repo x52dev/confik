@@ -69,7 +69,7 @@ If a secret is found in an insecure source, an error will be returned. You can o
 
 The derive macro is called `Configuration` and is used as normal:
 
-```
+```rust
 #[derive(confik::Configuration)]
 struct Config {
     data: usize,
@@ -78,19 +78,37 @@ struct Config {
 
 ### Forwarding Attributes
 
-The serde attributes used for customizing a `Deserialize` derive typically are achieved by adding `#[confik(forward(serde(...)))]` attributes.
+This allows forwarding any kind of attribute on to the builder.
+
+#### Serde
+
+The serde attributes used for customizing a `Deserialize` derive are achieved by adding `#[confik(forward(serde(...)))]` attributes.
 
 For example:
 
+```rust
+# use confik::Configuration;
+#[derive(Configuration, Debug, PartialEq, Eq)]
+struct Field {
+    #[confik(forward(serde(rename = "other_name")))]
+    field1: usize,
+}
 ```
-#[derive(confik::Configuration)]
-struct Config {
-    #[confik(forward(serde(rename = "other_data")))]
-    data: usize,
+#### Derives
+
+If you need additional derives for your type, these can be added via `#[confik(forward(derive...))]` attributes.
+
+For example:
+
+```rust
+# use confik::Configuration;
+#[derive(Debug, Configuration, Hash, Eq, PartialEq)]
+#[confik(forward(derive(Hash, Eq, PartialEq)))]
+struct Value {
+    inner: String,
 }
 ```
 
-This can also be used for non-serde attributes, but this is less commonly needed.
 
 ### Defaults
 
@@ -98,7 +116,7 @@ Defaults are specified on a per-field basis.
 
 - Defaults only apply if no data has been read for that field. E.g., if `data` in the below example has one value read in, it will return an error.
 
-  ```
+  ```rust
   # #[cfg(feature = "toml")]
   # {
   use confik::{Configuration, TomlSource};
@@ -150,7 +168,7 @@ Defaults are specified on a per-field basis.
 
 - Defaults can be given by any rust expression, and have [`Into::into`] run over them. E.g.,
 
-  ```
+  ```rust
   const DEFAULT_VALUE: u8 = 4;
 
   #[derive(confik::Configuration)]
@@ -166,7 +184,7 @@ Defaults are specified on a per-field basis.
 
 - Alternatively, a default without a given value called [`Default::default`]. E.g.,
 
-  ```
+  ```rust
   use confik::{Configuration};
 
   #[derive(Configuration)]
@@ -195,7 +213,7 @@ This crate provides implementations of [`Configuration`] for a number of `std` t
 
 If there's another foreign type used in your config, then you will not be able to implement [`Configuration`] for it. Instead any type that implements [`Into`] or [`TryInto`] can be used.
 
-```
+```rust
 struct ForeignType {
     data: usize,
 }

@@ -624,10 +624,10 @@ struct RootImplementer {
     vis: Visibility,
 
     /// Optional attributes to forward to the builder struct/enum.
+    ///
+    /// This can be serde attributes e.g. `#[confik(forward(serde(default)))]` but also others like
+    /// `#[confik(forward(derive(Hash)))]`
     forward: Option<Forward>,
-
-    /// Derives needed by the builder, e.g. `Hash`.
-    derive: Option<Derive>,
 }
 
 impl RootImplementer {
@@ -666,7 +666,6 @@ impl RootImplementer {
             generics,
             vis,
             forward,
-            derive: additional_derives,
             ..
         } = self;
 
@@ -725,7 +724,7 @@ impl RootImplementer {
         let (_impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
         Ok(quote_spanned! { target_name.span() =>
-            #[derive(::std::default::Default, ::confik::__exports::__serde::Deserialize, #additional_derives )]
+            #[derive(::std::default::Default, ::confik::__exports::__serde::Deserialize)]
             #[serde(crate = "::confik::__exports::__serde")]
             #forward
             #vis #enum_or_struct_token #builder_name #type_generics #where_clause

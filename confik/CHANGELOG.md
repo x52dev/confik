@@ -12,6 +12,12 @@
       num: usize,
     }
     ```
+  - Replaces `confik(derive(...))`. E.g.
+    ```rust
+    #[derive(Configuration)]
+    #[confik(forward(derive(Hash)))]
+    struct Config(usize);
+    ```
 
 ## 0.13.0
 

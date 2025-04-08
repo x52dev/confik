@@ -3,7 +3,7 @@ macro_rules! create_tests_for {
         use confik::Configuration;
 
         #[derive(Debug, Configuration, PartialEq, Eq, Hash, Ord, PartialOrd)]
-        #[confik(derive(Hash, PartialEq, Eq, Ord, PartialOrd))]
+        #[confik(forward(derive(Hash, PartialEq, Eq, Ord, PartialOrd)))]
         struct TwoVals {
             first: usize,
             second: usize,
