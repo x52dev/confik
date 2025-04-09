@@ -8,7 +8,7 @@ struct A;
 struct B {}
 
 #[derive(Configuration, Debug)]
-struct C ();
+struct C();
 
 fn main() {
     let _builder = A::builder().try_build().expect("No data required");

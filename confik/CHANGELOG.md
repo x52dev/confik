@@ -18,6 +18,13 @@
     #[confik(forward(derive(Hash)))]
     struct Config(usize);
     ```
+- Add a new `confik(name = ...)` attribute, that provides a custom name for the `Configuration::Builder` `struct` or `enum`.
+  - This will also place the builder in the local module, so that its name is in a known location
+  ```rust
+  #[derive(Configuration)]
+  #[confik(name = Builder)]
+  struct Config {}
+  ```
 
 ## 0.13.0
 
