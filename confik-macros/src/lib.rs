@@ -944,7 +944,6 @@ fn derive_macro_builder_inner(target_struct: &DeriveInput) -> syn::Result<proc_m
                 #impl_lint_overrides
                 #target_impl
 
-                #overall_lint_overrides
                 #impl_lint_overrides
                 #builder_impl
             };

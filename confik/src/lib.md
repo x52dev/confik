@@ -272,7 +272,7 @@ let _ = Builder { data: Default::default() };
 
 ### Field and Builder visibility
 
-Field and builder visibility are direclty inherited from the underlying type. E.g.
+Field and builder visibility are directly inherited from the underlying type. E.g.
 
 ```rust
 mod config {
