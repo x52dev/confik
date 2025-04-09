@@ -1,0 +1,17 @@
+error: expected identifier, found `"hello world"`
+ --> tests/trybuild/fail-forward-literal.rs:2:18
+  |
+2 | #[confik(forward("hello world"))]
+  |                  ^^^^^^^^^^^^^ expected identifier
+
+error: proc-macro derive produced unparsable tokens
+ --> tests/trybuild/fail-forward-literal.rs:1:10
+  |
+1 | #[derive(confik::Configuration)]
+  |          ^^^^^^^^^^^^^^^^^^^^^
+
+error[E0412]: cannot find type `AConfigBuilder` in this scope
+ --> tests/trybuild/fail-forward-literal.rs:3:8
+  |
+3 | struct A;
+  |        ^ not found in this scope

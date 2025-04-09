@@ -9,7 +9,7 @@ struct Config {
 }
 
 #[derive(Debug, Configuration, Hash, Eq, PartialEq)]
-#[confik(derive(Hash, Eq, PartialEq))]
+#[confik(forward(derive(Hash, Eq, PartialEq)))]
 struct Value {
     inner: String,
 }

@@ -1,5 +1,0 @@
-error: Expected a path to a derivable trait, got Lit(Lit::Str { token: "hello world" })
- --> tests/trybuild/fail-derive-literal.rs:2:17
-  |
-2 | #[confik(derive("hello world"))]
-  |                 ^^^^^^^^^^^^^

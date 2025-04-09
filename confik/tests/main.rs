@@ -3,11 +3,11 @@ mod array;
 mod common;
 mod complex_enums;
 mod defaulting_containers;
+mod forward;
 mod keyed_containers;
 mod option_builder;
 mod secret;
 mod secret_option;
-mod serde_forward;
 mod singly_nested_tests;
 mod third_party;
 mod unkeyed_containers;
@@ -84,7 +84,7 @@ mod toml {
     fn from_humantime() {
         #[derive(Debug, PartialEq, Eq, Configuration)]
         struct Config {
-            #[confik(forward_serde(with = "humantime_serde"))]
+            #[confik(forward(serde(with = "humantime_serde")))]
             timeout: Duration,
         }
 
