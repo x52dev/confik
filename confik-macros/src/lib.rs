@@ -330,6 +330,9 @@ struct FieldImplementer {
     /// The field type.
     ty: Type,
 
+    /// `pub`, `pub(crate)`, etc.
+    vis: Visibility,
+
     /// Optional attributes to forward to the builder's field.
     forward: Option<Forward>,
 }
@@ -383,6 +386,7 @@ impl FieldImplementer {
             forward,
             from,
             try_from,
+            vis,
             ..
         } = field_impl.as_ref();
 
@@ -415,7 +419,7 @@ impl FieldImplementer {
         Ok(quote_spanned! { ident.span() =>
                 #[serde(default)]
                 #forward
-                #ident #ty
+                #vis #ident #ty
         })
     }
 
@@ -628,6 +632,11 @@ struct RootImplementer {
     /// This can be serde attributes e.g. `#[confik(forward(serde(default)))]` but also others like
     /// `#[confik(forward(derive(Hash)))]`
     forward: Option<Forward>,
+
+    /// A name to use for the builder.
+    ///
+    /// Setting this also puts the builder in the local module, so that the name is accessible.
+    name: Option<Ident>,
 }
 
 impl RootImplementer {
@@ -655,7 +664,11 @@ impl RootImplementer {
     ///
     /// Use [`Self::is_dataless`] first to determine whether a builder will exist.
     fn builder_name(&self) -> Ident {
-        format_ident!("{}ConfigBuilder", self.ident)
+        if let Some(name) = self.name.as_ref() {
+            name.clone()
+        } else {
+            format_ident!("{}ConfigBuilder", self.ident)
+        }
     }
 
     /// Defines the builder for the target.
@@ -920,18 +933,35 @@ fn derive_macro_builder_inner(target_struct: &DeriveInput) -> syn::Result<proc_m
         )]
     };
 
-    let full_derive = quote! {
-        #overall_lint_overrides
-        const _: () = {
-            #impl_lint_overrides
-            #target_impl
-
+    let full_derive = if implementer.name.is_some() {
+        quote! {
+            #overall_lint_overrides
             #struct_lint_overrides
             #builder_struct
 
-            #impl_lint_overrides
-            #builder_impl
-        };
+            #overall_lint_overrides
+            const _: () = {
+                #impl_lint_overrides
+                #target_impl
+
+                #impl_lint_overrides
+                #builder_impl
+            };
+        }
+    } else {
+        quote! {
+            #overall_lint_overrides
+            const _: () = {
+                #impl_lint_overrides
+                #target_impl
+
+                #struct_lint_overrides
+                #builder_struct
+
+                #impl_lint_overrides
+                #builder_impl
+            };
+        }
     };
 
     Ok(full_derive.into())

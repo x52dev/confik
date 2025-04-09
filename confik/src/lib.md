@@ -256,6 +256,38 @@ struct Config {
 }
 ```
 
+### Named builders
+
+If you want to directly access the builders, you can provide them with a name. This will also place the builder in the local module, to ensure there's a known path with which to reference them.
+
+```rust
+#[derive(confik::Configuration)]
+#[confik(name = Builder)]
+struct Config {
+    data: usize,
+}
+
+let _ = Builder { data: Default::default() };
+```
+
+### Field and Builder visibility
+
+Field and builder visibility are directly inherited from the underlying type. E.g.
+
+```rust
+mod config {
+    #[derive(confik::Configuration)]
+    pub struct Config {
+        pub data: usize,
+    }
+}
+
+// Required as you can't use this syntax for struct initialisation.
+type Builder = <config::Config as confik::Configuration>::Builder;
+
+let _ = Builder { data: Default::default() };
+```
+
 ## Macro Limitations
 
 ### Custom `Deserialize` Implementations
