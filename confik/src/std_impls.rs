@@ -8,6 +8,10 @@ use std::{
     marker::PhantomData,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     path::PathBuf,
+    sync::atomic::{
+        AtomicBool, AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize, AtomicU16, AtomicU32,
+        AtomicU64, AtomicU8, AtomicUsize,
+    },
     time::{Duration, SystemTime},
 };
 
@@ -49,6 +53,11 @@ impl_multi_source_via_option! {
 
     // Other standard types
     String, OsString, PathBuf, char, bool,
+
+    // Atomic types
+    AtomicI8, AtomicI16, AtomicI32, AtomicI64, AtomicIsize,
+    AtomicU8, AtomicU16, AtomicU32, AtomicU64, AtomicUsize,
+    AtomicBool,
 }
 
 // Containers
