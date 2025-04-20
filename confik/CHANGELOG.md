@@ -25,6 +25,14 @@
   #[confik(name = Builder)]
   struct Config {}
   ```
+- Add a new `confik(skip)` attribute. This allows skipping the field in the builder (and so it need not implement `Configuration` or be deserializable), however it must use `confik(default)` or `confik(default = ...)`, otherwise it can't be built. E.g.
+  ```rust
+  #[derive(Configuration)]
+  struct Config {
+    #[confik(skip, default = Instant::now())]
+    loaded_at: Instant,
+  }
+  ```
 
 ## 0.13.0
 
