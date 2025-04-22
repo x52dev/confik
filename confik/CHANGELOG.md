@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.14.0
+
 - Implement `Configuration` for atomic numeric and bool types.
 - Implement `Configuration` for [`js_option::JsOption`](https://docs.rs/js_option/0.1.1/js_option/enum.JsOption.html)
 - Add a new `confik(forward(...))` attribute. As well as allowing for forwarding general attributes to the builder, this:
