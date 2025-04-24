@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Implement `Configuration` for [`ahash::{AHashSet, AHashMap}`](https://docs.rs/ahash/0.8.11/ahash/).
+
 ## 0.14.0
 
 - Implement `Configuration` for atomic numeric and bool types.

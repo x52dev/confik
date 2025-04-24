@@ -170,7 +170,7 @@ where
 }
 
 /// Trait governing access to keyed containers
-trait KeyedContainer {
+pub(crate) trait KeyedContainer {
     type Key;
     type Value;
 

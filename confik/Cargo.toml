@@ -29,6 +29,7 @@ json = ["dep:serde_json"]
 toml = ["dep:toml"]
 
 # Destination types
+ahash = ["dep:ahash"]
 bigdecimal = ["dep:bigdecimal"]
 bytesize = ["dep:bytesize"]
 camino = ["dep:camino"]
@@ -52,6 +53,7 @@ envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.8", optional = true, default-features = false, features = ["parse"] }
 
+ahash = { version = "0.8", optional = true, features = ["serde"] }
 bigdecimal = { version = "0.4", optional = true, features = ["serde"] }
 bytesize = { version = "2", optional = true, features = ["serde"] }
 camino = { version = "1", optional = true, features = ["serde1"] }
@@ -86,3 +88,7 @@ required-features = ["toml", "secrecy"]
 [[example]]
 name = "bigdecimal"
 required-features = ["toml", "bigdecimal"]
+
+[[example]]
+name = "ahash"
+required-features = ["toml", "ahash"]

@@ -218,3 +218,47 @@ mod bigdecimal {
         type Builder = Option<Self>;
     }
 }
+
+#[cfg(feature = "ahash")]
+mod ahash {
+    use std::{fmt::Display, hash::Hash};
+
+    use ahash::{AHashMap, AHashSet};
+    use confik::std_impls::{KeyedContainerBuilder, UnkeyedContainerBuilder};
+    use serde::de::DeserializeOwned;
+
+    use crate::{std_impls::KeyedContainer, Configuration};
+
+    impl<T> Configuration for AHashSet<T>
+    where
+        T: Configuration + Hash + Eq,
+        <T as Configuration>::Builder: Hash + Eq + 'static,
+    {
+        type Builder = UnkeyedContainerBuilder<AHashSet<<T as Configuration>::Builder>, Self>;
+    }
+
+    impl<K, V> KeyedContainer for AHashMap<K, V>
+    where
+        K: Hash + Eq,
+    {
+        type Key = K;
+        type Value = V;
+
+        fn insert(&mut self, k: Self::Key, v: Self::Value) {
+            self.insert(k, v);
+        }
+
+        fn remove(&mut self, k: &Self::Key) -> Option<Self::Value> {
+            self.remove(k)
+        }
+    }
+
+    impl<K, V> Configuration for AHashMap<K, V>
+    where
+        K: Hash + Eq + Display + DeserializeOwned + 'static,
+        V: Configuration,
+        <V as Configuration>::Builder: 'static,
+    {
+        type Builder = KeyedContainerBuilder<AHashMap<K, <V as Configuration>::Builder>, Self>;
+    }
+}
