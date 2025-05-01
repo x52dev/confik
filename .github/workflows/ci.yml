@@ -43,7 +43,7 @@ jobs:
           toolchain: ${{ matrix.toolchain.version }}
 
       - name: Install just, nextest
-        uses: taiki-e/install-action@v2.49.42
+        uses: taiki-e/install-action@v2.50.4
         with:
           tool: just,nextest
 
