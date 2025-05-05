@@ -57,7 +57,7 @@ ahash = { version = "0.8", optional = true, features = ["serde"] }
 bigdecimal = { version = "0.4", optional = true, features = ["serde"] }
 bytesize = { version = "2", optional = true, features = ["serde"] }
 camino = { version = "1", optional = true, features = ["serde1"] }
-chrono = { version = "0.4.40", optional = true, default-features = false, features = ["serde"] }
+chrono = { version = "0.4.41", optional = true, default-features = false, features = ["serde"] }
 ipnetwork = { version = "0.21", optional = true, features = ["serde"] }
 js_option = { version = "0.1", optional = true, features = ["serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
