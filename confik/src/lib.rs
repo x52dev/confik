@@ -28,6 +28,7 @@ mod builder;
 #[cfg(feature = "common")]
 pub mod common;
 mod errors;
+pub mod helpers;
 mod path;
 mod secrets;
 mod sources;
