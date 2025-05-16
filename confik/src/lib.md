@@ -314,3 +314,61 @@ impl confik::Configuration for MyEnum {
 ```
 
 Note that the `Option<Self>` builder type only works for simple types. For more info, see the docs on [`Configuration`] and [`ConfigurationBuilder`].
+
+## Manual implementations
+
+It is strongly recommended to use the `derive` macro where possible. However, there may be cases where this is not possible. For some cases there are additional attributes available in the `derive` macro to tweak the behaviour, see the section on Handling Foreign Types.
+
+If you would like to manually implement `Configuration` for a type anyway, then this can mostly be broken down to three cases.
+
+### Simple cases
+
+If your type cannot be partial specified (e.g. `usize`, `String`), then a simple `Option<Self>` builder can be used.
+
+```rust
+#[derive(Debug, serde_with::DeserializeFromStr)]
+enum MyEnum {
+    Foo,
+    Bar,
+};
+
+impl std::str::FromStr for MyEnum {
+    // ...
+# type Err = String;
+# fn from_str(_: &str) -> Result<Self, Self::Err> { unimplemented!() }
+}
+
+impl confik::Configuration for MyEnum {
+    type Builder = Option<Self>;
+}
+```
+
+### Containers
+
+Unless your container holds another container, which already implements `Configuration`, you'll likely need to implement `Configuration` yourself, instead of with a `derive`. There are two type of containers that may need to be handled here.
+
+#### Keyed Containers
+
+Keyed containers have their contents separate from their keys. Examples of these are [`HashMap`](std::collections::HashMap) and [`BTreeMap`](std::collections::BTreeMap). Whilst the implementations can be provided fully, there are helpers available. These are the [`KeyedContainerBuilder`][KeyedContainerBuilder] type and the [`KeyedContainer`][KeyedContainer] trait.
+
+A type which implements all of [`KeyedContainer`][KeyedContainer], [`Deserialize`][serde::Deserialize], [`FromIterator`], [`Default`], and [`IntoIterator`] (for both the type and a reference to the type) can then use [`KeyedContainerBuilder`][KeyedContainerBuilder] as their builder. See [`KeyedContainerBuilder`][KeyedContainerBuilder] for an example.
+
+Note that the key needs to implement `Display` so that an accurate error stack can be generated.
+
+[KeyedContainerBuilder]: crate::helpers::KeyedContainerBuilder
+[KeyedContainer]: crate::helpers::KeyedContainer
+
+#### Unkeyed Containers
+
+Unkeyed containers are types without a separate key. This includes [`Vec`], but also types like [`HashSet`](std::collections::HashSet). Whilst the implementations can be provided fully, there is a helper available. This is the [`UnkeyedContainerBuilder`][UnkeyedContainerBuilder].
+
+A type which implements all of [`Deserialize`][serde::Deserialize], [`FromIterator`], [`Default`], and [`IntoIterator`] (for both the type and a reference to the type) can then use [`UnkeyedContainerBuilder`][UnkeyedContainerBuilder] as their builder. See [`UnkeyedContainerBuilder`][UnkeyedContainerBuilder] for an example.
+
+
+[UnkeyedContainerBuilder]: crate::helpers::UnkeyedContainerBuilder
+
+#### Other complex cases
+
+For other complex cases, where `derive`s cannot work, the type is not simple enough to use an `Option<Self>` builder, and is not a container, there is currently no additional support. Please read through the [`Configuration`] and [`ConfigurationBuilder`] traits and implement them as appropriate.
+
+If you believe your type is following a common pattern where we could provide more support, please raise an issue (or even better an MR).

@@ -224,17 +224,19 @@ mod ahash {
     use std::{fmt::Display, hash::Hash};
 
     use ahash::{AHashMap, AHashSet};
-    use confik::std_impls::{KeyedContainerBuilder, UnkeyedContainerBuilder};
     use serde::de::DeserializeOwned;
 
-    use crate::{std_impls::KeyedContainer, Configuration};
+    use crate::{
+        helpers::{BuilderOf, KeyedContainer, KeyedContainerBuilder, UnkeyedContainerBuilder},
+        Configuration,
+    };
 
     impl<T> Configuration for AHashSet<T>
     where
         T: Configuration + Hash + Eq,
-        <T as Configuration>::Builder: Hash + Eq + 'static,
+        BuilderOf<T>: Hash + Eq + 'static,
     {
-        type Builder = UnkeyedContainerBuilder<AHashSet<<T as Configuration>::Builder>, Self>;
+        type Builder = UnkeyedContainerBuilder<AHashSet<BuilderOf<T>>, Self>;
     }
 
     impl<K, V> KeyedContainer for AHashMap<K, V>
@@ -257,8 +259,8 @@ mod ahash {
     where
         K: Hash + Eq + Display + DeserializeOwned + 'static,
         V: Configuration,
-        <V as Configuration>::Builder: 'static,
+        BuilderOf<V>: 'static,
     {
-        type Builder = KeyedContainerBuilder<AHashMap<K, <V as Configuration>::Builder>, Self>;
+        type Builder = KeyedContainerBuilder<AHashMap<K, BuilderOf<V>>, Self>;
     }
 }
