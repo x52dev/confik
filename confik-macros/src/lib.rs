@@ -145,6 +145,7 @@ impl VariantImplementer {
 
         let field_vec = fields
             .iter()
+            .filter(|f| !f.skip.is_present())
             .map(FieldImplementer::define_builder)
             .collect::<Result<Vec<_>, _>>()?;
         let fields = ast::Fields::new(fields.style, field_vec).into_token_stream();
@@ -159,13 +160,14 @@ impl VariantImplementer {
         })
     }
 
-    fn impl_merge(var_impl: &SpannedValue<Self>) -> TokenStream {
+    fn impl_merge(var_impl: &SpannedValue<Self>) -> syn::Result<TokenStream> {
         let Self { ident, fields, .. } = var_impl.as_ref();
 
         let style = fields.style;
         let extract_us_fields = fields
             .as_ref()
             .iter()
+            .filter(|f| !f.skip.is_present())
             .enumerate()
             .map(|(index, field)| FieldImplementer::extract_for_match(index, field, "us"))
             .collect::<Vec<_>>();
@@ -175,6 +177,7 @@ impl VariantImplementer {
         let extract_other_fields = fields
             .as_ref()
             .iter()
+            .filter(|f| !f.skip.is_present())
             .enumerate()
             .map(|(index, field)| FieldImplementer::extract_for_match(index, field, "other"))
             .collect::<Vec<_>>();
@@ -184,23 +187,25 @@ impl VariantImplementer {
         let field_merge = fields
             .as_ref()
             .iter()
+            .filter(|f| !f.skip.is_present())
             .enumerate()
             .map(|(index, field)| FieldImplementer::impl_enum_merge(index, field, style))
-            .collect::<Vec<_>>();
+            .collect::<Result<Vec<_>, _>>()?;
         let bracketed_field_merge = ast::Fields::new(style, field_merge).into_token_stream();
 
-        quote_spanned! {var_impl.span() =>
+        Ok(quote_spanned! {var_impl.span() =>
             (Self::#ident #bracketed_extract_us_fields, Self::#ident #bracketed_extract_other_fields) => Self::#ident #bracketed_field_merge
-        }
+        })
     }
 
-    fn impl_try_build(var_impl: &SpannedValue<Self>) -> TokenStream {
+    fn impl_try_build(var_impl: &SpannedValue<Self>) -> syn::Result<TokenStream> {
         let Self { ident, fields, .. } = var_impl.as_ref();
 
         let style = fields.style;
         let extract_us_fields = fields
             .as_ref()
             .iter()
+            .filter(|f| !f.skip.is_present())
             .enumerate()
             .map(|(index, field)| FieldImplementer::extract_for_match(index, field, "us"))
             .collect::<Vec<_>>();
@@ -220,12 +225,12 @@ impl VariantImplementer {
                     Some(&ident.to_string()),
                 )
             })
-            .collect::<Vec<_>>();
+            .collect::<Result<Vec<_>, _>>()?;
         let bracketed_try_build = ast::Fields::new(style, try_build).into_token_stream();
 
-        quote_spanned! {var_impl.span() =>
+        Ok(quote_spanned! { var_impl.span() =>
             Self::#ident #bracketed_extract_us_fields => Self::Target::#ident #bracketed_try_build
-        }
+        })
     }
 
     fn impl_contains_non_secret_data(var_impl: &SpannedValue<Self>) -> TokenStream {
@@ -235,6 +240,7 @@ impl VariantImplementer {
         let extract_us_fields = fields
             .as_ref()
             .iter()
+            .filter(|f| !f.skip.is_present())
             .enumerate()
             .map(|(index, field)| FieldImplementer::extract_for_match(index, field, "us"))
             .collect::<Vec<_>>();
@@ -244,6 +250,7 @@ impl VariantImplementer {
         let contains_non_secret_data = fields
             .as_ref()
             .iter()
+            .filter(|f| !f.skip.is_present())
             .enumerate()
             .map(|(index, field)| {
                 FieldImplementer::impl_contains_non_secret_data(index, field, Some("us"))
@@ -335,6 +342,10 @@ struct FieldImplementer {
 
     /// Optional attributes to forward to the builder's field.
     forward: Option<Forward>,
+
+    /// Whether to skip the field. This field will have to either impl [`Default`] or have a
+    /// `default = ...` confik attribute set
+    skip: Flag,
 }
 
 impl FieldImplementer {
@@ -428,7 +439,7 @@ impl FieldImplementer {
         field_index: usize,
         field_impl: &SpannedValue<Self>,
         style: Style,
-    ) -> TokenStream {
+    ) -> syn::Result<TokenStream> {
         let ident = FieldIdent::new(&field_impl.ident, field_index);
 
         let merge = quote_spanned! {
@@ -437,11 +448,14 @@ impl FieldImplementer {
         };
 
         match style {
-            Style::Struct => quote_spanned! { field_impl.span() =>
+            Style::Struct => Ok(quote_spanned! { field_impl.span() =>
                 #ident: #merge
-            },
-            Style::Tuple => merge,
-            Style::Unit => panic!("Trying to call merge on a field in a unit struct"),
+            }),
+            Style::Tuple => Ok(merge),
+            Style::Unit => Err(syn::Error::new(
+                field_impl.span(),
+                format!("Unable to merge unit structs: {}", ident.to_token_stream()),
+            )),
         }
     }
 
@@ -450,7 +464,7 @@ impl FieldImplementer {
         field_index: usize,
         field_impl: &SpannedValue<Self>,
         style: Style,
-    ) -> TokenStream {
+    ) -> syn::Result<TokenStream> {
         let us_ident = Self::prefixed_ident(field_index, field_impl, "us");
         let other_ident = Self::prefixed_ident(field_index, field_impl, "other");
         let ident = FieldIdent::new(&field_impl.ident, field_index);
@@ -461,11 +475,14 @@ impl FieldImplementer {
         };
 
         match style {
-            Style::Struct => quote_spanned! { field_impl.span() =>
+            Style::Struct => Ok(quote_spanned! { field_impl.span() =>
                 #ident: #merge
-            },
-            Style::Tuple => merge,
-            Style::Unit => panic!("Trying to call merge on a field in a unit struct"),
+            }),
+            Style::Tuple => Ok(merge),
+            Style::Unit => Err(syn::Error::new(
+                field_impl.span(),
+                format!("Unable to merge unit structs: {}", ident.to_token_stream()),
+            )),
         }
     }
 
@@ -476,60 +493,82 @@ impl FieldImplementer {
         style: Style,
         us_ident_prefix: Option<&str>,
         extra_prepend: Option<&str>,
-    ) -> TokenStream {
+    ) -> syn::Result<TokenStream> {
         let ident = FieldIdent::new(&field_impl.ident, field_index);
 
-        let our_field = if let Some(ident_prefix) = us_ident_prefix {
-            Self::prefixed_ident(field_index, field_impl, ident_prefix).into_token_stream()
+        let field_build = if field_impl.skip.is_present() {
+            if let Some(default) = &field_impl.default {
+                let default = &default.expr;
+                quote_spanned! {
+                    default.span() => #default
+                }
+            } else {
+                return Err(syn::Error::new(
+                    field_impl.skip.span(),
+                    format!(
+                        "Unable to skip field with no default: {}",
+                        ident.to_token_stream()
+                    ),
+                ));
+            }
         } else {
-            quote!(self.#ident)
-        };
-
-        let string = ident.to_string();
-
-        let mut field_build = quote_spanned! {
-            field_impl.span() =>
-            #our_field.try_build()
-        };
-
-        // Default if no data is present
-        if let Some(default) = &field_impl.default {
-            let default = &default.expr;
-
-            field_build = quote_spanned! {
-                default.span() =>
-                    if #our_field.contains_non_secret_data().unwrap_or(true) {
-                        #field_build
-                    } else {
-                        Ok(#default)
-                    }
+            let our_field = if let Some(ident_prefix) = us_ident_prefix {
+                Self::prefixed_ident(field_index, field_impl, ident_prefix).into_token_stream()
+            } else {
+                quote!(self.#ident)
             };
-        }
 
-        let extra_prepend = extra_prepend.map(|extra_prepend| quote!(.prepend(#extra_prepend)));
-        field_build = quote_spanned! {
-            field_build.span() => #field_build.map_err(|err| err.prepend(#string)#extra_prepend)?
+            let string = ident.to_string();
+
+            let mut field_build = quote_spanned! {
+                field_impl.span() =>
+                #our_field.try_build()
+            };
+
+            // Default if no data is present
+            if let Some(default) = &field_impl.default {
+                let default = &default.expr;
+
+                field_build = quote_spanned! {
+                    default.span() =>
+                        if #our_field.contains_non_secret_data().unwrap_or(true) {
+                            #field_build
+                        } else {
+                            Ok(#default)
+                        }
+                };
+            }
+
+            let extra_prepend = extra_prepend.map(|extra_prepend| quote!(.prepend(#extra_prepend)));
+            field_build = quote_spanned! {
+                field_build.span() => #field_build.map_err(|err| err.prepend(#string)#extra_prepend)?
+            };
+
+            // We're going via another type to allow handling the field being a foreign type. Do the conversion.
+            if field_impl.from.is_some() {
+                quote_spanned! {
+                    field_build.span() => #field_build.into()
+                }
+            } else if field_impl.try_from.is_some() {
+                quote_spanned! {
+                    field_build.span() => #field_build.try_into().map_err(|e|
+                        ::confik::FailedTryInto::new(e)
+                    )?
+                }
+            } else {
+                field_build
+            }
         };
-
-        // We're going via another type to allow handling the field being a foreign type. Do the conversion.
-        if field_impl.from.is_some() {
-            field_build = quote_spanned! {
-                field_build.span() => #field_build.into()
-            }
-        } else if field_impl.try_from.is_some() {
-            field_build = quote_spanned! {
-                field_build.span() => #field_build.try_into().map_err(|e|
-                    ::confik::FailedTryInto::new(e)
-                )?
-            }
-        }
 
         match style {
-            Style::Struct => quote_spanned! { field_impl.span() =>
+            Style::Struct => Ok(quote_spanned! { field_impl.span() =>
                 #ident: #field_build
-            },
-            Style::Tuple => field_build,
-            Style::Unit => panic!("Trying to call merge on a field in a unit struct"),
+            }),
+            Style::Tuple => Ok(field_build),
+            Style::Unit => Err(syn::Error::new(
+                field_impl.span(),
+                format!("Unable to build unit structs: {}", ident.to_token_stream()),
+            )),
         }
     }
 
@@ -717,6 +756,7 @@ impl RootImplementer {
             ast::Data::Struct(fields) => {
                 let field_vec = fields
                     .iter()
+                    .filter(|f| !f.skip.is_present())
                     .map(FieldImplementer::define_builder)
                     .collect::<Result<Vec<_>, _>>()?;
                 ast::Fields::new(fields.style, field_vec).into_token_stream()
@@ -747,7 +787,7 @@ impl RootImplementer {
     }
 
     /// Implement the `ConfigurationBuilder::merge` method for our builder.
-    fn impl_merge(&self) -> TokenStream {
+    fn impl_merge(&self) -> syn::Result<TokenStream> {
         let Self { data, .. } = self;
 
         let field_merge = match data {
@@ -758,9 +798,10 @@ impl RootImplementer {
                 let style = fields.style;
                 let fields = fields
                     .iter()
+                    .filter(|f| !f.skip.is_present())
                     .enumerate()
                     .map(|(index, field)| FieldImplementer::impl_struct_merge(index, field, style))
-                    .collect::<Vec<_>>();
+                    .collect::<Result<Vec<_>, _>>()?;
                 let bracketed_fields = ast::Fields::new(style, fields).into_token_stream();
                 quote!(Self #bracketed_fields)
             }
@@ -769,7 +810,7 @@ impl RootImplementer {
                 let variants = variants
                     .iter()
                     .map(VariantImplementer::impl_merge)
-                    .collect::<Vec<_>>();
+                    .collect::<Result<Vec<_>, _>>()?;
                 quote!(match (self, other) {
                     (Self::ConfigBuilderUndefined, other) => other,
                     #( #variants, )*
@@ -778,15 +819,15 @@ impl RootImplementer {
             }
         };
 
-        quote! {
+        Ok(quote! {
             fn merge(self, other: Self) -> Self {
                 #field_merge
             }
-        }
+        })
     }
 
     /// Implement the `ConfigurationBuilder::try_build` method for our builder.
-    fn impl_try_build(&self) -> TokenStream {
+    fn impl_try_build(&self) -> syn::Result<TokenStream> {
         let Self { ident, data, .. } = self;
 
         let field_build = match data {
@@ -798,7 +839,7 @@ impl RootImplementer {
                     .map(|(index, field)| {
                         FieldImplementer::impl_try_build(index, field, fields.style, None, None)
                     })
-                    .collect::<Vec<_>>();
+                    .collect::<Result<Vec<_>, _>>()?;
                 let bracketed_fields = ast::Fields::new(style, fields).into_token_stream();
                 quote!(Ok(#ident #bracketed_fields))
             }
@@ -806,7 +847,7 @@ impl RootImplementer {
                 let variants = variants
                     .iter()
                     .map(VariantImplementer::impl_try_build)
-                    .collect::<Vec<_>>();
+                    .collect::<Result<Vec<_>, _>>()?;
                 quote! {
                     Ok(match self {
                         Self::ConfigBuilderUndefined => return Err(::confik::Error::MissingValue(<::confik::MissingValue as ::std::default::Default>::default())),
@@ -816,13 +857,13 @@ impl RootImplementer {
             }
         };
 
-        quote! {
+        Ok(quote! {
             // Allow useless conversions as the default handling may call `.into()` unnecessarily.
             #[allow(clippy::useless_conversion)]
             fn try_build(self) -> ::std::result::Result<Self::Target, ::confik::Error> {
                 #field_build
             }
-        }
+        })
     }
 
     /// Implement the `ConfigurationBuilder::contains_non_secret_data` method for our builder.
@@ -831,6 +872,7 @@ impl RootImplementer {
             ast::Data::Struct(fields) => {
                 let field_check = fields
                     .iter()
+                    .filter(|f| !f.skip.is_present())
                     .enumerate()
                     .map(|(index, field)| {
                         FieldImplementer::impl_contains_non_secret_data(index, field, None)
@@ -858,7 +900,7 @@ impl RootImplementer {
     }
 
     /// Implement `ConfigurationBuilder` for our builder.
-    fn impl_builder(&self) -> TokenStream {
+    fn impl_builder(&self) -> syn::Result<TokenStream> {
         let Self {
             ident: target_name,
             generics,
@@ -866,14 +908,14 @@ impl RootImplementer {
         } = self;
         let builder_name = self.builder_name();
 
-        let merge = self.impl_merge();
-        let try_build = self.impl_try_build();
+        let merge = self.impl_merge()?;
+        let try_build = self.impl_try_build()?;
 
         let contains_non_secret_data = self.impl_contains_non_secret_data();
 
         let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
-        quote! {
+        Ok(quote! {
             impl #impl_generics ::confik::ConfigurationBuilder  for #builder_name #type_generics #where_clause {
                 type Target = #target_name #type_generics;
 
@@ -883,7 +925,7 @@ impl RootImplementer {
 
                 #contains_non_secret_data
             }
-        }
+        })
     }
 
     /// Implement `Configuration` for our target.
@@ -910,7 +952,7 @@ fn derive_macro_builder_inner(target_struct: &DeriveInput) -> syn::Result<proc_m
     let implementer = RootImplementer::from_derive_input(target_struct)?;
     implementer.check_valid()?;
     let builder_struct = implementer.define_builder()?;
-    let builder_impl = implementer.impl_builder();
+    let builder_impl = implementer.impl_builder()?;
     let target_impl = implementer.impl_target();
 
     let overall_lint_overrides = quote! {
