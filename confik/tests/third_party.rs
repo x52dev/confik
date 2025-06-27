@@ -1,4 +1,4 @@
-#[cfg(feature = "secrecy")]
+#[cfg(all(feature = "secrecy", feature = "toml"))]
 mod secrecy {
     use confik::{Configuration, TomlSource};
     use indoc::indoc;
@@ -67,7 +67,7 @@ mod secrecy {
     }
 }
 
-#[cfg(feature = "bigdecimal")]
+#[cfg(all(feature = "bigdecimal", feature = "toml"))]
 mod bigdecimal {
     use std::str::FromStr;
 
@@ -129,7 +129,7 @@ mod bigdecimal {
 
 #[cfg(feature = "js_option")]
 mod js_option {
-    use confik::{Configuration, TomlSource};
+    use confik::Configuration;
     use js_option::JsOption;
 
     #[derive(Configuration, Debug)]
@@ -157,12 +157,13 @@ mod js_option {
         assert_eq!(config.opt, JsOption::Null);
     }
 
+    #[cfg(feature = "toml")]
     #[test]
     fn present() {
         let toml = "opt = 5";
 
         let config = Config::builder()
-            .override_with(TomlSource::new(toml))
+            .override_with(confik::TomlSource::new(toml))
             .try_build()
             .expect("Should be valid without config");
         assert_eq!(config.opt, JsOption::Some(5));

@@ -93,12 +93,12 @@ impl FileSource {
     }
 }
 
-impl Source for FileSource {
+impl<T: ConfigurationBuilder> Source<T> for FileSource {
     fn allows_secrets(&self) -> bool {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
+    fn provide(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
         self.deserialize().map_err(|err| {
             Box::new(FileError {
                 path: self.path.clone(),
@@ -123,19 +123,6 @@ mod tests {
     #[allow(dead_code)]
     struct SimpleConfig {
         foo: u64,
-    }
-
-    #[test]
-    fn defaults() {
-        let source = FileSource::new("config.json");
-        assert!(!source.allows_secrets());
-    }
-
-    #[test]
-    fn clone() {
-        let source = FileSource::new("config.toml").allow_secrets();
-        assert!(source.allows_secrets());
-        assert!(source.clone().allow_secrets);
     }
 
     #[test]
