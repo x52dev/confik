@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Add a new `confik(skip)` attribute. This allows skipping the field in the builder (and so it need not implement `Configuration` or be deserializable), however it must use `confik(default)` or `confik(default = ...)`, otherwise it can't be built. E.g.
+  ```rust
+  #[derive(Configuration)]
+  struct Config {
+    #[confik(skip, default = Instant::now())]
+    loaded_at: Instant,
+  }
+  ```
 - Implement `Configuration` for [`ahash::{AHashSet, AHashMap}`](https://docs.rs/ahash/0.8.11/ahash/).
 - Add new `helper` module, with utilities for manually implementing more complex `Configuration` behaviour.
   - `UnkeyedContainerBuilder` can be used as a `Configuration::builder` for container types without separate keys (such as a `Vec` and `HashSet`).
@@ -36,14 +44,6 @@
   #[derive(Configuration)]
   #[confik(name = Builder)]
   struct Config {}
-  ```
-- Add a new `confik(skip)` attribute. This allows skipping the field in the builder (and so it need not implement `Configuration` or be deserializable), however it must use `confik(default)` or `confik(default = ...)`, otherwise it can't be built. E.g.
-  ```rust
-  #[derive(Configuration)]
-  struct Config {
-    #[confik(skip, default = Instant::now())]
-    loaded_at: Instant,
-  }
   ```
 
 ## 0.13.0
