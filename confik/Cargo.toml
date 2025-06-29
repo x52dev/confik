@@ -1,6 +1,6 @@
 [package]
 name = "confik"
-version = "0.13.0"
+version = "0.14.0"
 description = "A library for reading application configuration split across multiple sources"
 authors.workspace = true
 keywords.workspace = true
@@ -29,6 +29,7 @@ json = ["dep:serde_json"]
 toml = ["dep:toml"]
 
 # Destination types
+ahash = ["dep:ahash"]
 bigdecimal = ["dep:bigdecimal"]
 bytesize = ["dep:bytesize"]
 camino = ["dep:camino"]
@@ -42,7 +43,7 @@ url = ["dep:url"]
 uuid = ["dep:uuid"]
 
 [dependencies]
-confik-macros = "=0.13.0"
+confik-macros = "=0.14.0"
 
 cfg-if = "1"
 serde = { version = "1", default-features = false, features = ["std", "derive"] }
@@ -52,10 +53,11 @@ envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.8", optional = true, default-features = false, features = ["parse"] }
 
+ahash = { version = "0.8", optional = true, features = ["serde"] }
 bigdecimal = { version = "0.4", optional = true, features = ["serde"] }
 bytesize = { version = "2", optional = true, features = ["serde"] }
 camino = { version = "1", optional = true, features = ["serde1"] }
-chrono = { version = "0.4.40", optional = true, default-features = false, features = ["serde"] }
+chrono = { version = "0.4.41", optional = true, default-features = false, features = ["serde"] }
 ipnetwork = { version = "0.21", optional = true, features = ["serde"] }
 js_option = { version = "0.1", optional = true, features = ["serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
@@ -86,3 +88,7 @@ required-features = ["toml", "secrecy"]
 [[example]]
 name = "bigdecimal"
 required-features = ["toml", "bigdecimal"]
+
+[[example]]
+name = "ahash"
+required-features = ["toml", "ahash"]

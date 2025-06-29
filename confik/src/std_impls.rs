@@ -8,12 +8,21 @@ use std::{
     marker::PhantomData,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     path::PathBuf,
+    sync::atomic::{
+        AtomicBool, AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize, AtomicU16, AtomicU32,
+        AtomicU64, AtomicU8, AtomicUsize,
+    },
     time::{Duration, SystemTime},
 };
 
 use serde::{de::DeserializeOwned, Deserialize};
 
-use crate::{Configuration, ConfigurationBuilder, Error, MissingValue, UnexpectedSecret};
+use crate::{
+    helpers::{
+        BuilderOf, KeyedContainer, KeyedContainerBuilder, TargetOf, UnkeyedContainerBuilder,
+    },
+    Configuration, ConfigurationBuilder, Error, MissingValue, UnexpectedSecret,
+};
 
 /// Convenience macro for the large number of foreign library types to implement the
 /// [`Configuration`] using an [`Option`] as their [`ConfigurationBuilder`].
@@ -49,92 +58,14 @@ impl_multi_source_via_option! {
 
     // Other standard types
     String, OsString, PathBuf, char, bool,
+
+    // Atomic types
+    AtomicI8, AtomicI16, AtomicI32, AtomicI64, AtomicIsize,
+    AtomicU8, AtomicU16, AtomicU32, AtomicU64, AtomicUsize,
+    AtomicBool,
 }
 
 // Containers
-
-// Type aliases for easier reading
-type KeyOf<C> = <C as KeyedContainer>::Key;
-type ItemOf<C> = <C as IntoIterator>::Item;
-type ValueOf<C> = <C as KeyedContainer>::Value;
-type TargetOf<B> = <B as ConfigurationBuilder>::Target;
-type BuilderOf<T> = <T as Configuration>::Builder;
-
-/// Builder type for unkeyed containers such as [`Vec`] (as opposed to keyed containers like
-/// [`HashMap`]).
-#[derive(Debug, Default, Deserialize, Hash, PartialEq, PartialOrd, Eq, Ord)]
-#[serde(from = "Container")]
-pub enum UnkeyedContainerBuilder<Container, Target> {
-    /// No data has been provided yet.
-    ///
-    /// Default to `None` but allow overwriting by later [`merge`][ConfigurationBuilder::merge]s.
-    #[default]
-    Unspecified,
-
-    /// Data has been provided.
-    ///
-    /// Will not be overwritten by later [`merge`][ConfigurationBuilder::merge]s.
-    Some(Container),
-
-    /// Never instantiated, used to hold the [`Target`][ConfigurationBuilder::Target] type.
-    _PhantomData(PhantomData<fn() -> Target>),
-}
-
-impl<Container, Target> From<Container> for UnkeyedContainerBuilder<Container, Target> {
-    fn from(value: Container) -> Self {
-        Self::Some(value)
-    }
-}
-
-impl<Container, Target> ConfigurationBuilder for UnkeyedContainerBuilder<Container, Target>
-where
-    Self: DeserializeOwned,
-    Container: IntoIterator + 'static,
-    ItemOf<Container>: ConfigurationBuilder,
-    Target: Default + FromIterator<TargetOf<ItemOf<Container>>>,
-    for<'a> &'a Container: IntoIterator<Item = &'a ItemOf<Container>>,
-{
-    type Target = Target;
-
-    fn merge(self, other: Self) -> Self {
-        if matches!(self, Self::Unspecified) {
-            other
-        } else {
-            self
-        }
-    }
-
-    fn try_build(self) -> Result<Self::Target, Error> {
-        match self {
-            Self::Unspecified => Err(Error::MissingValue(MissingValue::default())),
-            Self::Some(val) => val
-                .into_iter()
-                .map(ConfigurationBuilder::try_build)
-                .collect(),
-            Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
-        }
-    }
-
-    fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
-        match self {
-            Self::Unspecified => Ok(false),
-
-            // An explicit empty container is counted as as data, overriding any default.
-            // If this branch is ever reached, then there is some data, even if it is empty.
-            // So always return either an error or `true`.
-            Self::Some(val) => val
-                .into_iter()
-                .map(ConfigurationBuilder::contains_non_secret_data)
-                .enumerate()
-                .find(|(_index, result)| result.is_err())
-                .map(|(index, result)| result.map_err(|err| err.prepend(index.to_string())))
-                .unwrap_or(Ok(true)),
-
-            Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
-        }
-    }
-}
-
 impl<T> Configuration for Vec<T>
 where
     T: Configuration,
@@ -158,105 +89,6 @@ where
     S: BuildHasher + Default + 'static,
 {
     type Builder = UnkeyedContainerBuilder<HashSet<BuilderOf<T>, S>, Self>;
-}
-
-/// Trait governing access to keyed containers
-trait KeyedContainer {
-    type Key;
-    type Value;
-
-    fn insert(&mut self, k: Self::Key, v: Self::Value);
-    fn remove(&mut self, k: &Self::Key) -> Option<Self::Value>;
-}
-
-/// Builder type for keyed containers, such as [`HashMap`] (as opposed to unkeyed containers like [`Vec`]).
-#[derive(Debug, Default, Deserialize, Hash, PartialEq, PartialOrd, Eq, Ord)]
-#[serde(from = "Container")]
-pub enum KeyedContainerBuilder<Container, Target> {
-    /// No data has been provided yet.
-    ///
-    /// Default to `None` but allow overwriting by later [`merge`][ConfigurationBuilder::merge]s.
-    #[default]
-    Unspecified,
-
-    /// Data has been provided.
-    ///
-    /// Will not be overwritten by later [`merge`][ConfigurationBuilder::merge]s.
-    Some(Container),
-
-    /// Never instantiated, used to hold the [`Target`][ConfigurationBuilder::Target] type.
-    _PhantomData(PhantomData<fn() -> Target>),
-}
-
-impl<Container, Target> From<Container> for KeyedContainerBuilder<Container, Target> {
-    fn from(value: Container) -> Self {
-        Self::Some(value)
-    }
-}
-
-impl<Container, Target> ConfigurationBuilder for KeyedContainerBuilder<Container, Target>
-where
-    Self: DeserializeOwned,
-    Container:
-        KeyedContainer + IntoIterator<Item = (KeyOf<Container>, ValueOf<Container>)> + 'static,
-    KeyOf<Container>: Display,
-    ValueOf<Container>: ConfigurationBuilder + 'static,
-    Target: Default + FromIterator<(KeyOf<Container>, TargetOf<ValueOf<Container>>)>,
-    for<'a> &'a Container: IntoIterator<Item = (&'a KeyOf<Container>, &'a ValueOf<Container>)>,
-{
-    type Target = Target;
-
-    fn merge(self, other: Self) -> Self {
-        match (self, other) {
-            (Self::_PhantomData(_), _) | (_, Self::_PhantomData(_)) => {
-                unreachable!("PhantomData is never instantiated")
-            }
-            (Self::Unspecified, other) => other,
-            (us, Self::Unspecified) => us,
-            (Self::Some(mut us), Self::Some(other)) => {
-                for (key, their_val) in other {
-                    let val = if let Some(our_val) = us.remove(&key) {
-                        our_val.merge(their_val)
-                    } else {
-                        their_val
-                    };
-
-                    us.insert(key, val);
-                }
-
-                Self::Some(us)
-            }
-        }
-    }
-
-    fn try_build(self) -> Result<Self::Target, Error> {
-        match self {
-            Self::Unspecified => Err(Error::MissingValue(MissingValue::default())),
-            Self::Some(val) => val
-                .into_iter()
-                .map(|(key, value)| Ok((key, value.try_build()?)))
-                .collect(),
-            Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
-        }
-    }
-
-    fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
-        match self {
-            Self::Unspecified => Ok(false),
-
-            // An explicit empty container is counted as as data, overriding any default.
-            // If this branch is ever reached, then there is some data, even if it is empty.
-            // So always return either an error or `true`.
-            Self::Some(val) => val
-                .into_iter()
-                .map(|(key, value)| (key, value.contains_non_secret_data()))
-                .find(|(_key, result)| result.is_err())
-                .map(|(key, result)| result.map_err(|err| err.prepend(key.to_string())))
-                .unwrap_or(Ok(true)),
-
-            Self::_PhantomData(_) => unreachable!("PhantomData is never instantiated"),
-        }
-    }
 }
 
 impl<K, V> KeyedContainer for BTreeMap<K, V>

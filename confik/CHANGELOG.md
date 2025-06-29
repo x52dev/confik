@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Implement `Configuration` for [`ahash::{AHashSet, AHashMap}`](https://docs.rs/ahash/0.8.11/ahash/).
+- Add new `helper` module, with utilities for manually implementing more complex `Configuration` behaviour.
+  - `UnkeyedContainerBuilder` can be used as a `Configuration::builder` for container types without separate keys (such as a `Vec` and `HashSet`).
+    - See `UnkeyedContainerBuilder`'s docs for details and an example.
+  - `KeyedContainerBuilder` can be used as a `Configuration::builder` for container types with explicit keys (such as `HashMap` and `BTreeMap`).
+    - Using `KeyedContainerBuilder` requires implementing `KeyedContainer` for your type.
+    - See `KeyedContainerBuilder`'s docs for details and an example.
+  - A few type aliases, to make it easier to write and understand complex generics when manually implementing `Configuration`.
+
+## 0.14.0
+
+- Implement `Configuration` for atomic numeric and bool types.
 - Implement `Configuration` for [`js_option::JsOption`](https://docs.rs/js_option/0.1.1/js_option/enum.JsOption.html)
 - Add a new `confik(forward(...))` attribute. As well as allowing for forwarding general attributes to the builder, this:
   - Replaces `confik(forward_serde(...))`. E.g.
