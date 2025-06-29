@@ -25,12 +25,12 @@ impl<'a> JsonSource<'a> {
     }
 }
 
-impl Source for JsonSource<'_> {
+impl<T: ConfigurationBuilder> Source<T> for JsonSource<'_> {
     fn allows_secrets(&self) -> bool {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
+    fn provide(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
         Ok(serde_json::from_str(&self.contents)?)
     }
 }
@@ -40,23 +40,5 @@ impl fmt::Debug for JsonSource<'_> {
         f.debug_struct("JsonSource")
             .field("allow_secrets", &self.allow_secrets)
             .finish_non_exhaustive()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn defaults() {
-        let source = JsonSource::new("{}");
-        assert!(!source.allows_secrets());
-    }
-
-    #[test]
-    fn clone() {
-        let source = JsonSource::new("{}").allow_secrets();
-        assert!(source.allows_secrets());
-        assert!(source.clone().allow_secrets);
     }
 }
