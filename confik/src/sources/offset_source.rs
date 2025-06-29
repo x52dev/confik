@@ -1,4 +1,4 @@
-use std::{error::Error, fmt, marker::PhantomData};
+use std::{error::Error, fmt};
 
 use crate::{ConfigurationBuilder, Source};
 
@@ -25,9 +25,9 @@ use crate::{ConfigurationBuilder, Source};
 /// let leaf_toml = "data = 5";
 ///
 /// let root_source = TomlSource::new(root_toml);
-/// let leaf_source = OffsetSource::new(
+/// let leaf_source = OffsetSource::new::<BuilderOf<Config>>(
 ///     TomlSource::new(leaf_toml),
-///     |b: &mut BuilderOf<Config>| &mut b.leaf,
+///     |b| &mut b.leaf,
 /// );
 ///
 /// let config = Config::builder()
@@ -45,31 +45,30 @@ use crate::{ConfigurationBuilder, Source};
 /// );
 /// # }
 /// ```
-pub struct OffsetSource<'a, TargetBuilder, OffsetBuilder, PathFn> {
+pub struct OffsetSource<'a, OffsetBuilder, PathFn> {
     inner_source: Box<dyn Source<OffsetBuilder> + 'a>,
     path: PathFn,
-    _phantom: PhantomData<TargetBuilder>,
 }
 
-impl<'a, OffsetBuilder, PathFn, TargetBuilder>
-    OffsetSource<'a, TargetBuilder, OffsetBuilder, PathFn>
+impl<'a, OffsetBuilder, PathFn> OffsetSource<'a, OffsetBuilder, PathFn>
 where
-    TargetBuilder: ConfigurationBuilder,
     OffsetBuilder: ConfigurationBuilder,
-    PathFn: for<'b> Fn(&'b mut TargetBuilder) -> &'b mut OffsetBuilder,
 {
     /// Creates a [`Source`] containing raw JSON data.
-    pub fn new(inner_source: impl Source<OffsetBuilder> + 'a, path: PathFn) -> Self {
+    pub fn new<TargetBuilder>(inner_source: impl Source<OffsetBuilder> + 'a, path: PathFn) -> Self
+    where
+        TargetBuilder: ConfigurationBuilder,
+        PathFn: for<'b> Fn(&'b mut TargetBuilder) -> &'b mut OffsetBuilder,
+    {
         Self {
             inner_source: Box::new(inner_source),
             path,
-            _phantom: PhantomData,
         }
     }
 }
 
 impl<'a, OffsetBuilder, PathFn, TargetBuilder> Source<TargetBuilder>
-    for OffsetSource<'a, TargetBuilder, OffsetBuilder, PathFn>
+    for OffsetSource<'a, OffsetBuilder, PathFn>
 where
     TargetBuilder: ConfigurationBuilder,
     OffsetBuilder: ConfigurationBuilder,
@@ -86,9 +85,7 @@ where
     }
 }
 
-impl<TargetBuilder, OffsetBuilder, PathFn> fmt::Debug
-    for OffsetSource<'_, TargetBuilder, OffsetBuilder, PathFn>
-{
+impl<OffsetBuilder, PathFn> fmt::Debug for OffsetSource<'_, OffsetBuilder, PathFn> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("OffsetSource")
             .field("inner_source", &self.inner_source)
@@ -152,7 +149,7 @@ mod tests {
             allow_secrets: false,
         };
 
-        let source = OffsetSource::new(inner, |x: &mut BuilderOf<Config>| &mut x.leaf);
+        let source = OffsetSource::new::<BuilderOf<Config>>(inner, |x| &mut x.leaf);
 
         let config = Config::builder()
             .override_with(source)

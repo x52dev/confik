@@ -15,8 +15,8 @@
   ```rust
   let common_tls_source = FileSource::new("tls.toml");
   let config = Config::builder()
-    .override_with(OffsetSource(common_tls_source.clone(), |b: &mut BuilderOf<Config>| &mut b.kafka.tls))
-    .override_with(OffsetSource(common_tls_source, |b: &mut BuilderOf<Config>| &mut b.server.tls))
+    .override_with(OffsetSource::new::<BuilderOf<Config>>(common_tls_source.clone(), |b| &mut b.kafka.tls))
+    .override_with(OffsetSource::new::<BuilderOf<Config>>(common_tls_source, |b| &mut b.server.tls))
     .override_with(FileSource::new("config.toml"))
     .try_build()?;
   ```
