@@ -17,6 +17,7 @@ msrv_rustup := "+" + msrv
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-for-msrv:
+    cargo update -p=serde_with --precise=3.12.0 # next ver: 1.74.0
     cargo update -p=idna_adapter --precise=1.2.0 # next ver: 1.82.0
     cargo update -p=litemap --precise=0.7.3 # next ver: 1.71.1
     cargo update -p=zerofrom --precise=0.1.4 # next ver: 1.71.1
