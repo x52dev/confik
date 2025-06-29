@@ -1,7 +1,5 @@
-// only run on MSRV to avoid changes to compiler output causing CI failures
-#[rustversion_msrv::msrv]
 #[test]
-fn compile_macros() {
+fn macro_pass() {
     let t = trybuild::TestCases::new();
 
     t.pass("tests/trybuild/01-parse.rs");
@@ -33,6 +31,14 @@ fn compile_macros() {
     t.pass("tests/trybuild/27-field-access.rs");
     t.pass("tests/trybuild/28-field-vis.rs");
     t.pass("tests/trybuild/29-named-field-vis.rs");
+    t.pass("tests/trybuild/30-skip-field.rs");
+}
+
+// only run on MSRV to avoid changes to compiler output causing CI failures
+#[rustversion_msrv::msrv]
+#[test]
+fn macro_fail() {
+    let t = trybuild::TestCases::new();
 
     t.compile_fail("tests/trybuild/fail-default-parse.rs");
     t.compile_fail("tests/trybuild/fail-default-invalid-expr.rs");
