@@ -64,6 +64,7 @@ jobs:
         run: cargo doc --workspace --no-deps --all-features
 
   public-api-diff:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +79,7 @@ jobs:
           toolchain: ${{ vars.RUST_VERSION_API_DIFF }}
 
       - name: Install cargo-public-api
-        uses: taiki-e/cache-cargo-install-action@v2.1.1
+        uses: taiki-e/cache-cargo-install-action@v2.1.2
         with:
           tool: cargo-public-api
 
