@@ -18,6 +18,7 @@ words:
   - msrv
   - nextest
   - nixpkgs
+  - pkgs
   - powerset
   - rustc
   - rustdoc
