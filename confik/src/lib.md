@@ -208,6 +208,7 @@ This crate provides implementations of [`Configuration`] for a number of `std` t
 - `camino`: v1
 - `chrono`: v0.4
 - `ipnetwork`: v0.21
+- `js_option`: v0.1
 - `rust_decimal`: v1
 - `secrecy`: v0.10 (Note that `#[config(secret)]` is not needed, although it is harmless, for these types as they are always treated as secrets.)
 - `url`: v1
@@ -288,6 +289,18 @@ mod config {
 
 let _ = BuilderOf::<config::Config> { data: Default::default() };
 ```
+
+### Skipping fields
+
+Fields can be skipped if necessary. This allows having types that cannot implement `Configuration` or be deserializable. However the field must have a `confik(default)` or `confik(default = ...)` attribute, otherwise it can't be built. E.g.
+  ```rust
+  # use std::time::Instant;
+  #[derive(confik::Configuration)]
+  struct Config {
+    #[confik(skip, default = Instant::now())]
+    loaded_at: Instant,
+  }
+  ```
 
 ## Macro Limitations
 
