@@ -13,11 +13,7 @@ use std::{marker::PhantomData, mem};
 
 use confik::sources::DefaultSource;
 
-use crate::{
-    build_from_sources,
-    sources::{DynSource, Source},
-    Configuration, Error,
-};
+use crate::{build_from_sources, sources::Source, Configuration, Error};
 
 /// Used to accumulate ordered sources from which its `Target` is to be built.
 ///
@@ -68,7 +64,7 @@ use crate::{
 /// # }
 /// ```
 pub struct ConfigBuilder<'a, Target: Configuration> {
-    sources: Vec<Box<dyn DynSource<Target::Builder> + 'a>>,
+    sources: Vec<Box<dyn Source<Target::Builder> + 'a>>,
 
     /// Use the generic parameter
     _phantom: PhantomData<fn() -> Target>,
@@ -97,7 +93,7 @@ impl<'a, Target: Configuration> ConfigBuilder<'a, Target> {
     /// assert_eq!(config.param, "Hello Universe");
     /// # }
     /// ```
-    pub fn override_with(&mut self, source: impl Source + 'a) -> &mut Self {
+    pub fn override_with(&mut self, source: impl Source<Target::Builder> + 'a) -> &mut Self {
         self.sources.push(Box::new(source));
         self
     }
@@ -111,7 +107,7 @@ impl<'a, Target: Configuration> ConfigBuilder<'a, Target> {
     /// details.
     pub fn try_build(&mut self) -> Result<Target, Error> {
         if self.sources.is_empty() {
-            build_from_sources([Box::new(DefaultSource) as Box<dyn DynSource<_>>])
+            build_from_sources([Box::new(DefaultSource) as Box<dyn Source<_>>])
         } else {
             build_from_sources(mem::take(&mut self.sources).into_iter().rev())
         }
