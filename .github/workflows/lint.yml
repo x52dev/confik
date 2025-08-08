@@ -79,7 +79,7 @@ jobs:
           toolchain: ${{ vars.RUST_VERSION_API_DIFF }}
 
       - name: Install cargo-public-api
-        uses: taiki-e/cache-cargo-install-action@v2.2.0
+        uses: taiki-e/cache-cargo-install-action@v2.3.0
         with:
           tool: cargo-public-api
 
