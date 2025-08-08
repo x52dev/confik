@@ -58,6 +58,7 @@ A [`Source`] is any type that can create [`ConfigurationBuilder`]s. This crate i
 - [`FileSource`]: Loads configuration from a file, detecting `json` or `toml` files based on the file extension. Requires the `json` and `toml` feature respectively. (`toml` is enabled by default.)
 - [`TomlSource`]: Loads configuration from a TOML string literal. Requires the `toml` feature. (Enabled by default.)
 - [`JsonSource`]: Loads configuration from a JSON string literal. Requires the `json` feature.
+- [`OffsetSource`]: Loads configuration from an inner source that is provided to it, but applied to a particular offset of the root configuration builder.
 
 ## Secrets
 
@@ -277,6 +278,8 @@ let _ = Builder { data: Default::default() };
 Field and builder visibility are directly inherited from the underlying type. E.g.
 
 ```rust
+use confik::helpers::BuilderOf;
+
 mod config {
     #[derive(confik::Configuration)]
     pub struct Config {
@@ -284,10 +287,7 @@ mod config {
     }
 }
 
-// Required as you can't use this syntax for struct initialisation.
-type Builder = <config::Config as confik::Configuration>::Builder;
-
-let _ = Builder { data: Default::default() };
+let _ = BuilderOf::<config::Config> { data: Default::default() };
 ```
 
 ### Skipping fields
