@@ -8,8 +8,8 @@ use darling::{
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    parse2, parse_macro_input, spanned::Spanned, DeriveInput, Expr, Generics, Index, Meta, Path,
-    Type, Visibility,
+    parse2, parse_macro_input, spanned::Spanned, DeriveInput, Expr, Generics, Index, Type,
+    Visibility,
 };
 
 #[cfg(test)]
@@ -592,47 +592,6 @@ impl FieldImplementer {
             field_impl.span() =>
             #our_field.contains_non_secret_data().map_err(|err| err.prepend(#string))
         }
-    }
-}
-
-/// List of attributes to be derived.
-#[derive(Debug)]
-struct Derive {
-    items: Vec<Path>,
-}
-
-impl FromMeta for Derive {
-    fn from_list(items: &[NestedMeta]) -> darling::Result<Self> {
-        let items = items
-            .iter()
-            .map(|item| {
-                if let NestedMeta::Meta(Meta::Path(path)) = item {
-                    Ok(path.clone())
-                } else {
-                    Err(syn::Error::new(
-                        item.span(),
-                        format!("Expected a path to a derivable trait, got {item:?}"),
-                    ))
-                }
-            })
-            .collect::<Result<Vec<_>, syn::Error>>()?;
-
-        Ok(Self { items })
-    }
-}
-
-impl ToTokens for Derive {
-    fn into_token_stream(self) -> TokenStream {
-        self.to_token_stream()
-    }
-
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.to_token_stream());
-    }
-
-    fn to_token_stream(&self) -> TokenStream {
-        let Self { items } = self;
-        quote!( #( #items ),*)
     }
 }
 
