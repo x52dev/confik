@@ -51,7 +51,7 @@ thiserror = "2"
 
 envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true }
-toml = { version = "0.9", optional = true, default-features = false, features = ["parse"] }
+toml = { version = "0.9", optional = true, default-features = false, features = ["parse", "serde"] }
 
 ahash = { version = "0.8", optional = true, features = ["serde"] }
 bigdecimal = { version = "0.4", optional = true, features = ["serde"] }
