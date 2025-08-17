@@ -16,11 +16,9 @@
             pkgs.nodePackages.prettier
             pkgs.taplo
             pkgs.just
+            pkgs.cargo-hack
           ] ++ lib.optional pkgs.stdenv.isDarwin [
             pkgs.pkgsBuildHost.libiconv
-            pkgs.pkgsBuildHost.darwin.apple_sdk.frameworks.Security
-            pkgs.pkgsBuildHost.darwin.apple_sdk.frameworks.CoreFoundation
-            pkgs.pkgsBuildHost.darwin.apple_sdk.frameworks.SystemConfiguration
           ];
         };
       };
