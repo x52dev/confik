@@ -293,14 +293,15 @@ let _ = Builder { data: Default::default() };
 ### Skipping fields
 
 Fields can be skipped if necessary. This allows having types that cannot implement `Configuration` or be deserializable. However the field must have a `confik(default)` or `confik(default = ...)` attribute, otherwise it can't be built. E.g.
-  ```rust
-  # use std::time::Instant;
-  #[derive(confik::Configuration)]
-  struct Config {
-    #[confik(skip, default = Instant::now())]
-    loaded_at: Instant,
-  }
-  ```
+
+```rust
+# use std::time::Instant;
+#[derive(confik::Configuration)]
+struct Config {
+  #[confik(skip, default = Instant::now())]
+  loaded_at: Instant,
+}
+```
 
 ## Macro Limitations
 
@@ -376,7 +377,6 @@ Note that the key needs to implement `Display` so that an accurate error stack c
 Unkeyed containers are types without a separate key. This includes [`Vec`], but also types like [`HashSet`](std::collections::HashSet). Whilst the implementations can be provided fully, there is a helper available. This is the [`UnkeyedContainerBuilder`][UnkeyedContainerBuilder].
 
 A type which implements all of [`Deserialize`][serde::Deserialize], [`FromIterator`], [`Default`], and [`IntoIterator`] (for both the type and a reference to the type) can then use [`UnkeyedContainerBuilder`][UnkeyedContainerBuilder] as their builder. See [`UnkeyedContainerBuilder`][UnkeyedContainerBuilder] for an example.
-
 
 [UnkeyedContainerBuilder]: crate::helpers::UnkeyedContainerBuilder
 
