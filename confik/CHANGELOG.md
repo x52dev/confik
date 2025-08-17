@@ -18,6 +18,7 @@
     - Using `KeyedContainerBuilder` requires implementing `KeyedContainer` for your type.
     - See `KeyedContainerBuilder`'s docs for details and an example.
   - A few type aliases, to make it easier to write and understand complex generics when manually implementing `Configuration`.
+- Update `toml` dependency to `0.9`.
 
 ## 0.14.0
 
