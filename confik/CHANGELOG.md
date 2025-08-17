@@ -28,6 +28,7 @@
     .override_with(FileSource::new("config.toml"))
     .try_build()?;
   ```
+- Update `toml` dependency to `0.9`.
 
 ## 0.14.0
 
