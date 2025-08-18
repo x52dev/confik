@@ -15,7 +15,7 @@ mod camino {
     }
 }
 
-#[cfg(all(feature = "chrono", feature = "toml"))]
+#[cfg(feature = "chrono")]
 mod chrono {
     use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
     use serde::de::DeserializeOwned;
@@ -42,6 +42,7 @@ mod chrono {
     }
 
     #[cfg(test)]
+    #[cfg(feature = "toml")]
     mod tests {
         use crate::TomlSource;
 
