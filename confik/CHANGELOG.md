@@ -18,6 +18,16 @@
     - Using `KeyedContainerBuilder` requires implementing `KeyedContainer` for your type.
     - See `KeyedContainerBuilder`'s docs for details and an example.
   - A few type aliases, to make it easier to write and understand complex generics when manually implementing `Configuration`.
+- Add a new `OffsetSource` for when your configuration files point part way into your configuration.
+  - For example, this would allow reading one `tls.toml` to multiple different TLS config structs; then allowing more specific configuration to override them. i.e.
+  ```rust
+  let common_tls_source = FileSource::new("tls.toml");
+  let config = Config::builder()
+    .override_with(OffsetSource::new::<BuilderOf<Config>>(common_tls_source.clone(), |b| &mut b.kafka.tls))
+    .override_with(OffsetSource::new::<BuilderOf<Config>>(common_tls_source, |b| &mut b.server.tls))
+    .override_with(FileSource::new("config.toml"))
+    .try_build()?;
+  ```
 - Update `toml` dependency to `0.9`.
 
 ## 0.14.0

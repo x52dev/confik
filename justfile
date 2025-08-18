@@ -4,7 +4,7 @@ _list:
 # Lint workspace with Clippy
 clippy:
     cargo clippy --workspace --no-default-features
-    cargo clippy --workspace --no-default-features --all-features
+    cargo clippy --workspace --all-features
     cargo hack --feature-powerset --depth=3 clippy --workspace
 
 msrv := ```
@@ -65,6 +65,7 @@ check:
     fd --hidden --extension=toml --exec-batch taplo format --check
     fd --hidden --extension=toml --exec-batch taplo lint
     cargo +nightly fmt -- --check
+    cargo clippy --workspace --all-features
 
 # Format project
 fmt:
