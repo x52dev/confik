@@ -42,6 +42,7 @@ mod chrono {
     }
 
     #[cfg(test)]
+    #[cfg(feature = "toml")]
     mod tests {
         use crate::TomlSource;
 
@@ -124,20 +125,23 @@ mod js_option {
     use js_option::JsOption;
     use serde::de::DeserializeOwned;
 
-    use crate::{Configuration, ConfigurationBuilder};
+    use crate::{
+        helpers::{BuilderOf, TargetOf},
+        Configuration, ConfigurationBuilder,
+    };
 
     impl<T> Configuration for JsOption<T>
     where
         T: DeserializeOwned + Configuration,
     {
-        type Builder = JsOption<<T as Configuration>::Builder>;
+        type Builder = JsOption<BuilderOf<T>>;
     }
 
     impl<T> ConfigurationBuilder for JsOption<T>
     where
         T: DeserializeOwned + ConfigurationBuilder,
     {
-        type Target = JsOption<<T as ConfigurationBuilder>::Target>;
+        type Target = JsOption<TargetOf<T>>;
 
         fn merge(self, other: Self) -> Self {
             match (self, other) {
