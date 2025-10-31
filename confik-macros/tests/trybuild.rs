@@ -1,7 +1,5 @@
-// only run on MSRV to avoid changes to compiler output causing CI failures
-#[rustversion_msrv::msrv]
 #[test]
-fn compile_macros() {
+fn macro_pass() {
     let t = trybuild::TestCases::new();
 
     t.pass("tests/trybuild/01-parse.rs");
@@ -28,17 +26,31 @@ fn compile_macros() {
     t.pass("tests/trybuild/22-dataless-types.rs");
     t.pass("tests/trybuild/23-where-clause.rs");
     t.pass("tests/trybuild/24-field-try-from.rs");
-    t.pass("tests/trybuild/pass-enum-untagged.rs");
+    t.pass("tests/trybuild/25-pass-enum-untagged.rs");
+    t.pass("tests/trybuild/26-named-builder.rs");
+    t.pass("tests/trybuild/27-field-access.rs");
+    t.pass("tests/trybuild/28-field-vis.rs");
+    t.pass("tests/trybuild/29-named-field-vis.rs");
+    t.pass("tests/trybuild/30-skip-field.rs");
+    t.pass("tests/trybuild/31-crate-remap.rs");
+}
+
+// only run on MSRV to avoid changes to compiler output causing CI failures
+#[rustversion_msrv::msrv]
+#[test]
+fn macro_fail() {
+    let t = trybuild::TestCases::new();
 
     t.compile_fail("tests/trybuild/fail-default-parse.rs");
     t.compile_fail("tests/trybuild/fail-default-invalid-expr.rs");
     t.compile_fail("tests/trybuild/fail-config-name-value.rs");
     t.compile_fail("tests/trybuild/fail-secret-extra-attr.rs");
-    t.compile_fail("tests/trybuild/fail-derive-literal.rs");
+    t.compile_fail("tests/trybuild/fail-forward-literal.rs");
     t.compile_fail("tests/trybuild/fail-field-from-unknown-type.rs");
     t.compile_fail("tests/trybuild/fail-uncreatable-type.rs");
     t.compile_fail("tests/trybuild/fail-not-a-type.rs");
     t.compile_fail("tests/trybuild/fail-default-not-expression.rs");
     t.compile_fail("tests/trybuild/fail-from-and-try-from.rs");
     t.compile_fail("tests/trybuild/fail-try-from-not-implemented.rs");
+    t.compile_fail("tests/trybuild/fail-crate-not-in-scope.rs");
 }

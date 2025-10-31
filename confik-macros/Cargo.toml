@@ -1,6 +1,6 @@
 [package]
 name = "confik-macros"
-version = "0.11.1"
+version = "0.15.0"
 description = "Macros for confik"
 authors.workspace = true
 keywords.workspace = true
@@ -14,17 +14,17 @@ rust-version.workspace = true
 proc-macro = true
 
 [dependencies]
-darling = "0.20.2"
+darling = "0.21.3"
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["extra-traits"] }
 
 [dev-dependencies]
 assert_matches = "1.5"
-confik = "0.11"
+confik = "0.15"
 indoc = "2"
 rustversion-msrv = "0.100"
 serde = { version = "1", features = ["derive"] }
 serde-bool = "0.1"
-toml = "0.8"
+toml = "0.9"
 trybuild = { version = "1", features = ["diff"] }

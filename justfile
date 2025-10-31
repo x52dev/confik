@@ -4,7 +4,7 @@ _list:
 # Lint workspace with Clippy
 clippy:
     cargo clippy --workspace --no-default-features
-    cargo clippy --workspace --no-default-features --all-features
+    cargo clippy --workspace --all-features
     cargo hack --feature-powerset --depth=3 clippy --workspace
 
 msrv := ```
@@ -16,13 +16,15 @@ msrv_rustup := "+" + msrv
 
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
-downgrade-msrv:
-    cargo update -p=toml --precise=0.8.8
-    cargo update -p=toml_edit --precise=0.21.0
-    cargo update -p=trybuild --precise=1.0.90
+downgrade-for-msrv:
+    cargo update -p=serde_with --precise=3.12.0 # next ver: 1.74.0
+    cargo update -p=idna_adapter --precise=1.2.0 # next ver: 1.82.0
+    cargo update -p=litemap --precise=0.7.3 # next ver: 1.71.1
+    cargo update -p=zerofrom --precise=0.1.4 # next ver: 1.71.1
+    cargo update -p=yoke --precise=0.7.4 # next ver: 1.71.1
 
 # Test workspace using MSRV
-test-msrv: downgrade-msrv (test-no-coverage msrv_rustup)
+test-msrv: downgrade-for-msrv (test-no-coverage msrv_rustup)
 
 # Test workspace without generating coverage files
 [private]
@@ -58,13 +60,17 @@ doc-watch:
 # Check project
 check:
     just --unstable --fmt --check
-    prettier --check $(fd --type=file --hidden --extension=md --extension=yml)
-    taplo lint $(fd --hidden --extension=toml)
+    nixpkgs-fmt --check .
+    fd --type=file --hidden --extension=md --extension=yml --exec-batch prettier --check
+    fd --hidden --extension=toml --exec-batch taplo format --check
+    fd --hidden --extension=toml --exec-batch taplo lint
     cargo +nightly fmt -- --check
+    cargo clippy --workspace --all-features
 
 # Format project
 fmt:
     just --unstable --fmt
-    prettier --write $(fd --type=file --hidden --extension=md --extension=yml)
-    taplo format $(fd --hidden --extension=toml)
+    nixpkgs-fmt .
+    fd --type=file --hidden --extension=md --extension=yml --exec-batch prettier --write
+    fd --hidden --extension=toml --exec-batch taplo format
     cargo +nightly fmt

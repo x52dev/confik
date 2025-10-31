@@ -1,10 +1,12 @@
 use confik_macros::Configuration;
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, PartialEq, Eq, Configuration)]
 struct NestedTargetRoot {
     inner: NestedTargetLeaf,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, PartialEq, Eq, Configuration)]
 struct NestedTargetLeaf {
     data: usize,

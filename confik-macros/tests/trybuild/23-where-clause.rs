@@ -13,7 +13,7 @@ impl MyTrait for () {
 }
 
 #[derive(Configuration)]
-#[confik(forward_serde(bound = "C: MyTrait + DeserializeOwned"))]
+#[confik(forward(serde(bound = "C: MyTrait + DeserializeOwned")))]
 struct Config<C>
 where
     C: MyTrait + Default + DeserializeOwned,

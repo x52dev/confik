@@ -6,7 +6,7 @@ use crate::{Configuration, MissingValue};
 
 /// The database type, used to determine the connection string format
 #[derive(Debug, Clone, PartialEq, Eq, Configuration)]
-#[confik(forward_serde(rename_all = "lowercase"))]
+#[confik(forward(serde(rename_all = "lowercase")))]
 enum DatabaseKind {
     Mysql,
     Postgres,

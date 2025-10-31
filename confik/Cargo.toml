@@ -1,6 +1,6 @@
 [package]
 name = "confik"
-version = "0.11.7"
+version = "0.15.0"
 description = "A library for reading application configuration split across multiple sources"
 authors.workspace = true
 keywords.workspace = true
@@ -30,36 +30,40 @@ json5 = ["dep:json5"]
 toml = ["dep:toml"]
 
 # Destination types
+ahash = ["dep:ahash"]
 bigdecimal = ["dep:bigdecimal"]
 bytesize = ["dep:bytesize"]
 camino = ["dep:camino"]
 chrono = ["dep:chrono"]
 common = []
 ipnetwork = ["dep:ipnetwork"]
+js_option = ["dep:js_option"]
 rust_decimal = ["dep:rust_decimal"]
 secrecy = ["dep:secrecy"]
 url = ["dep:url"]
 uuid = ["dep:uuid"]
 
 [dependencies]
-confik-macros = "=0.11.1"
+confik-macros = "=0.15.0"
 
 cfg-if = "1"
 serde = { version = "1", default-features = false, features = ["std", "derive"] }
-thiserror = "1"
+thiserror = "2"
 
 envious = { version = "0.2", optional = true }
 json5 = { version = "0.4", optional = true }
 serde_json = { version = "1", optional = true }
-toml = { version = "0.8", optional = true, default-features = false, features = ["parse"] }
+toml = { version = "0.9", optional = true, default-features = false, features = ["parse", "serde"] }
 
+ahash = { version = "0.8", optional = true, features = ["serde"] }
 bigdecimal = { version = "0.4", optional = true, features = ["serde"] }
-bytesize = { version = "1", optional = true, features = ["serde"] }
+bytesize = { version = "2", optional = true, features = ["serde"] }
 camino = { version = "1", optional = true, features = ["serde1"] }
-chrono = { version = "0.4.20", optional = true, default-features = false, features = ["serde"] }
-ipnetwork = { version = "0.20", optional = true, features = ["serde"] }
+chrono = { version = "0.4.42", optional = true, default-features = false, features = ["serde"] }
+ipnetwork = { version = "0.21", optional = true, features = ["serde"] }
+js_option = { version = "0.2", optional = true, features = ["serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
-secrecy = { version = "0.8", optional = true, features = ["serde"] }
+secrecy = { version = "0.10", optional = true, features = ["serde"] }
 url = { version = "2", optional = true, features = ["serde"] }
 uuid = { version = "1", optional = true, features = ["serde"] }
 
@@ -86,3 +90,7 @@ required-features = ["toml", "secrecy"]
 [[example]]
 name = "bigdecimal"
 required-features = ["toml", "bigdecimal"]
+
+[[example]]
+name = "ahash"
+required-features = ["toml", "ahash"]

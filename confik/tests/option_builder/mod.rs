@@ -1,5 +1,6 @@
 use confik::Configuration;
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Eq, PartialEq, Configuration)]
 struct Config {
     param: Option<usize>,
@@ -83,11 +84,13 @@ mod json {
 mod complex {
     use confik::Configuration;
 
+    #[allow(dead_code)] // unused in no-default-features cases
     #[derive(Configuration, Debug, PartialEq, Eq)]
     struct Leaf {
         param: Option<usize>,
     }
 
+    #[allow(dead_code)] // unused in no-default-features cases
     #[derive(Configuration, Debug, PartialEq, Eq)]
     struct Root {
         inner: Option<Leaf>,

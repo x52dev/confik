@@ -3,7 +3,7 @@ use std::collections::{BTreeSet, HashSet};
 use confik::Configuration;
 
 #[derive(Configuration)]
-#[confik(derive(::std::hash::Hash, std::cmp::Ord, PartialOrd, Eq, PartialEq, Clone))]
+#[confik(forward(derive(::std::hash::Hash, std::cmp::Ord, PartialOrd, Eq, PartialEq, Clone)))]
 struct Target {
     item: usize,
 }

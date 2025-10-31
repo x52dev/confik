@@ -1,8 +1,8 @@
-#[cfg(feature = "secrecy")]
+#[cfg(all(feature = "secrecy", feature = "toml"))]
 mod secrecy {
     use confik::{Configuration, TomlSource};
     use indoc::indoc;
-    use secrecy::{ExposeSecret, SecretString};
+    use secrecy::{ExposeSecret as _, SecretString};
 
     #[test]
     fn secret_string() {
@@ -23,11 +23,11 @@ mod secrecy {
 
         assert_eq!(
             format!("{:?}", config.secret_string),
-            "Secret([REDACTED alloc::string::String])",
+            "SecretBox<str>([REDACTED])",
         );
         assert_eq!(
             format!("{config:?}"),
-            "Config { secret_string: Secret([REDACTED alloc::string::String]) }",
+            "Config { secret_string: SecretBox<str>([REDACTED]) }",
         );
         assert_eq!(config.secret_string.expose_secret(), "SeriouslySecret");
     }
@@ -57,17 +57,17 @@ mod secrecy {
 
         assert_eq!(
             format!("{:?}", config.secret_string),
-            "Secret([REDACTED alloc::string::String])",
+            "SecretBox<str>([REDACTED])",
         );
         assert_eq!(
             format!("{config:?}"),
-            "Config { secret_string: Secret([REDACTED alloc::string::String]) }",
+            "Config { secret_string: SecretBox<str>([REDACTED]) }",
         );
         assert_eq!(config.secret_string.expose_secret(), "SeriouslySecret");
     }
 }
 
-#[cfg(feature = "bigdecimal")]
+#[cfg(all(feature = "bigdecimal", feature = "toml"))]
 mod bigdecimal {
     use std::str::FromStr;
 
@@ -124,5 +124,79 @@ mod bigdecimal {
                 }
             },
         }
+    }
+}
+
+#[cfg(feature = "js_option")]
+mod js_option {
+    use confik::Configuration;
+    use js_option::JsOption;
+
+    #[derive(Configuration, Debug)]
+    struct Config {
+        opt: JsOption<usize>,
+    }
+
+    #[test]
+    fn undefined() {
+        let config = Config::builder()
+            .try_build()
+            .expect("Should be valid without config");
+        assert_eq!(config.opt, JsOption::Undefined);
+    }
+
+    #[cfg(feature = "json")]
+    #[test]
+    fn null() {
+        let json = r#"{ "opt": null }"#;
+
+        let config = Config::builder()
+            .override_with(confik::JsonSource::new(json))
+            .try_build()
+            .expect("Failed to parse config");
+        assert_eq!(config.opt, JsOption::Null);
+    }
+
+    #[cfg(feature = "toml")]
+    #[test]
+    fn present() {
+        let toml = "opt = 5";
+
+        let config = Config::builder()
+            .override_with(confik::TomlSource::new(toml))
+            .try_build()
+            .expect("Should be valid without config");
+        assert_eq!(config.opt, JsOption::Some(5));
+    }
+
+    #[cfg(feature = "json")]
+    #[test]
+    fn merge() {
+        #[derive(Debug, Configuration, PartialEq, Eq)]
+        struct Config {
+            one: JsOption<usize>,
+            two: JsOption<usize>,
+            three: JsOption<usize>,
+            four: JsOption<usize>,
+        }
+
+        let base = r#"{ "two": null, "three": 5 }"#;
+        let merge = r#"{ "one": 1, "two": 2, "three": 3}"#;
+
+        let config = Config::builder()
+            .override_with(confik::JsonSource::new(merge))
+            .override_with(confik::JsonSource::new(base))
+            .try_build()
+            .expect("Failed to parse config");
+
+        assert_eq!(
+            config,
+            Config {
+                one: JsOption::Some(1),
+                two: JsOption::Null,
+                three: JsOption::Some(5),
+                four: JsOption::Undefined,
+            }
+        );
     }
 }

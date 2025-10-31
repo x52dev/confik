@@ -1,8 +1,10 @@
 use confik::Configuration;
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Configuration, Eq, PartialEq)]
 struct NonCopy(usize);
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Configuration, Eq, PartialEq)]
 struct Target {
     val: [NonCopy; 10],

@@ -2,8 +2,78 @@
 
 ## Unreleased
 
-- Minimum supported Rust version (MSRV) is now 1.67 due to `toml_edit` dependency.
-- Add `Json5` source support under `Json5Source`
+- Add `Json5` source support under `Json5Source`.
+
+## 0.15.0
+
+- Add a new `confik(skip)` attribute. This allows skipping the field in the builder (and so it need not implement `Configuration` or be deserializable), however it must use `confik(default)` or `confik(default = ...)`, otherwise it can't be built. E.g.
+  ```rust
+  #[derive(Configuration)]
+  struct Config {
+    #[confik(skip, default = Instant::now())]
+    loaded_at: Instant,
+  }
+  ```
+- Implement `Configuration` for [`ahash::{AHashSet, AHashMap}`](https://docs.rs/ahash/0.8/ahash).
+- Add new `helper` module, with utilities for manually implementing more complex `Configuration` behaviour.
+  - `UnkeyedContainerBuilder` can be used as a `Configuration::builder` for container types without separate keys (such as a `Vec` and `HashSet`).
+    - See `UnkeyedContainerBuilder`'s docs for details and an example.
+  - `KeyedContainerBuilder` can be used as a `Configuration::builder` for container types with explicit keys (such as `HashMap` and `BTreeMap`).
+    - Using `KeyedContainerBuilder` requires implementing `KeyedContainer` for your type.
+    - See `KeyedContainerBuilder`'s docs for details and an example.
+  - A few type aliases, to make it easier to write and understand complex generics when manually implementing `Configuration`.
+- Add a new `OffsetSource` for when your configuration files point part way into your configuration.
+  - For example, this would allow reading one `tls.toml` to multiple different TLS config structs; then allowing more specific configuration to override them. i.e.
+  ```rust
+  let common_tls_source = FileSource::new("tls.toml");
+  let config = Config::builder()
+    .override_with(OffsetSource::new::<BuilderOf<Config>>(common_tls_source.clone(), |b| &mut b.kafka.tls))
+    .override_with(OffsetSource::new::<BuilderOf<Config>>(common_tls_source, |b| &mut b.server.tls))
+    .override_with(FileSource::new("config.toml"))
+    .try_build()?;
+  ```
+- Update `toml` dependency to `0.9`.
+
+## 0.14.0
+
+- Implement `Configuration` for atomic numeric and bool types.
+- Implement `Configuration` for [`js_option::JsOption`](https://docs.rs/js_option/0.1.1/js_option/enum.JsOption.html)
+- Add a new `confik(forward(...))` attribute. As well as allowing for forwarding general attributes to the builder, this:
+  - Replaces `confik(forward_serde(...))`. E.g.
+    ```rust
+    #[derive(Configuration)]
+    struct Config {
+      #[confik(forward(serde(default)))]
+      num: usize,
+    }
+    ```
+  - Replaces `confik(derive(...))`. E.g.
+    ```rust
+    #[derive(Configuration)]
+    #[confik(forward(derive(Hash)))]
+    struct Config(usize);
+    ```
+- Add a new `confik(name = ...)` attribute, that provides a custom name for the `Configuration::Builder` `struct` or `enum`.
+  - This will also place the builder in the local module, so that its name is in a known location
+  ```rust
+  #[derive(Configuration)]
+  #[confik(name = Builder)]
+  struct Config {}
+  ```
+
+## 0.13.0
+
+- Update `bytesize` dependency to `2`.
+- Update `ipnetwork` dependency to `0.21`.
+- Minimum supported Rust version (MSRV) is now 1.70.
+
+## 0.12.0
+
+- Update `secrecy` dependency to `0.10`.
+
+## 0.11.8
+
+- Implement `Configuration` for [`chrono::NaiveDateTime`](https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html)
 
 ## 0.11.7
 

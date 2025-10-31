@@ -1,26 +1,3 @@
 {
-  "cSpell.words": [
-    "bigdecimal",
-    "bytesize",
-    "chrono",
-    "codecov",
-    "confik",
-    "dataless",
-    "deserializations",
-    "docsrs",
-    "formatdoc",
-    "impls",
-    "indoc",
-    "ipnetwork",
-    "msrv",
-    "rustc",
-    "rustversion",
-    "serde",
-    "struct",
-    "tempfile",
-    "thiserror",
-    "trybuild",
-    "usize"
-  ],
   "rust-analyzer.cargo.features": "all"
 }

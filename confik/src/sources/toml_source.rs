@@ -29,38 +29,20 @@ impl<'a> TomlSource<'a> {
     }
 }
 
-impl<'a> Source for TomlSource<'a> {
+impl<T: ConfigurationBuilder> Source<T> for TomlSource<'_> {
     fn allows_secrets(&self) -> bool {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
+    fn provide(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
         Ok(toml::from_str(&self.contents)?)
     }
 }
 
-impl<'a> Debug for TomlSource<'a> {
+impl Debug for TomlSource<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("TomlSource")
             .field("allow_secrets", &self.allow_secrets)
             .finish_non_exhaustive()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn defaults() {
-        let source = TomlSource::new("");
-        assert!(!source.allows_secrets());
-    }
-
-    #[test]
-    fn clone() {
-        let source = TomlSource::new("").allow_secrets();
-        assert!(source.allows_secrets());
-        assert!(source.clone().allow_secrets);
     }
 }

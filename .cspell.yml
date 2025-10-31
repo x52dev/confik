@@ -1,0 +1,34 @@
+version: "0.2"
+words:
+  - ahash
+  - bigdecimal
+  - bytesize
+  - chrono
+  - clippy
+  - codecov
+  - confik
+  - dataless
+  - deserializations
+  - docsrs
+  - doctests
+  - formatdoc
+  - humantime
+  - impls
+  - indoc
+  - ipnetwork
+  - msrv
+  - nextest
+  - nixpkgs
+  - pkgs
+  - powerset
+  - rustc
+  - rustdoc
+  - rustup
+  - rustversion
+  - serde
+  - struct
+  - taplo
+  - tempfile
+  - thiserror
+  - trybuild
+  - usize

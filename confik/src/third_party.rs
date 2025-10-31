@@ -17,7 +17,7 @@ mod camino {
 
 #[cfg(feature = "chrono")]
 mod chrono {
-    use chrono::{DateTime, NaiveDate, NaiveTime, TimeZone};
+    use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
     use serde::de::DeserializeOwned;
 
     use crate::Configuration;
@@ -37,7 +37,12 @@ mod chrono {
         type Builder = Option<Self>;
     }
 
+    impl Configuration for NaiveDateTime {
+        type Builder = Option<Self>;
+    }
+
     #[cfg(test)]
+    #[cfg(feature = "toml")]
     mod tests {
         use crate::TomlSource;
 
@@ -115,6 +120,65 @@ mod ipnetwork {
     }
 }
 
+#[cfg(feature = "js_option")]
+mod js_option {
+    use js_option::JsOption;
+    use serde::de::DeserializeOwned;
+
+    use crate::{
+        helpers::{BuilderOf, TargetOf},
+        Configuration, ConfigurationBuilder,
+    };
+
+    impl<T> Configuration for JsOption<T>
+    where
+        T: DeserializeOwned + Configuration,
+    {
+        type Builder = JsOption<BuilderOf<T>>;
+    }
+
+    impl<T> ConfigurationBuilder for JsOption<T>
+    where
+        T: DeserializeOwned + ConfigurationBuilder,
+    {
+        type Target = JsOption<TargetOf<T>>;
+
+        fn merge(self, other: Self) -> Self {
+            match (self, other) {
+                // If both `Some` then merge the contained builders
+                (Self::Some(us), Self::Some(other)) => Self::Some(us.merge(other)),
+                // If we don't have a value then always take the other
+                (Self::Undefined, other) => other,
+                // Either:
+                // - We're explicitly `Null`
+                // - We're explicitly `Some` and the other is `Undefined` or `Null`
+                //
+                // In either case, just take our value, which should be preferred to other.
+                (us, _) => us,
+            }
+        }
+
+        fn try_build(self) -> Result<Self::Target, crate::Error> {
+            match self {
+                Self::Undefined => Ok(Self::Target::Undefined),
+                Self::Null => Ok(Self::Target::Null),
+                Self::Some(val) => Ok(Self::Target::Some(val.try_build()?)),
+            }
+        }
+
+        fn contains_non_secret_data(&self) -> Result<bool, crate::UnexpectedSecret> {
+            match self {
+                Self::Some(data) => data.contains_non_secret_data(),
+
+                // An explicit `Null` is counted as data, overriding any default.
+                Self::Null => Ok(true),
+
+                Self::Undefined => Ok(false),
+            }
+        }
+    }
+}
+
 #[cfg(feature = "secrecy")]
 mod secrecy {
     use secrecy::SecretString;
@@ -156,5 +220,51 @@ mod bigdecimal {
 
     impl Configuration for BigDecimal {
         type Builder = Option<Self>;
+    }
+}
+
+#[cfg(feature = "ahash")]
+mod ahash {
+    use std::{fmt::Display, hash::Hash};
+
+    use ahash::{AHashMap, AHashSet};
+    use serde::de::DeserializeOwned;
+
+    use crate::{
+        helpers::{BuilderOf, KeyedContainer, KeyedContainerBuilder, UnkeyedContainerBuilder},
+        Configuration,
+    };
+
+    impl<T> Configuration for AHashSet<T>
+    where
+        T: Configuration + Hash + Eq,
+        BuilderOf<T>: Hash + Eq + 'static,
+    {
+        type Builder = UnkeyedContainerBuilder<AHashSet<BuilderOf<T>>, Self>;
+    }
+
+    impl<K, V> KeyedContainer for AHashMap<K, V>
+    where
+        K: Hash + Eq,
+    {
+        type Key = K;
+        type Value = V;
+
+        fn insert(&mut self, k: Self::Key, v: Self::Value) {
+            self.insert(k, v);
+        }
+
+        fn remove(&mut self, k: &Self::Key) -> Option<Self::Value> {
+            self.remove(k)
+        }
+    }
+
+    impl<K, V> Configuration for AHashMap<K, V>
+    where
+        K: Hash + Eq + Display + DeserializeOwned + 'static,
+        V: Configuration,
+        BuilderOf<V>: 'static,
+    {
+        type Builder = KeyedContainerBuilder<AHashMap<K, BuilderOf<V>>, Self>;
     }
 }

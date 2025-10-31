@@ -31,7 +31,7 @@ pub struct EnvSource<'a> {
     allow_secrets: bool,
 }
 
-impl<'a> Default for EnvSource<'a> {
+impl Default for EnvSource<'_> {
     fn default() -> Self {
         Self::new()
     }
@@ -75,12 +75,12 @@ impl<'a> EnvSource<'a> {
     }
 }
 
-impl<'a> Source for EnvSource<'a> {
+impl<T: ConfigurationBuilder> Source<T> for EnvSource<'_> {
     fn allows_secrets(&self) -> bool {
         self.allow_secrets
     }
 
-    fn provide<T: ConfigurationBuilder>(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
+    fn provide(&self) -> Result<T, Box<dyn Error + Sync + Send>> {
         Ok(self.config.build_from_env()?)
     }
 }
@@ -88,19 +88,6 @@ impl<'a> Source for EnvSource<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn defaults() {
-        let source = EnvSource::default();
-        assert!(!source.allows_secrets());
-    }
-
-    #[test]
-    fn clone() {
-        let source = EnvSource::default().allow_secrets();
-        assert!(source.allows_secrets());
-        assert!(source.clone().allow_secrets);
-    }
 
     #[test]
     fn separator() {

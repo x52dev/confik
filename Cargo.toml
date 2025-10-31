@@ -9,7 +9,7 @@ categories = ["config"]
 repository = "https://github.com/x52dev/confik"
 license = "MIT OR Apache-2.0"
 edition = "2021"
-rust-version = "1.67"
+rust-version = "1.70"
 
 [patch.crates-io]
 confik = { path = "confik" }

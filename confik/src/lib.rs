@@ -28,12 +28,14 @@ mod builder;
 #[cfg(feature = "common")]
 pub mod common;
 mod errors;
+pub mod helpers;
 mod path;
 mod secrets;
 mod sources;
 mod std_impls;
 mod third_party;
 
+use self::path::Path;
 #[cfg(feature = "env")]
 pub use self::sources::env_source::EnvSource;
 #[cfg(feature = "json5")]
@@ -46,9 +48,8 @@ pub use self::{
     builder::ConfigBuilder,
     errors::Error,
     secrets::{SecretBuilder, SecretOption, UnexpectedSecret},
-    sources::{file_source::FileSource, Source},
+    sources::{file_source::FileSource, offset_source::OffsetSource, Source},
 };
-use self::{path::Path, sources::DynSource};
 
 /// Captures the path of a missing value.
 #[derive(Debug, Default, thiserror::Error)]
@@ -88,13 +89,13 @@ impl FailedTryInto {
 fn build_from_sources<'a, Target, Iter>(sources: Iter) -> Result<Target, Error>
 where
     Target: Configuration,
-    Iter: IntoIterator<Item = Box<dyn DynSource<Target::Builder> + 'a>>,
+    Iter: IntoIterator<Item = Box<dyn Source<Target::Builder> + 'a>>,
 {
     sources
         .into_iter()
         // Convert each source to a `Target::Builder`
         .map::<Result<Target::Builder, Error>, _>(
-            |source: Box<dyn DynSource<Target::Builder> + 'a>| {
+            |source: Box<dyn Source<Target::Builder> + 'a>| {
                 let debug = || format!("{source:?}");
                 let res = source.provide().map_err(|e| Error::Source(e, debug()))?;
                 if source.allows_secrets().not() {
@@ -109,7 +110,6 @@ where
         // If there was no data then we're missing values
         .ok_or_else(|| Error::MissingValue(MissingValue::default()))??
         .try_build()
-        .map_err(Into::into)
 }
 
 /// The target to be deserialized from multiple sources.
