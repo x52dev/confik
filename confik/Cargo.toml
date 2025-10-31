@@ -26,6 +26,7 @@ default = ["env", "toml"]
 # Source types
 env = ["dep:envious"]
 json = ["dep:serde_json"]
+json5 = ["dep:json5"]
 toml = ["dep:toml"]
 
 # Destination types
@@ -50,6 +51,7 @@ serde = { version = "1", default-features = false, features = ["std", "derive"] 
 thiserror = "2"
 
 envious = { version = "0.2", optional = true }
+json5 = { version = "0.4", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.9", optional = true, default-features = false, features = ["parse", "serde"] }
 

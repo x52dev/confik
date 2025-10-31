@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `Json5` source support under `Json5Source`.
+
 ## 0.15.0
 
 - Add a new `confik(skip)` attribute. This allows skipping the field in the builder (and so it need not implement `Configuration` or be deserializable), however it must use `confik(default)` or `confik(default = ...)`, otherwise it can't be built. E.g.
