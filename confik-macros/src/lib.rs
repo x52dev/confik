@@ -135,7 +135,10 @@ struct VariantImplementer {
 
 impl VariantImplementer {
     /// Define the builder variant for a given target variant
-    fn define_builder(var_impl: &SpannedValue<Self>) -> syn::Result<TokenStream> {
+    fn define_builder(
+        var_impl: &SpannedValue<Self>,
+        crate_root: TokenStream,
+    ) -> syn::Result<TokenStream> {
         let Self {
             ident,
             fields,
@@ -146,7 +149,7 @@ impl VariantImplementer {
         let field_vec = fields
             .iter()
             .filter(|f| !f.skip.is_present())
-            .map(FieldImplementer::define_builder)
+            .map(|field| FieldImplementer::define_builder(field, crate_root.clone()))
             .collect::<Result<Vec<_>, _>>()?;
         let fields = ast::Fields::new(fields.style, field_vec).into_token_stream();
 
@@ -198,7 +201,10 @@ impl VariantImplementer {
         })
     }
 
-    fn impl_try_build(var_impl: &SpannedValue<Self>) -> syn::Result<TokenStream> {
+    fn impl_try_build(
+        var_impl: &SpannedValue<Self>,
+        crate_root: TokenStream,
+    ) -> syn::Result<TokenStream> {
         let Self { ident, fields, .. } = var_impl.as_ref();
 
         let style = fields.style;
@@ -223,6 +229,7 @@ impl VariantImplementer {
                     style,
                     Some("us"),
                     Some(&ident.to_string()),
+                    crate_root.clone(),
                 )
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -389,7 +396,10 @@ impl FieldImplementer {
     }
 
     /// Define the builder field for a given target field.
-    fn define_builder(field_impl: &SpannedValue<Self>) -> syn::Result<TokenStream> {
+    fn define_builder(
+        field_impl: &SpannedValue<Self>,
+        crate_root: TokenStream,
+    ) -> syn::Result<TokenStream> {
         let Self {
             ty,
             ident,
@@ -418,11 +428,11 @@ impl FieldImplementer {
             (None, None) => ty,
         };
 
-        let ty = quote_spanned!(ty.span() => <#ty as ::confik::Configuration>::Builder);
+        let ty = quote_spanned!(ty.span() => <#ty as #crate_root::Configuration>::Builder);
 
         // If secret then wrap in [`confik::SecretBuilder`]
         let ty = if secret.is_present() {
-            quote_spanned!(ty.span() => ::confik::SecretBuilder<#ty>)
+            quote_spanned!(ty.span() => #crate_root::SecretBuilder<#ty>)
         } else {
             ty
         };
@@ -493,6 +503,7 @@ impl FieldImplementer {
         style: Style,
         us_ident_prefix: Option<&str>,
         extra_prepend: Option<&str>,
+        crate_root: TokenStream,
     ) -> syn::Result<TokenStream> {
         let ident = FieldIdent::new(&field_impl.ident, field_index);
 
@@ -552,7 +563,7 @@ impl FieldImplementer {
             } else if field_impl.try_from.is_some() {
                 quote_spanned! {
                     field_build.span() => #field_build.try_into().map_err(|e|
-                        ::confik::FailedTryInto::new(e)
+                        #crate_root::FailedTryInto::new(e)
                     )?
                 }
             } else {
@@ -635,9 +646,23 @@ struct RootImplementer {
     ///
     /// Setting this also puts the builder in the local module, so that the name is accessible.
     name: Option<Ident>,
+
+    /// Re-maps the base reference to `confik` when imports need to use a different path.
+    ///
+    /// For example, when using a renamed dependency in Cargo.toml + `package` field.
+    #[darling(rename = "crate")]
+    krate: Option<syn::Path>,
 }
 
 impl RootImplementer {
+    /// Returns base crate reference for `confik`.
+    fn confik_crate_base(&self) -> TokenStream {
+        self.krate
+            .as_ref()
+            .map(|krate| krate.to_token_stream())
+            .unwrap_or_else(|| quote!(::confik))
+    }
+
     /// Check that the type can be instantiated. This currently just checks that the type
     /// is not a variant-less `enum`, e.g.
     ///
@@ -680,6 +705,7 @@ impl RootImplementer {
             ..
         } = self;
 
+        let crate_root = self.confik_crate_base();
         let builder_name = self.builder_name();
 
         let enum_or_struct_token = if data.is_struct() {
@@ -698,7 +724,7 @@ impl RootImplementer {
             ast::Data::Enum(variants) => {
                 let variants = variants
                     .iter()
-                    .map(VariantImplementer::define_builder)
+                    .map(|variant| VariantImplementer::define_builder(variant, crate_root.clone()))
                     .collect::<Result<Vec<_>, _>>()?;
 
                 quote_spanned! { target_name.span() =>
@@ -716,7 +742,7 @@ impl RootImplementer {
                 let field_vec = fields
                     .iter()
                     .filter(|f| !f.skip.is_present())
-                    .map(FieldImplementer::define_builder)
+                    .map(|field| FieldImplementer::define_builder(field, crate_root.clone()))
                     .collect::<Result<Vec<_>, _>>()?;
                 ast::Fields::new(fields.style, field_vec).into_token_stream()
             }
@@ -735,9 +761,16 @@ impl RootImplementer {
 
         let (_impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
+        let mut serde_crate_root = crate_root.clone();
+        serde_crate_root.extend(quote!(::__exports::__serde));
+        let mut serde_deserialize_path = serde_crate_root.clone();
+        serde_deserialize_path.extend(quote!(::Deserialize));
+
+        let serde_crate_root_quoted = serde_crate_root.to_string();
+
         Ok(quote_spanned! { target_name.span() =>
-            #[derive(::std::default::Default, ::confik::__exports::__serde::Deserialize)]
-            #[serde(crate = "::confik::__exports::__serde")]
+            #[derive(::std::default::Default, #serde_deserialize_path)]
+            #[serde(crate = #serde_crate_root_quoted)]
             #forward
             #vis #enum_or_struct_token #builder_name #type_generics #where_clause
                 #bracketed_data
@@ -789,6 +822,8 @@ impl RootImplementer {
     fn impl_try_build(&self) -> syn::Result<TokenStream> {
         let Self { ident, data, .. } = self;
 
+        let crate_root = self.confik_crate_base();
+
         let field_build = match data {
             ast::Data::Struct(fields) => {
                 let style = fields.style;
@@ -796,7 +831,14 @@ impl RootImplementer {
                     .iter()
                     .enumerate()
                     .map(|(index, field)| {
-                        FieldImplementer::impl_try_build(index, field, fields.style, None, None)
+                        FieldImplementer::impl_try_build(
+                            index,
+                            field,
+                            fields.style,
+                            None,
+                            None,
+                            crate_root.clone(),
+                        )
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 let bracketed_fields = ast::Fields::new(style, fields).into_token_stream();
@@ -805,11 +847,11 @@ impl RootImplementer {
             ast::Data::Enum(variants) => {
                 let variants = variants
                     .iter()
-                    .map(VariantImplementer::impl_try_build)
+                    .map(|variant| VariantImplementer::impl_try_build(variant, crate_root.clone()))
                     .collect::<Result<Vec<_>, _>>()?;
                 quote! {
                     Ok(match self {
-                        Self::ConfigBuilderUndefined => return Err(::confik::Error::MissingValue(<::confik::MissingValue as ::std::default::Default>::default())),
+                        Self::ConfigBuilderUndefined => return Err(#crate_root::Error::MissingValue(<#crate_root::MissingValue as ::std::default::Default>::default())),
                         #( #variants, )*
                     })
                 }
@@ -819,7 +861,7 @@ impl RootImplementer {
         Ok(quote! {
             // Allow useless conversions as the default handling may call `.into()` unnecessarily.
             #[allow(clippy::useless_conversion)]
-            fn try_build(self) -> ::std::result::Result<Self::Target, ::confik::Error> {
+            fn try_build(self) -> ::std::result::Result<Self::Target, #crate_root::Error> {
                 #field_build
             }
         })
@@ -827,6 +869,8 @@ impl RootImplementer {
 
     /// Implement the `ConfigurationBuilder::contains_non_secret_data` method for our builder.
     fn impl_contains_non_secret_data(&self) -> TokenStream {
+        let crate_root = self.confik_crate_base();
+
         let field_check = match &self.data {
             ast::Data::Struct(fields) => {
                 let field_check = fields
@@ -852,7 +896,7 @@ impl RootImplementer {
         };
 
         quote! {
-            fn contains_non_secret_data(&self) -> ::std::result::Result<::std::primitive::bool, ::confik::UnexpectedSecret> {
+            fn contains_non_secret_data(&self) -> ::std::result::Result<::std::primitive::bool, #crate_root::UnexpectedSecret> {
                 Ok(#field_check)
             }
         }
@@ -865,6 +909,8 @@ impl RootImplementer {
             generics,
             ..
         } = self;
+
+        let crate_root = self.confik_crate_base();
         let builder_name = self.builder_name();
 
         let merge = self.impl_merge()?;
@@ -875,7 +921,7 @@ impl RootImplementer {
         let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
         Ok(quote! {
-            impl #impl_generics ::confik::ConfigurationBuilder  for #builder_name #type_generics #where_clause {
+            impl #impl_generics #crate_root::ConfigurationBuilder  for #builder_name #type_generics #where_clause {
                 type Target = #target_name #type_generics;
 
                 #merge
@@ -894,13 +940,15 @@ impl RootImplementer {
             generics,
             ..
         } = self;
+
+        let crate_root = self.confik_crate_base();
         let builder_name = self.builder_name();
         let builder = quote!(#builder_name #generics);
 
         let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
 
         quote! {
-            impl #impl_generics ::confik::Configuration for #target_name #type_generics  #where_clause {
+            impl #impl_generics #crate_root::Configuration for #target_name #type_generics  #where_clause {
                 type Builder = #builder;
             }
         }

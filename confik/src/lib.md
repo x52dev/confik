@@ -303,6 +303,19 @@ struct Config {
 }
 ```
 
+### Specifying `confik` Base
+
+Specify a path to the `confik` crate instance to use when referring to `confik` APIs from generated code. This is normally only applicable when invoking re-exported `confik` derives from a public macro in a different crate or when renaming `confik` in your Cargo manifest.
+
+```rust,ignore
+# use std::time::Instant;
+#[derive(confik::Configuration)]
+#[confik(crate = reexported_confik)]
+struct Config {
+  // ...
+}
+```
+
 ## Macro Limitations
 
 ### Custom `Deserialize` Implementations
