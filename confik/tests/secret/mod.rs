@@ -8,9 +8,11 @@ use std::{
 use confik::Configuration;
 use serde::Deserialize;
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Default, PartialEq, Eq, Configuration, Deserialize)]
 struct Num(usize);
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Default, PartialEq, Eq, Configuration, Deserialize)]
 struct PartiallySecret {
     public: Num,
@@ -18,27 +20,28 @@ struct PartiallySecret {
     secret: Num,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Default, PartialEq, Eq, Configuration, Deserialize)]
 struct NotSecret {
     public: PartiallySecret,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Default, PartialEq, Eq, Hash, Configuration, Deserialize)]
-#[allow(unused)]
 struct MaybeSecret {
     non_secret: Option<String>,
     #[confik(secret)]
     secret: Option<String>,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Configuration, Deserialize)]
-#[allow(unused)]
 struct MaybeSecretVec {
     seq: Vec<MaybeSecret>,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Configuration, Deserialize)]
-#[allow(unused)]
 struct MaybeSecretArray {
     seq: [MaybeSecret; 2],
 }
@@ -239,8 +242,9 @@ mod env {
     }
 }
 
-/// In order to have the `HashMap` case fail FUT-5298 determinstically,
-/// we beed to ensure the entires are ordered deterministically.
+/// In order to have the `HashMap` case fail FUT-5298 deterministically,
+/// we need to ensure the entires are ordered deterministically.
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, Default)]
 struct DeterministicHash(u64);
 

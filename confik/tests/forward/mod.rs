@@ -1,17 +1,20 @@
 use confik::Configuration;
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Configuration, Debug, PartialEq, Eq)]
 #[confik(forward(serde(rename_all = "UPPERCASE")))]
 struct Container {
     field: usize,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Configuration, Debug, PartialEq, Eq)]
 struct Inner {
     #[confik(forward(serde(rename = "outer")))]
     inner: usize,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Configuration, Debug, PartialEq, Eq)]
 struct Field {
     #[confik(forward(serde(rename = "other_name")))]
@@ -20,6 +23,7 @@ struct Field {
     field2: Inner,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Debug, PartialEq, Eq, Configuration)]
 enum Clothes {
     Hat,
@@ -29,6 +33,7 @@ enum Clothes {
     Other,
 }
 
+#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Configuration)]
 #[allow(dead_code)]
 struct Cupboard {

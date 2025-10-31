@@ -2,6 +2,7 @@ macro_rules! create_tests_for {
     ($container:ty) => {
         use confik::Configuration;
 
+        #[allow(dead_code)] // unused in no-default-features cases
         #[derive(Debug, Configuration, PartialEq, Eq, Hash, Ord, PartialOrd)]
         #[confik(forward(derive(Hash, PartialEq, Eq, Ord, PartialOrd)))]
         struct TwoVals {
@@ -9,6 +10,7 @@ macro_rules! create_tests_for {
             second: usize,
         }
 
+        #[allow(dead_code)] // unused in no-default-features cases
         #[derive(Debug, Configuration, PartialEq, Eq)]
         struct Target {
             val: $container,
