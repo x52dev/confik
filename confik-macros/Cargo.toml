@@ -1,6 +1,6 @@
 [package]
 name = "confik-macros"
-version = "0.15.0"
+version = "0.15.1"
 description = "Macros for confik"
 authors.workspace = true
 keywords.workspace = true

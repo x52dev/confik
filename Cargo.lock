@@ -202,7 +202,7 @@ dependencies = [
 
 [[package]]
 name = "confik"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "ahash 0.8.12",
  "assert_matches",
@@ -232,7 +232,7 @@ dependencies = [
 
 [[package]]
 name = "confik-macros"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "assert_matches",
  "confik",

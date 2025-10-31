@@ -35,7 +35,6 @@ enum Clothes {
 
 #[allow(dead_code)] // unused in no-default-features cases
 #[derive(Configuration)]
-#[allow(dead_code)]
 struct Cupboard {
     items: Vec<Clothes>,
 }
