@@ -28,6 +28,11 @@ env = ["dep:envious"]
 json = ["dep:serde_json"]
 toml = ["dep:toml"]
 
+# Hot reloading
+reloading = ["dep:arc-swap"]
+signal = ["dep:signal-hook"]
+tracing = ["dep:tracing"]
+
 # Destination types
 ahash = ["dep:ahash"]
 bigdecimal = ["dep:bigdecimal"]
@@ -45,14 +50,22 @@ uuid = ["dep:uuid"]
 [dependencies]
 confik-macros = "=0.15.1"
 
+# Always required
 cfg-if = "1"
 serde = { version = "1", default-features = false, features = ["std", "derive"] }
 thiserror = "2"
 
+# Source types
 envious = { version = "0.2", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.9", optional = true, default-features = false, features = ["parse", "serde"] }
 
+# Hot reloading
+arc-swap = { version = "1", optional = true }
+signal-hook = { version = "0.3", optional = true }
+tracing = { version = "0.1", optional = true }
+
+# Destination types
 ahash = { version = "0.8", optional = true, features = ["serde"] }
 bigdecimal = { version = "0.4", optional = true, features = ["serde"] }
 bytesize = { version = "2", optional = true, features = ["serde"] }
@@ -66,6 +79,7 @@ url = { version = "2", optional = true, features = ["serde"] }
 uuid = { version = "1", optional = true, features = ["serde"] }
 
 [dev-dependencies]
+anyhow = "1"
 assert_matches = "1.5"
 humantime-serde = "1"
 indoc = "2"
@@ -92,3 +106,7 @@ required-features = ["toml", "bigdecimal"]
 [[example]]
 name = "ahash"
 required-features = ["toml", "ahash"]
+
+[[example]]
+name = "reloading"
+required-features = ["toml", "reloading"]
