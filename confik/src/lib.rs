@@ -30,12 +30,16 @@ pub mod common;
 mod errors;
 pub mod helpers;
 mod path;
+#[cfg(feature = "reloading")]
+mod reloading;
 mod secrets;
 mod sources;
 mod std_impls;
 mod third_party;
 
 use self::path::Path;
+#[cfg(feature = "reloading")]
+pub use self::reloading::{ReloadCallback, ReloadableConfig, ReloadingConfig};
 #[cfg(feature = "env")]
 pub use self::sources::env_source::EnvSource;
 #[cfg(feature = "json")]

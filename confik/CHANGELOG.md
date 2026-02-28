@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Add hot-reloadable configuration support with `ReloadableConfig` trait and `ReloadingConfig` wrapper. Requires the `reloading` feature (depends on `arc-swap`).
+  - `ReloadableConfig` trait defines how to build a configuration instance
+  - `ReloadingConfig<T, F>` provides lock-free atomic configuration swapping
+  - Optional callbacks via `with_on_update()` for reload notifications
+  - Optional SIGHUP signal handler via `set_signal_handler()` (requires `signal` feature, depends on `signal-hook`)
+  - Optional tracing support for logging reload errors (requires `tracing` feature)
+
 ## 0.15.1
 
 - Add `confik(crate = ...)` option to `Configuration` macro.

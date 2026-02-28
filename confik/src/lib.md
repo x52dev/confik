@@ -50,6 +50,74 @@ assert_eq!(
 # }
 ```
 
+## Hot Reloading
+
+Configuration can be made hot-reloadable using the [`ReloadingConfig`] wrapper. This allows you to atomically swap configuration at runtime without restarting your application. Requires the `reloading` feature.
+
+```no_run
+# #[cfg(all(feature = "toml", feature = "reloading"))]
+# {
+use confik::{Configuration, ReloadableConfig, FileSource};
+
+#[derive(Debug, Configuration)]
+struct AppConfig {
+    host: String,
+    port: u16,
+}
+
+impl ReloadableConfig for AppConfig {
+    type Error = confik::Error;
+
+    fn build() -> Result<Self, Self::Error> {
+        Self::builder()
+            .override_with(FileSource::new("config.toml"))
+            .try_build()
+    }
+}
+
+// Create a reloading config
+let config = AppConfig::reloading().unwrap();
+
+// Access the current config (cheap, non-blocking)
+let current = config.load();
+println!("Host: {}", current.host);
+
+// Reload from sources
+config.reload().unwrap();
+
+// Add a callback for reload notifications
+let config = config.with_on_update(|| {
+    println!("Config reloaded!");
+});
+# }
+```
+
+### Signal Handling
+
+When the `signal` feature is enabled (requires `reloading`), you can also set up automatic reloading on SIGHUP:
+
+```no_run
+# #[cfg(all(feature = "signal", feature = "toml"))]
+# {
+# use confik::{Configuration, ReloadableConfig, FileSource};
+# #[derive(Debug, Configuration)]
+# struct AppConfig { host: String, port: u16 }
+# impl ReloadableConfig for AppConfig {
+#     type Error = confik::Error;
+#     fn build() -> Result<Self, Self::Error> {
+#         Self::builder().override_with(FileSource::new("config.toml")).try_build()
+#     }
+# }
+let config = AppConfig::reloading().unwrap();
+let handle = config.set_signal_handler().unwrap();
+
+// Config will now reload when receiving SIGHUP
+// Send SIGHUP: kill -HUP <pid>
+# }
+```
+
+When the `tracing` feature is enabled, reload errors in the signal handler will be automatically logged with `tracing::error!`.
+
 ## Sources
 
 A [`Source`] is any type that can create [`ConfigurationBuilder`]s. This crate implements the following sources:
