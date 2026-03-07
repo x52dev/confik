@@ -17,6 +17,7 @@ msrv_rustup := "+" + msrv
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-for-msrv toolchain="":
+    cargo {{ toolchain }} update -p=time --precise=0.3.45 # next ver: 1.88.0
     cargo {{ toolchain }} update -p=idna_adapter --precise=1.2.0 # next ver: 1.82.0
 
 # Test workspace using MSRV
