@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Update `toml` dependency to `1`. This means config files now support the TOML v1.1 spec with [some new features](https://github.com/toml-lang/toml/releases/tag/1.1.0).
-- Minimum supported Rust version (MSRV) is now 1.76.
+- Minimum supported Rust version (MSRV) is now 1.81.
 
 ## 0.15.1
 
