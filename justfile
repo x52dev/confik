@@ -28,6 +28,7 @@ downgrade-for-msrv toolchain="":
     cargo {{ toolchain }} update -p=syn@"$syn_version" --precise="2.0.114" # next ver: 1.71.0
     cargo {{ toolchain }} update -p=quote --precise=1.0.44 # next ver: 1.71.0
     cargo {{ toolchain }} update -p=unicode-ident --precise=1.0.22 # next ver: 1.71.0
+    cargo {{ toolchain }} update -p=toml --precise=0.9.6 # next ver: 1.76.0
 
 # Test workspace using MSRV
 test-msrv: downgrade-for-msrv (test-no-coverage msrv_rustup)
