@@ -22,6 +22,9 @@ downgrade-for-msrv:
     cargo update -p=litemap --precise=0.7.3 # next ver: 1.71.1
     cargo update -p=zerofrom --precise=0.1.4 # next ver: 1.71.1
     cargo update -p=yoke --precise=0.7.4 # next ver: 1.71.1
+    cargo update -p=syn@2 --precise=2.0.114 # next ver: 1.71.0
+    cargo update -p=quote --precise=1.0.44 # next ver: 1.71.0
+    cargo update -p=unicode-ident --precise=1.0.22 # next ver: 1.71.0
 
 # Test workspace using MSRV
 test-msrv: downgrade-for-msrv (test-no-coverage msrv_rustup)
