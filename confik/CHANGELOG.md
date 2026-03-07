@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Minimum supported Rust version (MSRV) is now 1.76.
+
 ## 0.15.1
 
 - Add `confik(crate = ...)` option to `Configuration` macro.
