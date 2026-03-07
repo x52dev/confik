@@ -17,21 +17,10 @@ msrv_rustup := "+" + msrv
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-for-msrv toolchain="":
-    #!/usr/bin/env bash
-    set -eEuo pipefail
-    cargo {{ toolchain }} update -p=serde_with --precise=3.12.0 # next ver: 1.74.0
     cargo {{ toolchain }} update -p=idna_adapter --precise=1.2.0 # next ver: 1.82.0
-    cargo {{ toolchain }} update -p=litemap --precise=0.7.3 # next ver: 1.71.1
-    cargo {{ toolchain }} update -p=zerofrom --precise=0.1.4 # next ver: 1.71.1
-    cargo {{ toolchain }} update -p=yoke --precise=0.7.4 # next ver: 1.71.1
-    syn_version=$(cargo metadata --format-version=1 | jq -r '.packages[] | select(.name == "syn") | .version')
-    cargo {{ toolchain }} update -p=syn@"$syn_version" --precise="2.0.114" # next ver: 1.71.0
-    cargo {{ toolchain }} update -p=quote --precise=1.0.44 # next ver: 1.71.0
-    cargo {{ toolchain }} update -p=unicode-ident --precise=1.0.22 # next ver: 1.71.0
-    cargo {{ toolchain }} update -p=toml --precise=0.9.6 # next ver: 1.76.0
 
 # Test workspace using MSRV
-test-msrv: downgrade-for-msrv (test-no-coverage msrv_rustup)
+test-msrv: (downgrade-for-msrv msrv_rustup) (test-no-coverage msrv_rustup)
 
 # Test workspace without generating coverage files
 [private]
