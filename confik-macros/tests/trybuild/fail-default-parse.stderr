@@ -8,9 +8,9 @@ error[E0277]: the trait bound `usize: From<i32>` is not satisfied
   |                        this tail expression is of type `i32`
   |
   = help: the following other types implement trait `From<T>`:
-            <usize as From<NonZeroUsize>>
             <usize as From<bool>>
-            <usize as From<std::ptr::Alignment>>
-            <usize as From<u16>>
             <usize as From<u8>>
+            <usize as From<u16>>
+            <usize as From<NonZeroUsize>>
+            <usize as From<std::ptr::Alignment>>
   = note: required for `i32` to implement `Into<usize>`
