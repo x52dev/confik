@@ -26,5 +26,5 @@ indoc = "2"
 rustversion-msrv = "0.100"
 serde = { version = "1", features = ["derive"] }
 serde-bool = "0.1"
-toml = "0.9"
+toml = "1.0"
 trybuild = { version = "1", features = ["diff"] }
