@@ -10,6 +10,7 @@
   - Optional tracing support for logging reload errors (requires `tracing` feature).
 - Update `toml` dependency to `1`. This means config files now support the TOML v1.1 spec with [some new features](https://github.com/toml-lang/toml/releases/tag/1.1.0).
 - Minimum supported Rust version (MSRV) is now 1.81.
+- Fix `try_from` failure error, path now includes the (previously missing) failed field's name
 
 ## 0.15.1
 
