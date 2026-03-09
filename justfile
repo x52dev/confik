@@ -20,6 +20,7 @@ downgrade-for-msrv toolchain="":
     cargo {{ toolchain }} update -p=uuid --precise=1.20.0 # next ver: 1.85.0
     cargo {{ toolchain }} update -p=time --precise=0.3.45 # next ver: 1.88.0
     cargo {{ toolchain }} update -p=idna_adapter --precise=1.2.0 # next ver: 1.82.0
+    cargo {{ toolchain }} update -p=serde_with --precise=3.16.1 # next ver: 1.82.0
 
 # Test workspace using MSRV
 test-msrv: (downgrade-for-msrv msrv_rustup) (test-no-coverage msrv_rustup)
