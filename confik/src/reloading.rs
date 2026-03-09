@@ -275,13 +275,13 @@ where
     /// let config = ReloadingConfig::<MyConfig, _>::build().unwrap();
     ///
     /// // Set up signal handler
-    /// let handle = config.set_signal_handler().unwrap();
+    /// let handle = config.spawn_signal_handler().unwrap();
     ///
     /// // The config will now reload when receiving SIGHUP
     /// // handle.join().unwrap(); // Wait for the signal handler thread
     /// # }
     /// ```
-    pub fn set_signal_handler(&self) -> Result<std::thread::JoinHandle<()>, std::io::Error>
+    pub fn spawn_signal_handler(&self) -> Result<std::thread::JoinHandle<()>, std::io::Error>
     where
         <T as ReloadableConfig>::Error: std::fmt::Display,
     {

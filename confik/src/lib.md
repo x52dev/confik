@@ -109,7 +109,7 @@ When the `signal` feature is enabled (requires `reloading`), you can also set up
 #     }
 # }
 let config = AppConfig::reloading().unwrap();
-let handle = config.set_signal_handler().unwrap();
+let handle = config.spawn_signal_handler().unwrap();
 
 // Config will now reload when receiving SIGHUP
 // Send SIGHUP: kill -HUP <pid>

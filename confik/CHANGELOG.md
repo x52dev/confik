@@ -6,7 +6,7 @@
   - `ReloadableConfig` trait defines how to build a configuration instance.
   - `ReloadingConfig<T, F>` provides lock-free atomic configuration swapping.
   - Optional callbacks via `with_on_update()` for reload notifications.
-  - Optional SIGHUP signal handler via `set_signal_handler()` (requires `signal` feature, depends on `signal-hook`).
+  - Optional SIGHUP signal handler via `spawn_signal_handler()` (requires `signal` feature, depends on `signal-hook`).
   - Optional tracing support for logging reload errors (requires `tracing` feature).
 - Update `toml` dependency to `1`. This means config files now support the TOML v1.1 spec with [some new features](https://github.com/toml-lang/toml/releases/tag/1.1.0).
 - Minimum supported Rust version (MSRV) is now 1.81.
