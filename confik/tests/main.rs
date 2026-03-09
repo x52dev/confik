@@ -10,6 +10,7 @@ mod secret;
 mod secret_option;
 mod singly_nested_tests;
 mod third_party;
+mod try_from;
 mod unkeyed_containers;
 
 use assert_matches::assert_matches;

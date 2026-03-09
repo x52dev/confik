@@ -563,7 +563,7 @@ impl FieldImplementer {
             } else if field_impl.try_from.is_some() {
                 quote_spanned! {
                     field_build.span() => #field_build.try_into().map_err(|e|
-                        #crate_root::FailedTryInto::new(e)
+                        #crate_root::FailedTryInto::new(e).prepend(#string)
                     )?
                 }
             } else {
