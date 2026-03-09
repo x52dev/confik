@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.15.2
+
 - Add hot-reloadable configuration support with `ReloadableConfig` trait and `ReloadingConfig` wrapper. Requires the `reloading` feature (depends on `arc-swap`).
   - `ReloadableConfig` trait defines how to build a configuration instance.
   - `ReloadingConfig<T, F>` provides lock-free atomic configuration swapping.
@@ -9,8 +11,8 @@
   - Optional SIGHUP signal handler via `spawn_signal_handler()` (requires `signal` feature, depends on `signal-hook`).
   - Optional tracing support for logging reload errors (requires `tracing` feature).
 - Update `toml` dependency to `1`. This means config files now support the TOML v1.1 spec with [some new features](https://github.com/toml-lang/toml/releases/tag/1.1.0).
+- Fix `try_from` failure error, path now includes the (previously missing) failed field's name.
 - Minimum supported Rust version (MSRV) is now 1.81.
-- Fix `try_from` failure error, path now includes the (previously missing) failed field's name
 
 ## 0.15.1
 

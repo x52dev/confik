@@ -61,7 +61,10 @@ mod toml {
     #[test]
     fn try_from_nested_failure_path_contains_field_names() {
         let result = ConfigBuilder::<OuterConfig>::default()
-            .override_with(TomlSource::new("[inner]\nparam = \"invalid\""))
+            .override_with(TomlSource::new(indoc::indoc! {r#"
+                [inner]
+                param = "invalid"
+            "#}))
             .try_build();
 
         let Err(Error::TryInto(err)) = result else {
