@@ -127,6 +127,108 @@ mod bigdecimal {
     }
 }
 
+#[cfg(feature = "serde_json")]
+mod serde_json {
+    use confik::ConfigurationBuilder as _;
+    use serde_json::{json, Value};
+
+    #[test]
+    fn merge_left_type_wins_over_right_type() {
+        // When the two sides have different types, the left always wins
+        assert_eq!(Value::Null.merge(json!({"key": "value"})), Value::Null);
+        assert_eq!(json!(true).merge(json!([1, 2, 3])), json!(true));
+        assert_eq!(json!(42).merge(json!({"key": "value"})), json!(42));
+        assert_eq!(json!("hello").merge(json!(99)), json!("hello"));
+        assert_eq!(json!([1, 2]).merge(json!({"key": "value"})), json!([1, 2]));
+        assert_eq!(
+            json!({"key": "value"}).merge(json!([1, 2])),
+            json!({"key": "value"})
+        );
+    }
+
+    #[test]
+    fn merge_arrays_are_concatenated() {
+        assert_eq!(json!([1, 2]).merge(json!([3, 4])), json!([1, 2, 3, 4]));
+    }
+
+    #[test]
+    fn merge_objects_combine_disjoint_keys() {
+        assert_eq!(
+            json!({"a": 1}).merge(json!({"b": 2})),
+            json!({"a": 1, "b": 2})
+        );
+    }
+
+    #[test]
+    fn try_build_returns_value_unchanged() {
+        let value = json!({"key": "value", "num": 42});
+        assert_eq!(value.clone().try_build().unwrap(), value);
+    }
+
+    #[test]
+    fn contains_non_secret_data() {
+        for value in [Value::Null, json!(""), json!([]), json!({})] {
+            assert!(!value.contains_non_secret_data().unwrap());
+        }
+        for value in [
+            json!(true),
+            json!(42),
+            json!("hello"),
+            json!([1, 2, 3]),
+            json!({"key": "value"}),
+        ] {
+            assert!(value.contains_non_secret_data().unwrap());
+        }
+    }
+
+    #[cfg(feature = "toml")]
+    mod toml {
+        use confik::{Configuration, TomlSource};
+        use serde_json::{json, Value};
+
+        #[derive(Configuration)]
+        struct Config {
+            data: Value,
+        }
+
+        #[test]
+        fn value_loads_from_toml() {
+            let toml = r#"
+                [data]
+                key = "hello"
+                num = 42
+            "#;
+
+            let config = Config::builder()
+                .override_with(TomlSource::new(toml))
+                .try_build()
+                .unwrap();
+
+            assert_eq!(config.data, json!({"key": "hello", "num": 42}));
+        }
+
+        #[test]
+        fn objects_merged_from_multiple_sources() {
+            let toml_1 = r#"
+                [data]
+                item_1 = 1
+            "#;
+            let toml_2 = r#"
+                [data]
+                item_2 = 2
+            "#;
+
+            let config = Config::builder()
+                .override_with(TomlSource::new(toml_1))
+                .override_with(TomlSource::new(toml_2))
+                .try_build()
+                .unwrap();
+
+            assert_eq!(config.data, json!({"item_1": 1, "item_2": 2}));
+        }
+    }
+}
+
 #[cfg(feature = "js_option")]
 mod js_option {
     use confik::Configuration;
