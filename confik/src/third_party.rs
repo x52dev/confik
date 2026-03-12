@@ -268,3 +268,51 @@ mod ahash {
         type Builder = KeyedContainerBuilder<AHashMap<K, BuilderOf<V>>, Self>;
     }
 }
+
+#[cfg(feature = "serde_json")]
+mod serde_json {
+    use serde_json::Value;
+
+    use crate::{Configuration, ConfigurationBuilder};
+
+    impl Configuration for Value {
+        type Builder = Self;
+    }
+
+    impl ConfigurationBuilder for Value {
+        type Target = Self;
+
+        fn merge(self, other: Self) -> Self {
+            match (self, other) {
+                (
+                    primitive @ (Self::Null | Self::Bool(_) | Self::Number(_) | Self::String(_)),
+                    _,
+                ) => primitive,
+                (Self::Array(mut me), Self::Array(other)) => {
+                    me.extend(other);
+                    Self::Array(me)
+                }
+                (arr @ Self::Array(_), _) => arr,
+                (Self::Object(mut me), Self::Object(other)) => {
+                    me.extend(other);
+                    Self::Object(me)
+                }
+                (obj @ Self::Object(_), _) => obj,
+            }
+        }
+
+        fn try_build(self) -> Result<Self::Target, crate::Error> {
+            Ok(self)
+        }
+
+        fn contains_non_secret_data(&self) -> Result<bool, crate::UnexpectedSecret> {
+            Ok(match self {
+                Self::Null => false,
+                Self::Array(arr) => !arr.is_empty(),
+                Self::Object(map) => !map.is_empty(),
+                Self::String(s) => !s.is_empty(),
+                Self::Bool(_) | Self::Number(_) => true,
+            })
+        }
+    }
+}

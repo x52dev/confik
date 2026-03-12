@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Implement `Configuration` for `serde_json::Value`
+  - This is a very simple way to implement `try_from`, see the foreign_type_via_value for an example.
+
 ## 0.15.2
 
 - Add hot-reloadable configuration support with `ReloadableConfig` trait and `ReloadingConfig` wrapper. Requires the `reloading` feature (depends on `arc-swap`).

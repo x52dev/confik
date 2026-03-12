@@ -44,6 +44,7 @@ ipnetwork = ["dep:ipnetwork"]
 js_option = ["dep:js_option"]
 rust_decimal = ["dep:rust_decimal"]
 secrecy = ["dep:secrecy"]
+serde_json = ["dep:serde_json"]
 url = ["dep:url"]
 uuid = ["dep:uuid"]
 
@@ -66,6 +67,7 @@ signal-hook = { version = "0.4", optional = true }
 tracing = { version = "0.1", optional = true }
 
 # Destination types
+# NB: serde_json::Value is also a destination type, but is specified under source types
 ahash = { version = "0.8", optional = true, features = ["serde"] }
 bigdecimal = { version = "0.4", optional = true, features = ["serde"] }
 bytesize = { version = "2", optional = true, features = ["serde"] }
@@ -110,3 +112,7 @@ required-features = ["toml", "ahash"]
 [[example]]
 name = "reloading"
 required-features = ["toml", "reloading"]
+
+[[example]]
+name = "foreign_type_via_value"
+required-features = ["toml", "serde_json"]
