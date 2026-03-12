@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.15.3
+
 - Implement `Configuration` for `serde_json::Value`
   - This is a very simple way to implement `try_from`, see the foreign_type_via_value for an example.
 

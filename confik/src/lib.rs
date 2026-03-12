@@ -1,6 +1,6 @@
 #![doc = include_str!("./lib.md")]
 #![deny(rust_2018_idioms, nonstandard_style, future_incompatible)]
-#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 use std::{borrow::Cow, error::Error as StdError, ops::Not};
 
