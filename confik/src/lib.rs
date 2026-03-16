@@ -46,6 +46,8 @@ pub use self::sources::env_source::EnvSource;
 pub use self::sources::json_source::JsonSource;
 #[cfg(feature = "toml")]
 pub use self::sources::toml_source::TomlSource;
+#[cfg(feature = "humantime")]
+pub use self::third_party::humantime;
 pub use self::{
     builder::ConfigBuilder,
     errors::Error,
