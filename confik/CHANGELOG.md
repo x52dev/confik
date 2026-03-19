@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Add `serde(with = ...)` module `confik::humantime` under the `humantime` feature flag, for `humantime` support via `serde_humantime` for the builder of `Option<Duration>`. E.g.
+  ```rust
+  #[derive(Debug, PartialEq, Eq, Configuration)]
+  struct Config {
+      #[confik(forward(serde(with = "confik::humantime::option")))]
+      timeout: Option<Duration>,
+  }
+  ```
+
 ## 0.15.3
 
 - Implement `Configuration` for `serde_json::Value`

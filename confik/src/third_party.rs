@@ -1,6 +1,46 @@
 //! Implementations of [`Configuration`](crate::Configuration) for frequently used types from other
 //! crates.
 
+#[cfg(feature = "humantime")]
+pub mod humantime {
+    use std::time::Duration;
+
+    use serde::{Deserializer, Serializer};
+
+    use crate::std_impls::OptionBuilder;
+
+    /// Serde helpers for `Option<Duration>` fields in confik structs.
+    ///
+    /// Use with `#[confik(forward(serde(with = "confik::humantime::option")))]`.
+    pub mod option {
+        use super::*;
+
+        pub fn serialize<S>(
+            value: &OptionBuilder<Option<Duration>>,
+            serializer: S,
+        ) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            let opt = match value {
+                OptionBuilder::Unspecified | OptionBuilder::None | OptionBuilder::Some(None) => {
+                    None
+                }
+                OptionBuilder::Some(Some(dur)) => Some(*dur),
+            };
+            humantime_serde::option::serialize(&opt, serializer)
+        }
+
+        pub fn deserialize<'de, D>(d: D) -> Result<OptionBuilder<Option<Duration>>, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            let opt: Option<Duration> = humantime_serde::deserialize(d)?;
+            Ok(opt.map(Some).into())
+        }
+    }
+}
+
 #[cfg(feature = "bytesize")]
 mod bytesize {
     impl crate::Configuration for bytesize::ByteSize {

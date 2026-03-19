@@ -1,3 +1,31 @@
+#[cfg(all(feature = "humantime", feature = "toml"))]
+mod humantime_serde {
+    use std::time::Duration;
+
+    use confik::{ConfigBuilder, Configuration, TomlSource};
+
+    #[test]
+    fn from_humantime_option() {
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            #[confik(forward(serde(with = "confik::humantime::option")))]
+            timeout: Option<Duration>,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("timeout = \"1h 42m\""))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(
+            config,
+            Config {
+                timeout: Some(Duration::from_secs(6_120))
+            }
+        );
+    }
+}
+
 #[cfg(all(feature = "secrecy", feature = "toml"))]
 mod secrecy {
     use confik::{Configuration, TomlSource};
