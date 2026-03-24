@@ -33,6 +33,10 @@ enum FileErrorKind {
     #[cfg(feature = "json")]
     #[error(transparent)]
     Json(#[from] serde_json::Error),
+
+    #[cfg(feature = "ron-0_12")]
+    #[error(transparent)]
+    Ron(#[from] ron_0_12::error::SpannedError),
 }
 
 /// A [`Source`] referring to a file path.
@@ -50,6 +54,7 @@ impl FileSource {
     /// Supported extensions:
     /// - `toml`
     /// - `json`
+    /// - `ron`
     pub fn new(path: impl Into<PathBuf>) -> Self {
         Self {
             path: path.into(),
@@ -84,6 +89,16 @@ impl FileSource {
                         Ok(serde_json::from_str(&contents)?)
                     } else {
                         Err(FileErrorKind::MissingFeatureForExtension("json"))
+                    }
+                }
+            }
+
+            Some("ron") => {
+                cfg_if! {
+                    if #[cfg(feature = "ron-0_12")] {
+                        Ok(ron_0_12::from_str(&contents)?)
+                    } else {
+                        Err(FileErrorKind::MissingFeatureForExtension("ron"))
                     }
                 }
             }
@@ -192,6 +207,29 @@ mod tests {
 
         fs::write(&toml_path, "foo = 42").unwrap();
         let source = FileSource::new(&toml_path);
+        let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
+        assert_eq!(config.unwrap().foo, 42);
+
+        dir.close().unwrap();
+    }
+
+    #[cfg(feature = "ron-0_12")]
+    #[test]
+    fn ron() {
+        let dir = tempfile::TempDir::new().unwrap();
+
+        let ron_path = dir.path().join("config.ron");
+
+        fs::write(&ron_path, "(bar:42)").unwrap();
+        let source = FileSource::new(&ron_path);
+        let err = source.deserialize::<Option<SimpleConfig>>().unwrap_err();
+        assert!(
+            err.to_string().contains("Expected option"),
+            "unexpected error message: {err}",
+        );
+
+        fs::write(&ron_path, "Some((foo:42))").unwrap();
+        let source = FileSource::new(&ron_path);
         let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
         assert_eq!(config.unwrap().foo, 42);
 

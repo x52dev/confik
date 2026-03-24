@@ -44,6 +44,8 @@ pub use self::reloading::{ReloadCallback, ReloadableConfig, ReloadingConfig};
 pub use self::sources::env_source::EnvSource;
 #[cfg(feature = "json")]
 pub use self::sources::json_source::JsonSource;
+#[cfg(feature = "ron-0_12")]
+pub use self::sources::ron_source::RonSource;
 #[cfg(feature = "toml")]
 pub use self::sources::toml_source::TomlSource;
 #[cfg(feature = "humantime")]

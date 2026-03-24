@@ -58,6 +58,27 @@ mod json {
     }
 }
 
+#[cfg(feature = "ron-0_12")]
+mod ron {
+    use confik::{ConfigBuilder, RonSource};
+
+    use crate::{Target, TargetEnum};
+
+    #[test]
+    fn check_ron() {
+        assert_eq!(
+            ConfigBuilder::<Target>::default()
+                .override_with(RonSource::new("(a: Some(3), b: Second)"))
+                .try_build()
+                .expect("RON deserialization should succeed"),
+            Target {
+                a: 3,
+                b: TargetEnum::Second,
+            }
+        );
+    }
+}
+
 #[cfg(feature = "toml")]
 mod toml {
     use std::time::Duration;
