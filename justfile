@@ -22,6 +22,12 @@ downgrade-for-msrv toolchain="":
     cargo {{ toolchain }} update -p=getrandom@0.4 --precise=0.3.4 # next ver: 1.85
     cargo {{ toolchain }} update -p=time --precise=0.3.45 # next ver: 1.88
     cargo {{ toolchain }} update -p=idna_adapter --precise=1.2.0 # next ver: 1.82
+    cargo {{ toolchain }} update -p=proc-macro-crate --precise=3.4.0 # next ver: 1.82.0
+    cargo {{ toolchain }} update -p=toml --precise=1.0.6+spec-1.1.0 # next ver: 1.85
+    cargo {{ toolchain }} update -p=serde_spanned --precise=1.0.4 # next ver: 1.85
+    cargo {{ toolchain }} update -p=toml_parser@1.1.0+spec-1.1.0 --precise=1.0.10+spec-1.1.0 # next ver: 1.85
+    cargo {{ toolchain }} update -p=toml_writer@1.1.0+spec-1.1.0 --precise=1.0.7+spec-1.1.0 # next ver: 1.85
+    cargo {{ toolchain }} update -p=toml_datetime@1.1.0+spec-1.1.0 --precise=1.0.1+spec-1.1.0 # next ver: 1.85
 
 # Test workspace using MSRV
 test-msrv: (downgrade-for-msrv msrv_rustup) (test-no-coverage msrv_rustup)
