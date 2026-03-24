@@ -26,7 +26,7 @@ default = ["env", "toml"]
 # Source types
 env = ["dep:envious"]
 json = ["dep:serde_json"]
-ron = ["dep:ron"]
+ron-0_12 = ["dep:ron-0_12"]
 toml = ["dep:toml"]
 
 # Hot reloading
@@ -60,7 +60,7 @@ thiserror = "2"
 
 # Source types
 envious = { version = "0.2", optional = true }
-ron = { version = "0.12", optional = true }
+ron-0_12 = { package = "ron", version = "0.12", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "1", optional = true, default-features = false, features = ["parse", "serde"] }
 

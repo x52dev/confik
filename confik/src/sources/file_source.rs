@@ -34,9 +34,9 @@ enum FileErrorKind {
     #[error(transparent)]
     Json(#[from] serde_json::Error),
 
-    #[cfg(feature = "ron")]
+    #[cfg(feature = "ron-0_12")]
     #[error(transparent)]
-    Ron(#[from] ron::error::SpannedError),
+    Ron(#[from] ron_0_12::error::SpannedError),
 }
 
 /// A [`Source`] referring to a file path.
@@ -95,8 +95,8 @@ impl FileSource {
 
             Some("ron") => {
                 cfg_if! {
-                    if #[cfg(feature = "ron")] {
-                        Ok(ron::from_str(&contents)?)
+                    if #[cfg(feature = "ron-0_12")] {
+                        Ok(ron_0_12::from_str(&contents)?)
                     } else {
                         Err(FileErrorKind::MissingFeatureForExtension("ron"))
                     }
@@ -213,7 +213,7 @@ mod tests {
         dir.close().unwrap();
     }
 
-    #[cfg(feature = "ron")]
+    #[cfg(feature = "ron-0_12")]
     #[test]
     fn ron() {
         let dir = tempfile::TempDir::new().unwrap();

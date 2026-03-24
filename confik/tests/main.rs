@@ -58,7 +58,7 @@ mod json {
     }
 }
 
-#[cfg(feature = "ron")]
+#[cfg(feature = "ron-0_12")]
 mod ron {
     use confik::{ConfigBuilder, RonSource};
 

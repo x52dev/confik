@@ -67,7 +67,7 @@ mod json {
     }
 }
 
-#[cfg(feature = "ron")]
+#[cfg(feature = "ron-0_12")]
 mod ron {
     use assert_matches::assert_matches;
     use confik::{ConfigBuilder, Error, RonSource};
