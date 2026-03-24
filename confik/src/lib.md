@@ -123,9 +123,10 @@ When the `tracing` feature is enabled, reload errors in the signal handler will 
 A [`Source`] is any type that can create [`ConfigurationBuilder`]s. This crate implements the following sources:
 
 - [`EnvSource`]: Loads configuration from environment variables using the [`envious`] crate. Requires the `env` feature. (Enabled by default.)
-- [`FileSource`]: Loads configuration from a file, detecting `json` or `toml` files based on the file extension. Requires the `json` and `toml` feature respectively. (`toml` is enabled by default.)
+- [`FileSource`]: Loads configuration from a file, detecting `.toml`, `.json`, or `.ron` files based on the file extension. Requires the matching `toml`, `json`, or `ron` feature. (`toml` is enabled by default.)
 - [`TomlSource`]: Loads configuration from a TOML string literal. Requires the `toml` feature. (Enabled by default.)
 - [`JsonSource`]: Loads configuration from a JSON string literal. Requires the `json` feature.
+- [`RonSource`]: Loads configuration from a RON string literal. Requires the `ron` feature.
 - [`OffsetSource`]: Loads configuration from an inner source that is provided to it, but applied to a particular offset of the root configuration builder.
 
 ## Secrets

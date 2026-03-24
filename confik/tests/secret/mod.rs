@@ -67,6 +67,29 @@ mod json {
     }
 }
 
+#[cfg(feature = "ron")]
+mod ron {
+    use assert_matches::assert_matches;
+    use confik::{ConfigBuilder, Error, RonSource};
+
+    use super::NotSecret;
+
+    #[test]
+    fn check_ron_is_not_secret() {
+        let target = ConfigBuilder::<NotSecret>::default()
+            .override_with(RonSource::new(
+                "(public: (public: NumConfigBuilder(Some(1)), secret: SecretBuilder(NumConfigBuilder(Some(2)))))",
+            ))
+            .try_build()
+            .expect_err("RON deserialization is not a secret source");
+
+        assert_matches!(
+            &target,
+            Error::UnexpectedSecret(path, _) if path.to_string().contains("public.secret")
+        );
+    }
+}
+
 #[cfg(feature = "toml")]
 mod toml {
     use std::{
