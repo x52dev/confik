@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.15.4
+
 - Add `serde(with = ...)` module `confik::humantime` under the `humantime` feature flag, for `humantime` support via `serde_humantime` for the builder of `Option<Duration>`. E.g.
   ```rust
   #[derive(Debug, PartialEq, Eq, Configuration)]
