@@ -257,6 +257,150 @@ mod serde_json {
     }
 }
 
+#[cfg(all(feature = "jiff-0_2", feature = "toml"))]
+mod jiff {
+    use confik::{ConfigBuilder, Configuration, TomlSource};
+    use jiff_0_2::{civil, SignedDuration, Span, Timestamp};
+
+    #[test]
+    fn timestamp_second_optional() {
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            #[confik(forward(serde(with = "confik::jiff::timestamp::second::optional")))]
+            ts: Option<Timestamp>,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("ts = 1517644800"))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.ts, Some(Timestamp::from_second(1517644800).unwrap()));
+    }
+
+    #[test]
+    fn timestamp_millisecond_optional() {
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            #[confik(forward(serde(with = "confik::jiff::timestamp::millisecond::optional")))]
+            ts: Option<Timestamp>,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("ts = 1517644800123"))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(
+            config.ts,
+            Some(Timestamp::from_millisecond(1_517_644_800_123).unwrap())
+        );
+    }
+
+    #[test]
+    fn unsigned_duration_optional() {
+        use std::time::Duration;
+
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            #[confik(forward(serde(with = "confik::jiff::unsigned_duration::optional")))]
+            timeout: Option<Duration>,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("timeout = \"PT1H42M\""))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.timeout, Some(Duration::from_secs(6_120)));
+    }
+
+    #[test]
+    fn civil_date() {
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            date: civil::Date,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("date = \"2013-08-09\""))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.date, civil::Date::constant(2013, 8, 9));
+    }
+
+    #[test]
+    fn civil_time() {
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            time: civil::Time,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("time = \"10:30:00\""))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.time, civil::Time::constant(10, 30, 0, 0));
+    }
+
+    #[test]
+    fn timestamp() {
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            ts: Timestamp,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("ts = \"2024-01-01T00:00:00Z\""))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(
+            config.ts,
+            "2024-01-01T00:00:00Z".parse::<Timestamp>().unwrap()
+        );
+    }
+
+    /// Validates that jiff natively supports humantime-style parsing for `Span`.
+    /// Friendly strings like "1h 42m" are accepted by jiff's serde deserializer
+    /// without any extra helpers or wrappers.
+    #[test]
+    fn span_humantime_style_parsing() {
+        #[derive(Debug, Configuration)]
+        struct Config {
+            timeout: Span,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("timeout = \"1h 42m\""))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(
+            jiff_0_2::SpanFieldwise(config.timeout),
+            jiff_0_2::SpanFieldwise(Span::new().hours(1).minutes(42)),
+        );
+    }
+
+    /// Same as above but for `SignedDuration`.
+    #[test]
+    fn signed_duration_humantime_style_parsing() {
+        #[derive(Debug, PartialEq, Eq, Configuration)]
+        struct Config {
+            timeout: SignedDuration,
+        }
+
+        let config = ConfigBuilder::<Config>::default()
+            .override_with(TomlSource::new("timeout = \"1h 42m\""))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.timeout, SignedDuration::from_secs(6_120),);
+    }
+}
+
 #[cfg(feature = "js_option")]
 mod js_option {
     use confik::Configuration;

@@ -52,6 +52,8 @@ pub use self::sources::toml_source::TomlSource;
 pub use self::sources::yaml_source::YamlSource;
 #[cfg(feature = "humantime")]
 pub use self::third_party::humantime;
+#[cfg(feature = "jiff-0_2")]
+pub use self::third_party::jiff;
 pub use self::{
     builder::ConfigBuilder,
     errors::Error,

@@ -43,6 +43,7 @@ camino = ["dep:camino"]
 chrono = ["dep:chrono"]
 common = []
 humantime = ["dep:humantime-serde"]
+jiff-0_2 = ["dep:jiff-0_2"]
 ipnetwork = ["dep:ipnetwork"]
 js_option = ["dep:js_option"]
 rust_decimal = ["dep:rust_decimal"]
@@ -80,6 +81,7 @@ camino = { version = "1", optional = true, features = ["serde1"] }
 chrono = { version = "0.4.44", optional = true, default-features = false, features = ["serde"] }
 humantime-serde = { version = "1", optional = true }
 ipnetwork = { version = "0.21", optional = true, features = ["serde"] }
+jiff-0_2 = { package = "jiff", version = "0.2", optional = true, features = ["serde"] }
 js_option = { version = "0.2", optional = true, features = ["serde"] }
 rust_decimal = { version = "1", optional = true, features = ["serde"] }
 secrecy = { version = "0.10", optional = true, features = ["serde"] }
