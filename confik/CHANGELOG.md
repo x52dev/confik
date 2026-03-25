@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.15.8
+
+- No significant changes since `0.15.7`.
+
 ## 0.15.7
 
 - No significant changes since `0.15.6`.
