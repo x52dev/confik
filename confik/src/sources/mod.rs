@@ -43,6 +43,9 @@ pub(crate) mod json_source;
 #[cfg(feature = "ron-0_12")]
 pub(crate) mod ron_source;
 
+#[cfg(feature = "serde_ini-0_2")]
+pub(crate) mod ini_source;
+
 #[cfg(feature = "env")]
 pub(crate) mod env_source;
 
