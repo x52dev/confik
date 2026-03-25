@@ -40,6 +40,9 @@ pub(crate) mod toml_source;
 #[cfg(feature = "json")]
 pub(crate) mod json_source;
 
+#[cfg(feature = "corn-0_10")]
+pub(crate) mod corn_source;
+
 #[cfg(feature = "ron-0_12")]
 pub(crate) mod ron_source;
 
