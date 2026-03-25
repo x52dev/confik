@@ -252,6 +252,169 @@ mod uuid {
     }
 }
 
+#[cfg(feature = "jiff-0_2")]
+pub mod jiff {
+    use jiff_0_2::{
+        civil::{Date, DateTime, Time},
+        SignedDuration, Span, Timestamp, Zoned,
+    };
+
+    use crate::Configuration;
+
+    impl Configuration for Timestamp {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for Zoned {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for Date {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for Time {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for DateTime {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for Span {
+        type Builder = Option<Self>;
+    }
+
+    impl Configuration for SignedDuration {
+        type Builder = Option<Self>;
+    }
+
+    /// Generates `pub mod optional { serialize, deserialize }` given explicit
+    /// serialize and deserialize paths.
+    macro_rules! optional_module {
+        ($T:ty, $serialize_fn:path, $deserialize_fn:path) => {
+            pub mod optional {
+                use serde::{Deserializer, Serializer};
+
+                use crate::std_impls::OptionBuilder;
+
+                pub fn serialize<S>(
+                    value: &OptionBuilder<Option<$T>>,
+                    serializer: S,
+                ) -> Result<S::Ok, S::Error>
+                where
+                    S: Serializer,
+                {
+                    let opt = match value {
+                        OptionBuilder::Unspecified
+                        | OptionBuilder::None
+                        | OptionBuilder::Some(None) => None,
+                        OptionBuilder::Some(Some(val)) => Some(val.clone()),
+                    };
+                    $serialize_fn(&opt, serializer)
+                }
+
+                pub fn deserialize<'de, D>(d: D) -> Result<OptionBuilder<Option<$T>>, D::Error>
+                where
+                    D: Deserializer<'de>,
+                {
+                    let opt: Option<$T> = $deserialize_fn(d)?;
+                    Ok(opt.map(Some).into())
+                }
+            }
+        };
+    }
+
+    /// Generates `pub mod optional { serialize, deserialize }` that adapts
+    /// `OptionBuilder<Option<T>>` to/from a jiff serde helper.
+    ///
+    /// Two arms:
+    /// - `fn path, T` — jiff exposes `optional` as a free function (e.g.
+    ///   `duration::friendly::compact`); deserialization falls back to standard
+    ///   serde (jiff types accept both ISO 8601 and friendly on input).
+    /// - `path, T` — jiff exposes `optional` as a module with `serialize` /
+    ///   `deserialize` functions (e.g. `timestamp::second`,
+    ///   `unsigned_duration`).
+    macro_rules! forward_option_builder {
+        (fn $($seg:ident)::+, $T:ty) => {
+            optional_module!(
+                $T,
+                jiff_0_2::fmt::serde::$($seg)::+::optional,
+                serde::Deserialize::deserialize
+            );
+        };
+        ($($seg:ident)::+, $T:ty) => {
+            optional_module!(
+                $T,
+                jiff_0_2::fmt::serde::$($seg)::+::optional::serialize,
+                jiff_0_2::fmt::serde::$($seg)::+::optional::deserialize
+            );
+        };
+    }
+
+    /// Serde helpers for [`Option<jiff_0_2::SignedDuration>`] fields using
+    /// jiff's [friendly format](https://docs.rs/jiff/latest/jiff/fmt/friendly/index.html).
+    ///
+    /// Use with `#[confik(forward(serde(with = "confik::jiff::duration::friendly::compact::optional")))]`.
+    pub mod duration {
+        pub mod friendly {
+            pub mod compact {
+                forward_option_builder!(fn duration::friendly::compact, jiff_0_2::SignedDuration);
+            }
+        }
+    }
+
+    /// Serde helpers for [`Option<jiff_0_2::Span>`] fields using jiff's
+    /// [friendly format](https://docs.rs/jiff/latest/jiff/fmt/friendly/index.html).
+    ///
+    /// Use with `#[confik(forward(serde(with = "confik::jiff::span::friendly::compact::optional")))]`.
+    pub mod span {
+        pub mod friendly {
+            pub mod compact {
+                forward_option_builder!(fn span::friendly::compact, jiff_0_2::Span);
+            }
+        }
+    }
+
+    /// Serde helpers for [`Option<jiff_0_2::Timestamp>`] fields stored as integers.
+    ///
+    /// Use these when a timestamp appears as an integer number of seconds,
+    /// milliseconds, microseconds, or nanoseconds since the Unix epoch in
+    /// the configuration source, rather than as a string.
+    ///
+    /// Use with `#[confik(forward(serde(with = "confik::jiff::timestamp::<PRECISION>::optional")))]`
+    /// where `PRECISION` is `second`, `millisecond`, `microsecond`, or `nanosecond`.
+    pub mod timestamp {
+        pub mod second {
+            forward_option_builder!(timestamp::second, jiff_0_2::Timestamp);
+        }
+        pub mod millisecond {
+            forward_option_builder!(timestamp::millisecond, jiff_0_2::Timestamp);
+        }
+        pub mod microsecond {
+            forward_option_builder!(timestamp::microsecond, jiff_0_2::Timestamp);
+        }
+        pub mod nanosecond {
+            forward_option_builder!(timestamp::nanosecond, jiff_0_2::Timestamp);
+        }
+    }
+
+    /// Serde helpers for [`Option<std::time::Duration>`] fields using jiff's
+    /// duration serialization formats.
+    pub mod unsigned_duration {
+        forward_option_builder!(unsigned_duration, std::time::Duration);
+
+        /// Friendly compact format.
+        ///
+        /// Use with `#[confik(forward(serde(with = "confik::jiff::unsigned_duration::friendly::compact::optional")))]`.
+        pub mod friendly {
+            pub mod compact {
+                forward_option_builder!(unsigned_duration::friendly::compact, std::time::Duration);
+            }
+        }
+    }
+}
+
 #[cfg(feature = "bigdecimal")]
 mod bigdecimal {
     use bigdecimal::BigDecimal;
