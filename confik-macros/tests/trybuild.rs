@@ -33,6 +33,9 @@ fn macro_pass() {
     t.pass("tests/trybuild/29-named-field-vis.rs");
     t.pass("tests/trybuild/30-skip-field.rs");
     t.pass("tests/trybuild/31-crate-remap.rs");
+    t.pass("tests/trybuild/32-struct-default.rs");
+    t.pass("tests/trybuild/33-skip-struct-default.rs");
+    t.compile_fail("tests/trybuild/fail-struct-default-missing-default-trait.rs");
 }
 
 // only run on MSRV to avoid changes to compiler output causing CI failures
@@ -53,4 +56,5 @@ fn macro_fail() {
     t.compile_fail("tests/trybuild/fail-from-and-try-from.rs");
     t.compile_fail("tests/trybuild/fail-try-from-not-implemented.rs");
     t.compile_fail("tests/trybuild/fail-crate-not-in-scope.rs");
+    t.compile_fail("tests/trybuild/fail-struct-default-on-enum.rs");
 }

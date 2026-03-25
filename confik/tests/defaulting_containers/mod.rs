@@ -2,6 +2,73 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use confik::Configuration;
 
+/// `#[confik(struct_default)]` reads the field from a manual [`Default`] on the config struct
+/// (`from_default` is 42 here, not `usize::default()`). `#[confik(default)]` still overrides per field.
+#[derive(Debug, Configuration, PartialEq, Eq)]
+struct StructDefaultRoot {
+    #[confik(struct_default)]
+    from_default: usize,
+    #[confik(default = 100_usize)]
+    explicit_default: usize,
+}
+
+impl Default for StructDefaultRoot {
+    fn default() -> Self {
+        Self {
+            // Deliberately not `usize::default()` (0), to show `struct_default` uses this impl.
+            from_default: 42,
+            // Ignored for `explicit_default` when missing: `#[confik(default = 100_usize)]` wins.
+            explicit_default: 999,
+        }
+    }
+}
+
+#[test]
+fn struct_default_uses_target_default_for_missing_fields() {
+    let config = StructDefaultRoot::builder().try_build().unwrap();
+    assert_eq!(
+        config,
+        StructDefaultRoot {
+            from_default: 42,
+            explicit_default: 100,
+        }
+    );
+}
+
+#[cfg(feature = "toml")]
+mod struct_default_merge {
+    use confik::{ConfigBuilder, TomlSource};
+
+    use super::StructDefaultRoot;
+
+    #[test]
+    fn partial_source_respects_struct_and_field_defaults() {
+        let c = ConfigBuilder::<StructDefaultRoot>::default()
+            .override_with(TomlSource::new("from_default = 5"))
+            .try_build()
+            .unwrap();
+        assert_eq!(
+            c,
+            StructDefaultRoot {
+                from_default: 5,
+                explicit_default: 100,
+            }
+        );
+
+        let c = ConfigBuilder::<StructDefaultRoot>::default()
+            .override_with(TomlSource::new("explicit_default = 3"))
+            .try_build()
+            .unwrap();
+        assert_eq!(
+            c,
+            StructDefaultRoot {
+                from_default: 42,
+                explicit_default: 3,
+            }
+        );
+    }
+}
+
 #[derive(Debug, Configuration, PartialEq, Eq, Default)]
 struct Config {
     #[confik(default = 0)]

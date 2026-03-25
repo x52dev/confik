@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `#[confik(struct_default)]` for struct fields: when no configuration data is present for that field, its value is taken from the same-named field on `<Self as Default>::default()`. Can be combined with `#[confik(skip)]` (in place of an explicit `#[confik(default)]`). Cannot be combined with `#[confik(default)]` on the same field, and is not supported on enum variant fields (the configuration type must remain a struct).
+
 ## 0.15.8
 
 - No significant changes since `0.15.7`.

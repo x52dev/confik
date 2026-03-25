@@ -1,0 +1,5 @@
+error: `#[confik(struct_default)]` is only supported on struct fields
+ --> tests/trybuild/fail-struct-default-on-enum.rs:6:9
+  |
+6 |         #[confik(struct_default)]
+  |         ^
