@@ -48,6 +48,9 @@ pub(crate) mod env_source;
 
 pub(crate) mod offset_source;
 
+#[cfg(feature = "yaml_serde-0_10")]
+pub(crate) mod yaml_source;
+
 #[cfg(test)]
 pub mod test {
     use std::fmt;

@@ -48,6 +48,8 @@ pub use self::sources::json_source::JsonSource;
 pub use self::sources::ron_source::RonSource;
 #[cfg(feature = "toml")]
 pub use self::sources::toml_source::TomlSource;
+#[cfg(feature = "yaml_serde-0_10")]
+pub use self::sources::yaml_source::YamlSource;
 #[cfg(feature = "humantime")]
 pub use self::third_party::humantime;
 pub use self::{
