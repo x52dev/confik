@@ -1,7 +1,7 @@
 [package]
 name = "confik"
 version = "0.15.7"
-description = "A library for reading application configuration split across multiple sources"
+description = "Compose configuration from multiple sources without giving up type safety"
 authors.workspace = true
 keywords.workspace = true
 categories.workspace = true
