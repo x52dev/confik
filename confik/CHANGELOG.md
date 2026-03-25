@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.15.6
+
 - Implement `Configuration` for [`jiff`](https://docs.rs/jiff/0.2) types under the `jiff-0_2` feature flag:
   - [`Timestamp`](https://docs.rs/jiff/0.2/jiff/struct.Timestamp.html), [`Zoned`](https://docs.rs/jiff/0.2/jiff/struct.Zoned.html), [`SignedDuration`](https://docs.rs/jiff/0.2/jiff/struct.SignedDuration.html), [`Span`](https://docs.rs/jiff/0.2/jiff/struct.Span.html)
   - [`civil::Date`](https://docs.rs/jiff/0.2/jiff/civil/struct.Date.html), [`civil::Time`](https://docs.rs/jiff/0.2/jiff/civil/struct.Time.html), [`civil::DateTime`](https://docs.rs/jiff/0.2/jiff/civil/struct.DateTime.html)
