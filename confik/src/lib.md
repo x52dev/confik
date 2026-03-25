@@ -1,28 +1,36 @@
-# `confik`
+`confik` is a configuration library for Rust applications that need to compose settings from multiple sources without giving up type safety.
 
-`confik` is a library for reading application configuration split across multiple sources.
+It is built for the common production path: read defaults from code, layer in config files, override with environment variables, keep secrets out of insecure sources, and build one strongly typed config value for the rest of your application.
+
+## Built for Real App Config
+
+- **Derive-first API** -- define your config once and get a builder that merges partial values from many sources.
+- **Multi-source by design** -- combine files, environment variables, and inline formats in a predictable override order.
+- **Secret-aware loading** -- mark sensitive fields and opt into reading them only from trusted sources.
+- **Production-friendly features** -- support hot reloading and SIGHUP-triggered refreshes when your application needs them.
+- **Serde ecosystem compatibility** -- reuse familiar `serde` attributes and common third-party config value types.
 
 ## Example
 
-Assume that `config.toml` contains:
+Assume your application ships with a `config.toml` file:
 
 ```toml
-host=google.com
-username=root
+host = "duck.com"
+username = "root"
 ```
 
-and the environment contains:
+and your deployment injects the secret through the environment:
 
 ```bash
 PASSWORD=hunter2
 ```
 
-then:
+then `confik` can merge both into one typed config object:
 
 ```no_run
 # #[cfg(all(feature = "toml", feature = "env"))]
 # {
-use confik::{Configuration, EnvSource, FileSource, TomlSource};
+use confik::{Configuration, EnvSource, FileSource};
 
 #[derive(Debug, PartialEq, Configuration)]
 struct Config {
@@ -52,7 +60,7 @@ assert_eq!(
 
 ## Hot Reloading
 
-Configuration can be made hot-reloadable using the [`ReloadingConfig`] wrapper. This allows you to atomically swap configuration at runtime without restarting your application. Requires the `reloading` feature.
+Configuration can be made hot-reloadable using the [`ReloadingConfig`] wrapper. This lets you atomically swap configuration at runtime without restarting your application. Requires the `reloading` feature.
 
 ```no_run
 # #[cfg(all(feature = "toml", feature = "reloading"))]
@@ -116,11 +124,11 @@ let handle = config.spawn_signal_handler().unwrap();
 # }
 ```
 
-When the `tracing` feature is enabled, reload errors in the signal handler will be automatically logged with `tracing::error!`.
+When the `tracing` feature is enabled, reload errors in the signal handler are automatically logged with `tracing::error!`.
 
 ## Sources
 
-A [`Source`] is any type that can create [`ConfigurationBuilder`]s. This crate implements the following sources:
+A [`Source`] is anything that can produce a partial [`ConfigurationBuilder`]. `confik` ships with the following source types:
 
 - [`EnvSource`]: Loads configuration from environment variables using the [`envious`] crate. Requires the `env` feature. (Enabled by default.)
 - [`FileSource`]: Loads configuration from a file, detecting `.toml`, `.json`, `.ron`, `.yaml`, or `.yml` files based on the file extension. Requires the matching `toml`, `json`, `ron-0_12`, or `yaml_serde-0_10` feature. (`toml` is enabled by default.)
@@ -132,9 +140,9 @@ A [`Source`] is any type that can create [`ConfigurationBuilder`]s. This crate i
 
 ## Secrets
 
-Fields annotated with `#[confik(secret)]` will only be read from secure sources. This serves as a runtime check that no secrets have been stored in insecure places such as world-readable files.
+Fields annotated with `#[confik(secret)]` are only read from sources that explicitly allow secrets. This gives you a runtime guard against accidentally loading sensitive data from insecure locations such as world-readable config files.
 
-If a secret is found in an insecure source, an error will be returned. You can opt into loading secrets on a source-by-source basis.
+If secret data is found in an insecure source, `confik` returns an error. You opt into secret loading on a source-by-source basis, which keeps the trust boundary explicit in application code.
 
 ## Macro usage
 
