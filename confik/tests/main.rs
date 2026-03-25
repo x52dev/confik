@@ -79,6 +79,27 @@ mod ron {
     }
 }
 
+#[cfg(feature = "yaml_serde-0_10")]
+mod yaml {
+    use confik::{ConfigBuilder, YamlSource};
+
+    use crate::{Target, TargetEnum};
+
+    #[test]
+    fn check_yaml() {
+        assert_eq!(
+            ConfigBuilder::<Target>::default()
+                .override_with(YamlSource::new("a: 4\nb: Second\n"))
+                .try_build()
+                .expect("YAML deserialization should succeed"),
+            Target {
+                a: 4,
+                b: TargetEnum::Second,
+            }
+        );
+    }
+}
+
 #[cfg(feature = "toml")]
 mod toml {
     use std::time::Duration;

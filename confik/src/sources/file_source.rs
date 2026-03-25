@@ -37,6 +37,10 @@ enum FileErrorKind {
     #[cfg(feature = "ron-0_12")]
     #[error(transparent)]
     Ron(#[from] ron_0_12::error::SpannedError),
+
+    #[cfg(feature = "yaml_serde-0_10")]
+    #[error(transparent)]
+    Yaml(#[from] yaml_serde_0_10::Error),
 }
 
 /// A [`Source`] referring to a file path.
@@ -55,6 +59,8 @@ impl FileSource {
     /// - `toml`
     /// - `json`
     /// - `ron`
+    /// - `yaml`
+    /// - `yml`
     pub fn new(path: impl Into<PathBuf>) -> Self {
         Self {
             path: path.into(),
@@ -99,6 +105,16 @@ impl FileSource {
                         Ok(ron_0_12::from_str(&contents)?)
                     } else {
                         Err(FileErrorKind::MissingFeatureForExtension("ron"))
+                    }
+                }
+            }
+
+            Some("yaml" | "yml") => {
+                cfg_if! {
+                    if #[cfg(feature = "yaml_serde-0_10")] {
+                        Ok(yaml_serde_0_10::from_str(&contents)?)
+                    } else {
+                        Err(FileErrorKind::MissingFeatureForExtension("yaml"))
                     }
                 }
             }
@@ -232,6 +248,35 @@ mod tests {
         let source = FileSource::new(&ron_path);
         let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
         assert_eq!(config.unwrap().foo, 42);
+
+        dir.close().unwrap();
+    }
+
+    #[cfg(feature = "yaml_serde-0_10")]
+    #[test]
+    fn yaml() {
+        let dir = tempfile::TempDir::new().unwrap();
+
+        let yaml_path = dir.path().join("config.yaml");
+
+        fs::write(&yaml_path, "{}").unwrap();
+        let source = FileSource::new(&yaml_path);
+        let err = source.deserialize::<Option<SimpleConfig>>().unwrap_err();
+        assert!(
+            err.to_string().contains("missing field"),
+            "unexpected error message: {err}",
+        );
+
+        fs::write(&yaml_path, "foo: 42\n").unwrap();
+        let source = FileSource::new(&yaml_path);
+        let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
+        assert_eq!(config.unwrap().foo, 42);
+
+        let yml_path = dir.path().join("config.yml");
+        fs::write(&yml_path, "foo: 43\n").unwrap();
+        let source = FileSource::new(&yml_path);
+        let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
+        assert_eq!(config.unwrap().foo, 43);
 
         dir.close().unwrap();
     }

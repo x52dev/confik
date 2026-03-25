@@ -90,6 +90,27 @@ mod ron {
     }
 }
 
+#[cfg(feature = "yaml_serde-0_10")]
+mod yaml {
+    use assert_matches::assert_matches;
+    use confik::{ConfigBuilder, Error, YamlSource};
+
+    use super::NotSecret;
+
+    #[test]
+    fn check_yaml_is_not_secret() {
+        let target = ConfigBuilder::<NotSecret>::default()
+            .override_with(YamlSource::new("public:\n  public: 1\n  secret: 2\n"))
+            .try_build()
+            .expect_err("YAML deserialization is not a secret source");
+
+        assert_matches!(
+            &target,
+            Error::UnexpectedSecret(path, _) if path.to_string().contains("public.secret")
+        );
+    }
+}
+
 #[cfg(feature = "toml")]
 mod toml {
     use std::{
