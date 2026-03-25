@@ -280,6 +280,8 @@ Defaults are specified on a per-field basis.
 
 On **struct** configuration types only, you can mark individual fields with `#[confik(struct_default)]`. If no data was merged for that field, `try_build` uses the value of the same field from `<Self as Default>::default()` instead of requiring an explicit `#[confik(default)]` expression.
 
+If any field uses `struct_default`, `try_build` always calls `<Self as Default>::default()` **once** at the **start** of the build—even when every such field ultimately receives merged data from sources. Values for missing fields are taken from that single result (see below), not by calling `default()` separately per field.
+
 That is the **config struct's** [`Default`] implementation, not the field type's `Default` alone. For example, `port: u16` with `struct_default` uses whatever `Config::default().port` is (e.g. `8080`), not necessarily `u16::default()` (`0`).
 
 This is useful when your config type already implements [`Default`] and you want missing keys to match those defaults field by field, without duplicating values in `#[confik(default = ...)]`.
@@ -289,7 +291,7 @@ This is useful when your config type already implements [`Default`] and you want
 - With `#[confik(skip)]`, `struct_default` supplies the built value from `<Self as Default>::default()` for that field (the type need not implement `Configuration` or `Deserialize`).
 - With `#[confik(from = ...)]` or `#[confik(try_from = ...)]`, a missing value still comes from the **target** field on `Default` (the same type as the struct field). When sources provide data, deserialization and conversion use the intermediate type as usual.
 - With `#[confik(default = ...)]` and `from` / `try_from`, the missing-data branch uses the same rule: write the default as the **target** field type (e.g. `default = String::from("…")` for a `String` field). It is not the intermediate deserialized type.
-- Each `struct_default` read uses `.clone()` on the field from a single lazily-built `<Self as Default>::default()`; non-[`Copy`] field types should implement [`Clone`].
+- `struct_default` does **not** clone field values: it **moves** each missing field out of the `default()` value described above. That means it does not work when your **config struct** implements [`Drop`], because Rust does not allow moving out of individual fields of a type that implements `Drop` (you would see a move-out-of-struct-with-Drop error at compile time). Non-[`Copy`] field types do not need [`Clone`] for this path.
 
 ```rust
 use confik::Configuration;
