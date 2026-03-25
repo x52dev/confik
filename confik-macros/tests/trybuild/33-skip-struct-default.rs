@@ -2,7 +2,7 @@
 //! `Default` (`NotConfiguration` has no `Default` impl here).
 use confik::ConfigBuilder;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 struct NotConfiguration(u32);
 
 #[derive(confik::Configuration, Debug, PartialEq, Eq)]

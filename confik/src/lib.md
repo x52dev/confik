@@ -287,6 +287,9 @@ This is useful when your config type already implements [`Default`] and you want
 - You cannot use `#[confik(struct_default)]` together with `#[confik(default)]` on the same field.
 - It is not allowed on fields inside enum variants.
 - With `#[confik(skip)]`, `struct_default` supplies the built value from `<Self as Default>::default()` for that field (the type need not implement `Configuration` or `Deserialize`).
+- With `#[confik(from = ...)]` or `#[confik(try_from = ...)]`, a missing value still comes from the **target** field on `Default` (the same type as the struct field). When sources provide data, deserialization and conversion use the intermediate type as usual.
+- With `#[confik(default = ...)]` and `from` / `try_from`, the missing-data branch uses the same rule: write the default as the **target** field type (e.g. `default = String::from("…")` for a `String` field). It is not the intermediate deserialized type.
+- Each `struct_default` read uses `.clone()` on the field from a single lazily-built `<Self as Default>::default()`; non-[`Copy`] field types should implement [`Clone`].
 
 ```rust
 use confik::Configuration;

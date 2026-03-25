@@ -548,59 +548,114 @@ impl FieldImplementer {
 
             let string = ident.to_string();
 
-            let mut field_build = quote_spanned! {
-                field_impl.span() =>
-                #our_field.try_build()
-            };
-
-            // Default if no data is present
-            if let Some(default) = &field_impl.default {
-                let default = &default.expr;
-
-                field_build = quote_spanned! {
-                    default.span() =>
-                        if #our_field.contains_non_secret_data().unwrap_or(true) {
-                            #field_build
-                        } else {
-                            Ok(#default)
-                        }
-                };
-            } else if field_impl.struct_default.is_present() {
-                let Some(base) = struct_default_base else {
-                    return Err(syn::Error::new(
-                        field_impl.span(),
-                        "internal error: `struct_default` field without parent default binding",
-                    ));
-                };
-                let field_accessor = FieldIdent::new(&field_impl.ident, field_index);
-                field_build = quote_spanned! {
-                    field_impl.span() =>
-                        if #our_field.contains_non_secret_data().unwrap_or(true) {
-                            #field_build
-                        } else {
-                            Ok(#base.#field_accessor)
-                        }
-                };
-            }
-
             let extra_prepend = extra_prepend.map(|extra_prepend| quote!(.prepend(#extra_prepend)));
-            field_build = quote_spanned! {
-                field_build.span() => #field_build.map_err(|err| err.prepend(#string)#extra_prepend)?
+            let map_err = quote_spanned! {
+                field_impl.span() => .map_err(|err| err.prepend(#string)#extra_prepend)
             };
 
-            // We're going via another type to allow handling the field being a foreign type. Do the conversion.
-            if field_impl.from.is_some() {
+            let foreign_conversion = field_impl.from.is_some() || field_impl.try_from.is_some();
+            if foreign_conversion
+                && (field_impl.struct_default.is_present() || field_impl.default.is_some())
+            {
+                let from_source = if field_impl.from.is_some() {
+                    quote_spanned! {
+                        field_impl.span() => __confik_intermediate.into()
+                    }
+                } else {
+                    quote_spanned! {
+                        field_impl.span() => __confik_intermediate.try_into().map_err(|e|
+                            #crate_root::FailedTryInto::new(e).prepend(#string)
+                        )?
+                    }
+                };
+                let no_data_value: TokenStream = if field_impl.struct_default.is_present() {
+                    let Some(base) = struct_default_base else {
+                        return Err(syn::Error::new(
+                            field_impl.span(),
+                            "internal error: `struct_default` field without parent default binding",
+                        ));
+                    };
+                    let field_accessor = FieldIdent::new(&field_impl.ident, field_index);
+                    quote_spanned! {
+                        field_impl.span() => #base.#field_accessor
+                    }
+                } else {
+                    let Some(default) = &field_impl.default else {
+                        return Err(syn::Error::new(
+                            field_impl.span(),
+                            "internal error: `default` missing in foreign fallback branch",
+                        ));
+                    };
+                    let default_expr = &default.expr;
+                    quote_spanned! {
+                        default_expr.span() => #default_expr
+                    }
+                };
                 quote_spanned! {
-                    field_build.span() => #field_build.into()
-                }
-            } else if field_impl.try_from.is_some() {
-                quote_spanned! {
-                    field_build.span() => #field_build.try_into().map_err(|e|
-                        #crate_root::FailedTryInto::new(e).prepend(#string)
-                    )?
+                    field_impl.span() =>
+                    {
+                        if #our_field.contains_non_secret_data().unwrap_or(true) {
+                            let __confik_intermediate = #our_field.try_build() #map_err ?;
+                            #from_source
+                        } else {
+                            #no_data_value
+                        }
+                    }
                 }
             } else {
-                field_build
+                let mut field_build = quote_spanned! {
+                    field_impl.span() =>
+                    #our_field.try_build()
+                };
+
+                // Default if no data is present
+                if let Some(default) = &field_impl.default {
+                    let default = &default.expr;
+
+                    field_build = quote_spanned! {
+                        default.span() =>
+                            if #our_field.contains_non_secret_data().unwrap_or(true) {
+                                #field_build
+                            } else {
+                                Ok(#default)
+                            }
+                    };
+                } else if field_impl.struct_default.is_present() {
+                    let Some(base) = struct_default_base else {
+                        return Err(syn::Error::new(
+                            field_impl.span(),
+                            "internal error: `struct_default` field without parent default binding",
+                        ));
+                    };
+                    let field_accessor = FieldIdent::new(&field_impl.ident, field_index);
+                    field_build = quote_spanned! {
+                        field_impl.span() =>
+                            if #our_field.contains_non_secret_data().unwrap_or(true) {
+                                #field_build
+                            } else {
+                                Ok(#base.#field_accessor)
+                            }
+                    };
+                }
+
+                field_build = quote_spanned! {
+                    field_build.span() => #field_build #map_err ?
+                };
+
+                // We're going via another type to allow handling the field being a foreign type. Do the conversion.
+                if field_impl.from.is_some() {
+                    quote_spanned! {
+                        field_build.span() => #field_build.into()
+                    }
+                } else if field_impl.try_from.is_some() {
+                    quote_spanned! {
+                        field_build.span() => #field_build.try_into().map_err(|e|
+                            #crate_root::FailedTryInto::new(e).prepend(#string)
+                        )?
+                    }
+                } else {
+                    field_build
+                }
             }
         };
 
@@ -921,7 +976,8 @@ impl RootImplementer {
                 let constructed = quote!(Ok(#ident #bracketed_fields));
                 if let Some(base_ident) = struct_default_binding {
                     quote! {
-                        let #base_ident = <#ident #type_generics as ::std::default::Default>::default();
+                        let #base_ident =
+                            <#ident #type_generics as ::std::default::Default>::default();
                         #constructed
                     }
                 } else {
