@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.15.7
+
+- No significant changes since `0.15.6`.
+
 ## 0.15.6
 
 - Implement `Configuration` for [`jiff`](https://docs.rs/jiff/0.2) types under the `jiff-0_2` feature flag:
