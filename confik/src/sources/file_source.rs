@@ -15,6 +15,7 @@ struct FileError {
 }
 
 #[derive(Debug, Error)]
+#[non_exhaustive]
 enum FileErrorKind {
     #[error(transparent)]
     CouldNotReadFile(#[from] std::io::Error),

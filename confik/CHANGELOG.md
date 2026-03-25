@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Implement `Configuration` for [`jiff`](https://docs.rs/jiff/0.2) types under the `jiff-0_2` feature flag:
+  - [`Timestamp`](https://docs.rs/jiff/0.2/jiff/struct.Timestamp.html), [`Zoned`](https://docs.rs/jiff/0.2/jiff/struct.Zoned.html), [`SignedDuration`](https://docs.rs/jiff/0.2/jiff/struct.SignedDuration.html), [`Span`](https://docs.rs/jiff/0.2/jiff/struct.Span.html)
+  - [`civil::Date`](https://docs.rs/jiff/0.2/jiff/civil/struct.Date.html), [`civil::Time`](https://docs.rs/jiff/0.2/jiff/civil/struct.Time.html), [`civil::DateTime`](https://docs.rs/jiff/0.2/jiff/civil/struct.DateTime.html)
+- Add `serde(with = ...)` modules under `confik::jiff` for `Option<T>` fields requiring non-default serialization formats:
+  - `confik::jiff::timestamp::{second, millisecond, microsecond, nanosecond}::optional` — integer epoch timestamps
+  - `confik::jiff::duration::friendly::compact::optional` — friendly compact format for `Option<SignedDuration>`
+  - `confik::jiff::span::friendly::compact::optional` — friendly compact format for `Option<Span>`
+  - `confik::jiff::unsigned_duration::optional` and `confik::jiff::unsigned_duration::friendly::compact::optional` — ISO 8601 and friendly compact format for `Option<std::time::Duration>`
+
+## 0.15.5
+
+- Add RON source support behind new crate feature `ron-0_12` (off-by-default).
+- Add YAML source support behind new crate feature `yaml_serde-0_10` (off-by-default).
+
 ## 0.15.4
 
 - Add `serde(with = ...)` module `confik::humantime` under the `humantime` feature flag, for `humantime` support via `serde_humantime` for the builder of `Option<Duration>`. E.g.
