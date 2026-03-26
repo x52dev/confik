@@ -1,5 +1,5 @@
 error[E0277]: the trait bound `Foo: TryFrom<std::string::String>` is not satisfied
- --> tests/trybuild/fail-try-from-not-implemented.rs:5:17
+ --> tests/trybuild/compile-fail/try-from-not-implemented.rs:5:17
   |
 5 | #[derive(Debug, Configuration)]
   |                 ^^^^^^^^^^^^^ the trait `From<std::string::String>` is not implemented for `Foo`, which is required by `std::string::String: std::convert::TryInto<_>`

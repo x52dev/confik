@@ -1,5 +1,5 @@
 error[E0412]: cannot find type `A` in this scope
- --> tests/trybuild/fail-field-from-unknown-type.rs:6:21
+ --> tests/trybuild/compile-fail/field-from-unknown-type.rs:6:21
   |
 6 |     #[confik(from = A)]
   |                     ^ not found in this scope
@@ -10,7 +10,7 @@ help: you might be missing a type parameter
   |              +++
 
 error[E0412]: cannot find type `A` in this scope
- --> tests/trybuild/fail-field-from-unknown-type.rs:6:21
+ --> tests/trybuild/compile-fail/field-from-unknown-type.rs:6:21
   |
 6 |     #[confik(from = A)]
   |                     ^ not found in this scope

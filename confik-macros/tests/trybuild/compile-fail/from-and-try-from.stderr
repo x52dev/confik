@@ -1,16 +1,22 @@
-error: Unable to parse type from: { A }
- --> tests/trybuild/fail-not-a-type.rs:6:21
+error: Cannot support both `try_from` and `from` confik attributes
+ --> tests/trybuild/compile-fail/from-and-try-from.rs:6:25
   |
-6 |     #[confik(from = { A })]
-  |                     ^^^^^
+6 |     #[confik(try_from = A, from = B)]
+  |                         ^
+
+error: Cannot support both `try_from` and `from` confik attributes
+ --> tests/trybuild/compile-fail/from-and-try-from.rs:6:35
+  |
+6 |     #[confik(try_from = A, from = B)]
+  |                                   ^
 
 error[E0599]: no function or associated item named `builder` found for struct `Config` in the current scope
-  --> tests/trybuild/fail-not-a-type.rs:20:26
+  --> tests/trybuild/compile-fail/from-and-try-from.rs:42:26
    |
 5  | struct Config {
    | ------------- function or associated item `builder` not found for this struct
 ...
-20 |     let config = Config::builder()
+42 |     let config = Config::builder()
    |                          ^^^^^^^ function or associated item not found in `Config`
    |
    = help: items from traits can only be used if the trait is implemented and in scope
