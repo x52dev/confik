@@ -38,7 +38,42 @@ function update_release_notes() {
     echo "Updating ${tag} using ${changelog_file}"
 
     local notes
-    notes="$(sed -n "/^## ${version}$/,/^## /p" "$changelog_file" | sed '1d;$d')"
+    notes="$(
+        awk -v version="$version" '
+            $0 == "## " version {
+                in_section = 1
+                next
+            }
+
+            in_section && /^## / {
+                exit
+            }
+
+            in_section {
+                lines[++count] = $0
+            }
+
+            END {
+                first = 1
+                while (first <= count && lines[first] ~ /^[[:space:]]*$/) {
+                    first++
+                }
+
+                last = count
+                while (last >= first && lines[last] ~ /^[[:space:]]*$/) {
+                    last--
+                }
+
+                for (i = first; i <= last; i++) {
+                    print lines[i]
+                }
+            }
+        ' "$changelog_file"
+    )"
+
+    if [[ -z "${notes//[[:space:]]/}" ]]; then
+        notes="- No significant changes since the previous release."
+    fi
 
     gh release edit "$tag" --notes="$notes"
 }
