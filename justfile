@@ -5,7 +5,13 @@ _list:
 clippy:
     cargo clippy --workspace --no-default-features
     cargo clippy --workspace --all-features
-    cargo hack --feature-powerset --depth=3 clippy --workspace
+    cargo hack --feature-powerset --depth=3 \
+        --include-features env,json,ron-0_12,toml,yaml_serde-0_10,reloading,signal,tracing \
+        clippy -p confik
+    cargo hack --each-feature \
+        --include-features ahash,bigdecimal,bytesize,camino,chrono,humantime,jiff-0_2,ipnetwork,js_option,rust_decimal,secrecy,serde_json,url,uuid \
+        --exclude-features default \
+        clippy -p confik
 
 msrv := ```
     cargo metadata --format-version=1 \
