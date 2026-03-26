@@ -230,6 +230,7 @@ impl VariantImplementer {
                     Some("us"),
                     Some(&ident.to_string()),
                     crate_root.clone(),
+                    None,
                 )
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -350,9 +351,13 @@ struct FieldImplementer {
     /// Optional attributes to forward to the builder's field.
     forward: Option<Forward>,
 
-    /// Whether to skip the field. This field will have to either impl [`Default`] or have a
-    /// `default = ...` confik attribute set
+    /// Whether to skip the field. This field will have to supply a value at build time via
+    /// `#[confik(default)]`, `#[confik(default = ...)]`, or `#[confik(struct_default)]` (structs only).
     skip: Flag,
+
+    /// When set, a missing value for this field is taken from the same-named field on
+    /// `<Self as Default>::default()` for the surrounding configuration struct (struct fields only).
+    struct_default: Flag,
 }
 
 impl FieldImplementer {
@@ -504,6 +509,7 @@ impl FieldImplementer {
         us_ident_prefix: Option<&str>,
         extra_prepend: Option<&str>,
         crate_root: TokenStream,
+        struct_default_base: Option<&Ident>,
     ) -> syn::Result<TokenStream> {
         let ident = FieldIdent::new(&field_impl.ident, field_index);
 
@@ -513,11 +519,22 @@ impl FieldImplementer {
                 quote_spanned! {
                     default.span() => #default
                 }
+            } else if field_impl.struct_default.is_present() {
+                let Some(base) = struct_default_base else {
+                    return Err(syn::Error::new(
+                        field_impl.span(),
+                        "internal error: `struct_default` field without parent default binding",
+                    ));
+                };
+                let field_accessor = FieldIdent::new(&field_impl.ident, field_index);
+                quote_spanned! {
+                    field_impl.span() => #base.#field_accessor
+                }
             } else {
                 return Err(syn::Error::new(
                     field_impl.skip.span(),
                     format!(
-                        "Unable to skip field with no default: {}",
+                        "Unable to skip field with no default or struct_default: {}",
                         ident.to_token_stream()
                     ),
                 ));
@@ -531,43 +548,114 @@ impl FieldImplementer {
 
             let string = ident.to_string();
 
-            let mut field_build = quote_spanned! {
-                field_impl.span() =>
-                #our_field.try_build()
-            };
-
-            // Default if no data is present
-            if let Some(default) = &field_impl.default {
-                let default = &default.expr;
-
-                field_build = quote_spanned! {
-                    default.span() =>
-                        if #our_field.contains_non_secret_data().unwrap_or(true) {
-                            #field_build
-                        } else {
-                            Ok(#default)
-                        }
-                };
-            }
-
             let extra_prepend = extra_prepend.map(|extra_prepend| quote!(.prepend(#extra_prepend)));
-            field_build = quote_spanned! {
-                field_build.span() => #field_build.map_err(|err| err.prepend(#string)#extra_prepend)?
+            let map_err = quote_spanned! {
+                field_impl.span() => .map_err(|err| err.prepend(#string)#extra_prepend)
             };
 
-            // We're going via another type to allow handling the field being a foreign type. Do the conversion.
-            if field_impl.from.is_some() {
+            let foreign_conversion = field_impl.from.is_some() || field_impl.try_from.is_some();
+            if foreign_conversion
+                && (field_impl.struct_default.is_present() || field_impl.default.is_some())
+            {
+                let from_source = if field_impl.from.is_some() {
+                    quote_spanned! {
+                        field_impl.span() => __confik_intermediate.into()
+                    }
+                } else {
+                    quote_spanned! {
+                        field_impl.span() => __confik_intermediate.try_into().map_err(|e|
+                            #crate_root::FailedTryInto::new(e).prepend(#string)
+                        )?
+                    }
+                };
+                let no_data_value: TokenStream = if field_impl.struct_default.is_present() {
+                    let Some(base) = struct_default_base else {
+                        return Err(syn::Error::new(
+                            field_impl.span(),
+                            "internal error: `struct_default` field without parent default binding",
+                        ));
+                    };
+                    let field_accessor = FieldIdent::new(&field_impl.ident, field_index);
+                    quote_spanned! {
+                        field_impl.span() => #base.#field_accessor
+                    }
+                } else {
+                    let Some(default) = &field_impl.default else {
+                        return Err(syn::Error::new(
+                            field_impl.span(),
+                            "internal error: `default` missing in foreign fallback branch",
+                        ));
+                    };
+                    let default_expr = &default.expr;
+                    quote_spanned! {
+                        default_expr.span() => #default_expr
+                    }
+                };
                 quote_spanned! {
-                    field_build.span() => #field_build.into()
-                }
-            } else if field_impl.try_from.is_some() {
-                quote_spanned! {
-                    field_build.span() => #field_build.try_into().map_err(|e|
-                        #crate_root::FailedTryInto::new(e).prepend(#string)
-                    )?
+                    field_impl.span() =>
+                    {
+                        if #our_field.contains_non_secret_data().unwrap_or(true) {
+                            let __confik_intermediate = #our_field.try_build() #map_err ?;
+                            #from_source
+                        } else {
+                            #no_data_value
+                        }
+                    }
                 }
             } else {
-                field_build
+                let mut field_build = quote_spanned! {
+                    field_impl.span() =>
+                    #our_field.try_build()
+                };
+
+                // Default if no data is present
+                if let Some(default) = &field_impl.default {
+                    let default = &default.expr;
+
+                    field_build = quote_spanned! {
+                        default.span() =>
+                            if #our_field.contains_non_secret_data().unwrap_or(true) {
+                                #field_build
+                            } else {
+                                Ok(#default)
+                            }
+                    };
+                } else if field_impl.struct_default.is_present() {
+                    let Some(base) = struct_default_base else {
+                        return Err(syn::Error::new(
+                            field_impl.span(),
+                            "internal error: `struct_default` field without parent default binding",
+                        ));
+                    };
+                    let field_accessor = FieldIdent::new(&field_impl.ident, field_index);
+                    field_build = quote_spanned! {
+                        field_impl.span() =>
+                            if #our_field.contains_non_secret_data().unwrap_or(true) {
+                                #field_build
+                            } else {
+                                Ok(#base.#field_accessor)
+                            }
+                    };
+                }
+
+                field_build = quote_spanned! {
+                    field_build.span() => #field_build #map_err ?
+                };
+
+                // We're going via another type to allow handling the field being a foreign type. Do the conversion.
+                if field_impl.from.is_some() {
+                    quote_spanned! {
+                        field_build.span() => #field_build.into()
+                    }
+                } else if field_impl.try_from.is_some() {
+                    quote_spanned! {
+                        field_build.span() => #field_build.try_into().map_err(|e|
+                            #crate_root::FailedTryInto::new(e).prepend(#string)
+                        )?
+                    }
+                } else {
+                    field_build
+                }
             }
         };
 
@@ -671,16 +759,47 @@ impl RootImplementer {
     /// ```
     fn check_valid(&self) -> syn::Result<()> {
         if matches!(&self.data, ast::Data::Enum(variants) if variants.is_empty()) {
-            Err(syn::Error::new(
+            return Err(syn::Error::new(
                 self.ident.span(),
                 format!(
                     "Cannot create a builder for a type that cannot be instantiated: {}",
                     self.ident
                 ),
-            ))
-        } else {
+            ));
+        }
+
+        fn check_struct_fields(
+            fields: &ast::Fields<SpannedValue<FieldImplementer>>,
+        ) -> syn::Result<()> {
+            for field in fields.as_ref() {
+                let f = field.as_ref();
+                if f.struct_default.is_present() && f.default.is_some() {
+                    return Err(syn::Error::new(
+                        field.span(),
+                        "`#[confik(struct_default)]` cannot be used together with `#[confik(default)]`",
+                    ));
+                }
+            }
             Ok(())
         }
+
+        match &self.data {
+            ast::Data::Struct(fields) => check_struct_fields(fields)?,
+            ast::Data::Enum(variants) => {
+                for variant in variants {
+                    for field in variant.fields.as_ref() {
+                        if field.as_ref().struct_default.is_present() {
+                            return Err(syn::Error::new(
+                                field.span(),
+                                "`#[confik(struct_default)]` is only supported on struct fields",
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(())
     }
 
     /// What the builder name would be for the target, even if one doesn't exist.
@@ -820,13 +939,24 @@ impl RootImplementer {
 
     /// Implement the `ConfigurationBuilder::try_build` method for our builder.
     fn impl_try_build(&self) -> syn::Result<TokenStream> {
-        let Self { ident, data, .. } = self;
+        let Self {
+            ident,
+            data,
+            generics,
+            ..
+        } = self;
 
         let crate_root = self.confik_crate_base();
+        let (_, type_generics, _) = generics.split_for_impl();
 
         let field_build = match data {
             ast::Data::Struct(fields) => {
                 let style = fields.style;
+                let use_struct_default = fields
+                    .iter()
+                    .any(|f| f.default.is_none() && f.struct_default.is_present());
+                let struct_default_binding = use_struct_default.then(|| format_ident!("default"));
+
                 let fields = fields
                     .iter()
                     .enumerate()
@@ -838,11 +968,21 @@ impl RootImplementer {
                             None,
                             None,
                             crate_root.clone(),
+                            struct_default_binding.as_ref(),
                         )
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 let bracketed_fields = ast::Fields::new(style, fields).into_token_stream();
-                quote!(Ok(#ident #bracketed_fields))
+                let constructed = quote!(Ok(#ident #bracketed_fields));
+                if let Some(base_ident) = struct_default_binding {
+                    quote! {
+                        let #base_ident =
+                            <#ident #type_generics as ::std::default::Default>::default();
+                        #constructed
+                    }
+                } else {
+                    constructed
+                }
             }
             ast::Data::Enum(variants) => {
                 let variants = variants

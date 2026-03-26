@@ -276,6 +276,54 @@ Defaults are specified on a per-field basis.
   assert_eq!(config.a, 0);
   ```
 
+### `struct_default`
+
+On **struct** configuration types only, you can mark individual fields with `#[confik(struct_default)]`. If no data was merged for that field, `try_build` uses the value of the same field from `<Self as Default>::default()` instead of requiring an explicit `#[confik(default)]` expression.
+
+If any field uses `struct_default`, `try_build` always calls `<Self as Default>::default()` **once** at the **start** of the build—even when every such field ultimately receives merged data from sources. Values for missing fields are taken from that single result (see below), not by calling `default()` separately per field.
+
+That is the **config struct's** [`Default`] implementation, not the field type's `Default` alone. For example, `port: u16` with `struct_default` uses whatever `Config::default().port` is (e.g. `8080`), not necessarily `u16::default()` (`0`).
+
+This is useful when your config type already implements [`Default`] and you want missing keys to match those defaults field by field, without duplicating values in `#[confik(default = ...)]`.
+
+- You cannot use `#[confik(struct_default)]` together with `#[confik(default)]` on the same field.
+- It is not allowed on fields inside enum variants.
+- With `#[confik(skip)]`, `struct_default` supplies the built value from `<Self as Default>::default()` for that field (the type need not implement `Configuration` or `Deserialize`).
+- With `#[confik(from = ...)]` or `#[confik(try_from = ...)]`, a missing value still comes from the **target** field on `Default` (the same type as the struct field). When sources provide data, deserialization and conversion use the intermediate type as usual.
+- With `#[confik(default = ...)]` and `from` / `try_from`, the missing-data branch uses the same rule: write the default as the **target** field type (e.g. `default = String::from("…")` for a `String` field). It is not the intermediate deserialized type.
+- `struct_default` does **not** clone field values: it **moves** each missing field out of the `default()` value described above. That means it does not work when your **config struct** implements [`Drop`], because Rust does not allow moving out of individual fields of a type that implements `Drop` (you would see a move-out-of-struct-with-Drop error at compile time). Non-[`Copy`] field types do not need [`Clone`] for this path.
+
+```rust
+use confik::Configuration;
+
+#[derive(Debug, PartialEq, Eq, Configuration)]
+struct Config {
+    #[confik(struct_default)]
+    port: u16,
+    #[confik(default = String::from("localhost"))]
+    host: String,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            // Not `u16::default()` (0): missing `port` in sources uses this value.
+            port: 8080,
+            host: String::new(),
+        }
+    }
+}
+
+let config = Config::builder().try_build().unwrap();
+assert_eq!(
+    config,
+    Config {
+        port: 8080,
+        host: String::from("localhost"),
+    }
+);
+```
+
 ### Handling Foreign Types
 
 This crate provides implementations of [`Configuration`] for a number of `std` types and the following third-party crates. Implementations for third-party crates are feature gated.
@@ -370,7 +418,7 @@ let _ = BuilderOf::<config::Config> { data: Default::default() };
 
 ### Skipping fields
 
-Fields can be skipped if necessary. This allows having types that cannot implement `Configuration` or be deserializable. However the field must have a `confik(default)` or `confik(default = ...)` attribute, otherwise it can't be built. E.g.
+Fields can be skipped if necessary. This allows having types that cannot implement `Configuration` or be deserializable. The field must still get a value at `try_build` time: use `#[confik(default)]`, `#[confik(default = ...)]`, or `#[confik(skip, struct_default)]` on a struct whose [`Default`] implementation sets that field. E.g.
 
 ```rust
 # use std::time::Instant;

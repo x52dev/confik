@@ -1,0 +1,11 @@
+error[E0277]: the trait bound `Config: Default` is not satisfied
+ --> tests/trybuild/fail-struct-default-missing-default-trait.rs:5:8
+  |
+5 | struct Config {
+  |        ^^^^^^ the trait `Default` is not implemented for `Config`
+  |
+help: consider annotating `Config` with `#[derive(Default)]`
+  |
+5 + #[derive(Default)]
+6 | struct Config {
+  |
