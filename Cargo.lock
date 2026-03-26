@@ -233,7 +233,7 @@ dependencies = [
  "camino",
  "cfg-if",
  "chrono",
- "confik-macros 0.15.2",
+ "confik-macros",
  "envious",
  "humantime-serde",
  "indoc",
@@ -255,18 +255,6 @@ dependencies = [
  "url",
  "uuid",
  "yaml_serde",
-]
-
-[[package]]
-name = "confik-macros"
-version = "0.15.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d0e620fd9199be268359ff4e08bef088c515e4c9dd0055a2112b3fee2deb2f0"
-dependencies = [
- "darling 0.21.3",
- "proc-macro2",
- "quote",
- "syn 2.0.117",
 ]
 
 [[package]]
