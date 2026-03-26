@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -eEuo pipefail
+
+RELEASE_PLZ_PR_JSON="$1"
+TARGET_MANIFEST="${2:-confik/Cargo.toml}"
+DEPENDENCY_NAME="${3:-confik-macros}"
+PR_NUMBER="$(echo "$RELEASE_PLZ_PR_JSON" | jq -r '.number')"
+
+if [[ ! -f "$TARGET_MANIFEST" ]]; then
+    echo "Target manifest does not exist: $TARGET_MANIFEST" >&2
+    exit 1
+fi
+
+new_version="$(
+    echo "$RELEASE_PLZ_PR_JSON" \
+        | jq -r --arg package_name "$DEPENDENCY_NAME" '.releases[] | select(.package_name == $package_name) | .version' \
+        | tail -n 1
+)"
+
+if [[ -z "$new_version" || "$new_version" == "null" ]]; then
+    echo "No ${DEPENDENCY_NAME} release in release-plz PR; skipping"
+    exit 0
+fi
+
+current_version="$(
+    sed -nE "s/^${DEPENDENCY_NAME} = \"=([^\"]+)\"$/\\1/p" "$TARGET_MANIFEST" | head -n 1
+)"
+
+if [[ -z "$current_version" ]]; then
+    echo "Could not find exact ${DEPENDENCY_NAME} pin in ${TARGET_MANIFEST}" >&2
+    exit 1
+fi
+
+if [[ "$current_version" == "$new_version" ]]; then
+    echo "${DEPENDENCY_NAME} already pinned to ${new_version} in ${TARGET_MANIFEST}"
+    exit 0
+fi
+
+if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
+    gh pr checkout "$PR_NUMBER"
+fi
+
+sed -i.bak -E "s|^${DEPENDENCY_NAME} = \"=[^\"]+\"$|${DEPENDENCY_NAME} = \"=${new_version}\"|" "$TARGET_MANIFEST"
+rm -f "${TARGET_MANIFEST}.bak"
+
+echo "Updated ${DEPENDENCY_NAME} pin in ${TARGET_MANIFEST}: ${current_version} -> ${new_version}"
+
+if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
+    git add "$TARGET_MANIFEST"
+
+    if ! git diff --cached --quiet; then
+        git commit -m "chore: update ${DEPENDENCY_NAME} pin"
+        git push
+    fi
+fi
