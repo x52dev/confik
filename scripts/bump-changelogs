@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# updates changelog version indicated by release-plz
+
+set -eEuo pipefail
+
+WORKSPACE_METADATA="$(cargo metadata --format-version=1 --no-deps)"
+
+function package_dir_for() {
+    local package_name="$1"
+    local manifest_path
+
+    manifest_path="$(
+        echo "$WORKSPACE_METADATA" \
+            | jq -r --arg package_name "$package_name" '.packages[] | select(.name == $package_name) | .manifest_path' \
+            | head -n 1
+    )"
+
+    if [[ -z "$manifest_path" || "$manifest_path" == "null" ]]; then
+        echo "Could not determine package directory for $package_name" >&2
+        return 1
+    fi
+
+    dirname "$manifest_path"
+}
+
+function bump_changelog_version() {
+    local package_dir="$1"
+    local version="$2"
+
+    local cargo_manifest="${package_dir}/Cargo.toml"
+    local changelog_file="${package_dir}/CHANGELOG.md"
+    local change_chunk_file
+    local readme_file="${package_dir}/README.md"
+
+    if [[ ! -f "$changelog_file" ]]; then
+        echo "Skipping ${package_dir}: no CHANGELOG.md"
+        return 0
+    fi
+
+    change_chunk_file="$(mktemp)"
+
+    echo "${changelog_file} -> ${version}"
+
+    cat "$changelog_file" \
+        | sed '1,/Unreleased/ d' \
+        | sed "/^## ${version}$/ q" \
+        | sed '$d' \
+            >"$change_chunk_file"
+
+    if [[ "$(wc -w "$change_chunk_file" | awk '{ print $1 }')" == "0" ]]; then
+        echo >"$change_chunk_file"
+        echo "- No significant changes since the previous release." >>"$change_chunk_file"
+        echo >>"$change_chunk_file"
+    fi
+
+    (
+        sed '/Unreleased/ q' "$changelog_file"
+        echo
+        echo "## $version"
+        cat "$change_chunk_file"
+        sed "/^## / q" "$changelog_file" | tail -n 1
+        sed "1,/^## / d" "$changelog_file"
+    ) >"$changelog_file.bak"
+
+    mv "$changelog_file.bak" "$changelog_file"
+    rm -f "$change_chunk_file"
+
+    if [[ -f "$readme_file" ]]; then
+        local previous_version
+        previous_version="$(sed -nE 's/^version ?= ?"([^"]+)"$/\1/p' "$cargo_manifest" | tail -n 1)"
+
+        if [[ -n "$previous_version" ]]; then
+            sed -i.bak -E "s#([=/])${previous_version}([/)])#\\1${version}\\2#g" "$readme_file"
+            rm -f "${readme_file}.bak"
+        fi
+    fi
+}
+
+RELEASE_PLZ_PR_JSON="$1"
+
+specs="$(echo "$RELEASE_PLZ_PR_JSON" | jq -r '.releases[] | "\(.package_name):\(.version)"')"
+
+for spec in $specs; do
+    name="$(echo "$spec" | cut -d: -f1)"
+    version="$(echo "$spec" | cut -d: -f2)"
+    package_dir="$(package_dir_for "$name")"
+
+    bump_changelog_version "$package_dir" "$version"
+done
+
+PR_NUMBER="$(echo "$RELEASE_PLZ_PR_JSON" | jq -r '.number')"
+
+if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
+    gh pr checkout "$PR_NUMBER"
+    git add --all
+    git commit -m "docs: update changelog versions"
+    git push
+fi
