@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Add a new helper `MergingUnsetBuilder` and trait `MergingWithUnset`, for aiding in building of custom `Configuration` implementations. See the docs on `MergingWithUnset` for a worked example.
-- Fix `serde_json::Value` merge when the first parsed config doesn't have any value set
+- Fix `serde_json::Value` merge when the first parsed config doesn't have any value set.
 
 ## 0.15.10
 
