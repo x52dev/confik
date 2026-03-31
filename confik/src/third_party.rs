@@ -476,13 +476,16 @@ mod ahash {
 mod serde_json {
     use serde_json::Value;
 
-    use crate::{Configuration, ConfigurationBuilder};
+    use crate::{
+        helpers::{MergingUnsetBuilder, MergingWithUnset},
+        Configuration,
+    };
 
     impl Configuration for Value {
-        type Builder = Self;
+        type Builder = MergingUnsetBuilder<Self>;
     }
 
-    impl ConfigurationBuilder for Value {
+    impl MergingWithUnset for Value {
         type Target = Self;
 
         fn merge(self, other: Self) -> Self {

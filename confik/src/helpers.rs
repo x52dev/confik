@@ -371,3 +371,96 @@ where
         }
     }
 }
+
+/// Implementation helper for building a type that supports merging in itself, but needs to represent unset.
+///
+/// See [`MergingWithUnset`] for more info.
+#[derive(Debug, Default, Clone)]
+pub enum MergingUnsetBuilder<T> {
+    #[default]
+    Unset,
+    Set(T),
+}
+
+impl<'de, T> Deserialize<'de> for MergingUnsetBuilder<T>
+where
+    T: Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        T::deserialize(deserializer).map(Self::Set)
+    }
+}
+
+/// A helper trait for building [`Configuration`], with automated handling of unset merges and builds.
+///
+/// This trait duplicated the definitions of [Configuration], any set value(s) delegate to these functions, with unset values being handled by [`MergingUnsetBuilder`] itself.
+///
+/// For an example `AdditiveMerge` type, you would otherwise need to have a custom builder with `Option<usize>` inside, and then handle the `Option` yourself. This trait allows that to be delegated to [`MergingUnsetBuilder`].
+/// ```
+/// use confik::{
+///     helpers::{MergingUnsetBuilder, MergingWithUnset},
+///     Configuration, Error, UnexpectedSecret,
+/// };
+/// use serde::Deserialize;
+///
+/// #[derive(Debug, Deserialize)]
+/// struct AdditiveMerge(usize);
+///
+/// impl Configuration for AdditiveMerge {
+///     type Builder = MergingUnsetBuilder<Self>;
+/// }
+///
+/// impl MergingWithUnset for AdditiveMerge {
+///     type Target = Self;
+///
+///     fn merge(self, other: Self) -> Self {
+///         Self(self.0 + other.0)
+///     }
+///
+///     fn try_build(self) -> Result<Self::Target, Error> {
+///         Ok(self)
+///     }
+///
+///     fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
+///         Ok(true)
+///     }
+/// }
+/// ```
+pub trait MergingWithUnset {
+    type Target;
+
+    fn merge(self, other: Self) -> Self;
+    fn try_build(self) -> Result<Self::Target, Error>;
+    fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret>;
+}
+
+impl<T> ConfigurationBuilder for MergingUnsetBuilder<T>
+where
+    T: MergingWithUnset + DeserializeOwned,
+{
+    type Target = T::Target;
+
+    fn merge(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Unset, merged) | (merged, Self::Unset) => merged,
+            (Self::Set(s), Self::Set(o)) => Self::Set(s.merge(o)),
+        }
+    }
+
+    fn try_build(self) -> Result<Self::Target, Error> {
+        match self {
+            Self::Unset => Err(Error::MissingValue(MissingValue::default())),
+            Self::Set(s) => s.try_build(),
+        }
+    }
+
+    fn contains_non_secret_data(&self) -> Result<bool, UnexpectedSecret> {
+        match self {
+            Self::Unset => Ok(false),
+            Self::Set(s) => s.contains_non_secret_data(),
+        }
+    }
+}
