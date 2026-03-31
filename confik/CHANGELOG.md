@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a new helper `MergingUnsetBuilder` and trait `MergingWithUnset`, for aiding in building of custom `Configuration` implementations. See the docs on `MergingWithUnset` for a worked example.
+- Fix `serde_json::Value` merge when the first parsed config doesn't have any value set
+
 ## 0.15.10
 
 - Add `#[confik(struct_default)]` for struct fields: when no configuration data is present for that field, its value is taken from the same-named field on `<Self as Default>::default()`. Can be combined with `#[confik(skip)]` (in place of an explicit `#[confik(default)]`). Cannot be combined with `#[confik(default)]` on the same field, and is not supported on enum variant fields (the configuration type must remain a struct).
