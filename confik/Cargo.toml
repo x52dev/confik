@@ -1,6 +1,6 @@
 [package]
 name = "confik"
-version = "0.15.10"
+version = "0.15.11"
 description = "Compose configuration from multiple sources without giving up type safety"
 authors.workspace = true
 keywords.workspace = true
