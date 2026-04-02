@@ -40,6 +40,8 @@ mod third_party;
 use self::path::Path;
 #[cfg(feature = "reloading")]
 pub use self::reloading::{ReloadCallback, ReloadableConfig, ReloadingConfig};
+#[cfg(feature = "corn-0_10")]
+pub use self::sources::corn_source::CornSource;
 #[cfg(feature = "env")]
 pub use self::sources::env_source::EnvSource;
 #[cfg(feature = "json")]

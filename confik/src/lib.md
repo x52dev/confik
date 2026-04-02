@@ -131,9 +131,10 @@ When the `tracing` feature is enabled, reload errors in the signal handler are a
 A [`Source`] is anything that can produce a partial [`ConfigurationBuilder`]. `confik` ships with the following source types:
 
 - [`EnvSource`]: Loads configuration from environment variables using the [`envious`] crate. Requires the `env` feature. (Enabled by default.)
-- [`FileSource`]: Loads configuration from a file, detecting `.toml`, `.json`, `.ron`, `.yaml`, or `.yml` files based on the file extension. Requires the matching `toml`, `json`, `ron-0_12`, or `yaml_serde-0_10` feature. (`toml` is enabled by default.)
+- [`FileSource`]: Loads configuration from a file, detecting `.toml`, `.json`, `.corn`, `.ron`, `.yaml`, or `.yml` files based on the file extension. Requires the matching `toml`, `json`, `corn-0_10`, `ron-0_12`, or `yaml_serde-0_10` feature. (`toml` is enabled by default.)
 - [`TomlSource`]: Loads configuration from a TOML string literal. Requires the `toml` feature. (Enabled by default.)
 - [`JsonSource`]: Loads configuration from a JSON string literal. Requires the `json` feature.
+- [`CornSource`]: Loads configuration from a Corn string literal. Requires the `corn-0_10` feature.
 - [`RonSource`]: Loads configuration from a RON string literal. Requires the `ron-0_12` feature.
 - [`YamlSource`]: Loads configuration from a YAML string literal. Requires the `yaml_serde-0_10` feature.
 - [`OffsetSource`]: Loads configuration from an inner source that is provided to it, but applied to a particular offset of the root configuration builder.

@@ -35,6 +35,10 @@ downgrade-for-msrv toolchain="":
     cargo {{ toolchain }} update -p=toml_writer@1.1.0+spec-1.1.0 --precise=1.0.7+spec-1.1.0 # next ver: 1.85
     cargo {{ toolchain }} update -p=toml_datetime@1.1.0+spec-1.1.0 --precise=1.0.1+spec-1.1.0 # next ver: 1.85
     cargo {{ toolchain }} update -p=yaml_serde --precise=0.10.2 # next ver: 1.82
+    cargo {{ toolchain }} update -p=pest_derive --precise=2.8.3 # next ver: 1.83
+    cargo {{ toolchain }} update -p=pest_generator --precise=2.8.3 # next ver: 1.83
+    cargo {{ toolchain }} update -p=pest_meta --precise=2.8.3 # next ver: 1.83
+    cargo {{ toolchain }} update -p=pest --precise=2.8.3 # next ver: 1.83
     cargo {{ toolchain }} update -p=indexmap@2 --precise=2.11.4 # next ver: 1.82
 
 # Test workspace using MSRV

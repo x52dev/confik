@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add Corn source support behind new crate feature `corn-0_10` (off-by-default).
+
 ## 0.15.11
 
 - Add a new helper `MergingUnsetBuilder` and trait `MergingWithUnset`, for aiding in building of custom `Configuration` implementations. See the docs on `MergingWithUnset` for a worked example.

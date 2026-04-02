@@ -58,6 +58,27 @@ mod json {
     }
 }
 
+#[cfg(feature = "corn-0_10")]
+mod corn {
+    use confik::{ConfigBuilder, CornSource};
+
+    use crate::{Target, TargetEnum};
+
+    #[test]
+    fn check_corn() {
+        assert_eq!(
+            ConfigBuilder::<Target>::default()
+                .override_with(CornSource::new(r#"{ a = 6 b = "Second" }"#))
+                .try_build()
+                .expect("Corn deserialization should succeed"),
+            Target {
+                a: 6,
+                b: TargetEnum::Second,
+            }
+        );
+    }
+}
+
 #[cfg(feature = "ron-0_12")]
 mod ron {
     use confik::{ConfigBuilder, RonSource};
