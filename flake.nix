@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
@@ -13,10 +13,10 @@
         devShells.default = pkgs.mkShell {
           packages = [
             config.formatter
+            pkgs.cargo-hack
+            pkgs.just
             pkgs.nodePackages.prettier
             pkgs.taplo
-            pkgs.just
-            pkgs.cargo-hack
           ] ++ lib.optional pkgs.stdenv.isDarwin [
             pkgs.pkgsBuildHost.libiconv
           ];
