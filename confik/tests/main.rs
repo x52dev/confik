@@ -58,6 +58,27 @@ mod json {
     }
 }
 
+#[cfg(feature = "serde_ini-0_2")]
+mod ini {
+    use confik::{ConfigBuilder, IniSource};
+
+    use crate::{Target, TargetEnum};
+
+    #[test]
+    fn check_ini() {
+        assert_eq!(
+            ConfigBuilder::<Target>::default()
+                .override_with(IniSource::new("a = 5\nb = Second\n"))
+                .try_build()
+                .expect("INI deserialization should succeed"),
+            Target {
+                a: 5,
+                b: TargetEnum::Second,
+            }
+        );
+    }
+}
+
 #[cfg(feature = "ron-0_12")]
 mod ron {
     use confik::{ConfigBuilder, RonSource};

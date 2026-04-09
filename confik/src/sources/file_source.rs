@@ -35,6 +35,10 @@ enum FileErrorKind {
     #[error(transparent)]
     Json(#[from] serde_json::Error),
 
+    #[cfg(feature = "serde_ini-0_2")]
+    #[error(transparent)]
+    Ini(#[from] serde_ini_0_2::error::Error),
+
     #[cfg(feature = "ron-0_12")]
     #[error(transparent)]
     Ron(#[from] ron_0_12::error::SpannedError),
@@ -57,6 +61,7 @@ impl FileSource {
     /// The deserialization method will be determined by the file extension.
     ///
     /// Supported extensions:
+    /// - `ini`
     /// - `toml`
     /// - `json`
     /// - `ron`
@@ -96,6 +101,16 @@ impl FileSource {
                         Ok(serde_json::from_str(&contents)?)
                     } else {
                         Err(FileErrorKind::MissingFeatureForExtension("json"))
+                    }
+                }
+            }
+
+            Some("ini") => {
+                cfg_if! {
+                    if #[cfg(feature = "serde_ini-0_2")] {
+                        Ok(serde_ini_0_2::from_str(&contents).map_err(serde_ini_0_2::error::Error::from)?)
+                    } else {
+                        Err(FileErrorKind::MissingFeatureForExtension("ini"))
                     }
                 }
             }
@@ -201,6 +216,29 @@ mod tests {
 
         fs::write(&json_path, "{\"foo\":42}").unwrap();
         let source = FileSource::new(&json_path);
+        let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
+        assert_eq!(config.unwrap().foo, 42);
+
+        dir.close().unwrap();
+    }
+
+    #[cfg(feature = "serde_ini-0_2")]
+    #[test]
+    fn ini() {
+        let dir = tempfile::TempDir::new().unwrap();
+
+        let ini_path = dir.path().join("config.ini");
+
+        fs::write(&ini_path, "").unwrap();
+        let source = FileSource::new(&ini_path);
+        let err = source.deserialize::<Option<SimpleConfig>>().unwrap_err();
+        assert!(
+            err.to_string().contains("missing field"),
+            "unexpected error message: {err}",
+        );
+
+        fs::write(&ini_path, "foo = 42\n").unwrap();
+        let source = FileSource::new(&ini_path);
         let config = source.deserialize::<Option<SimpleConfig>>().unwrap();
         assert_eq!(config.unwrap().foo, 42);
 

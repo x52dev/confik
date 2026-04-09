@@ -67,6 +67,27 @@ mod json {
     }
 }
 
+#[cfg(feature = "serde_ini-0_2")]
+mod ini {
+    use assert_matches::assert_matches;
+    use confik::{ConfigBuilder, Error, IniSource};
+
+    use super::NotSecret;
+
+    #[test]
+    fn check_ini_is_not_secret() {
+        let target = ConfigBuilder::<NotSecret>::default()
+            .override_with(IniSource::new("[public]\npublic = 1\nsecret = 2\n"))
+            .try_build()
+            .expect_err("INI deserialization is not a secret source");
+
+        assert_matches!(
+            &target,
+            Error::UnexpectedSecret(path, _) if path.to_string().contains("public.secret")
+        );
+    }
+}
+
 #[cfg(feature = "ron-0_12")]
 mod ron {
     use assert_matches::assert_matches;

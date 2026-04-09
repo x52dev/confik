@@ -42,6 +42,8 @@ use self::path::Path;
 pub use self::reloading::{ReloadCallback, ReloadableConfig, ReloadingConfig};
 #[cfg(feature = "env")]
 pub use self::sources::env_source::EnvSource;
+#[cfg(feature = "serde_ini-0_2")]
+pub use self::sources::ini_source::IniSource;
 #[cfg(feature = "json")]
 pub use self::sources::json_source::JsonSource;
 #[cfg(feature = "ron-0_12")]
