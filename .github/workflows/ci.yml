@@ -19,7 +19,7 @@ concurrency:
 jobs:
   read_msrv:
     name: Read MSRV
-    uses: actions-rust-lang/msrv/.github/workflows/msrv.yml@8b553824444060021f2843d7b4d803f3624d15e5 # v0.1.0
+    uses: actions-rust-lang/msrv/.github/workflows/msrv.yml@b95a3a81b0efee6438b858b41a84aff627e01351 # v0.1.1
 
   test:
     needs: read_msrv
@@ -39,12 +39,12 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install Rust (${{ matrix.toolchain.name }})
-        uses: actions-rust-lang/setup-rust-toolchain@a0b538fa0b742a6aa35d6e2c169b4bd06d225a98 # v1.15.3
+        uses: actions-rust-lang/setup-rust-toolchain@150fca883cd4034361b621bd4e6a9d34e5143606 # v1.15.4
         with:
           toolchain: ${{ matrix.toolchain.version }}
 
       - name: Install just, nextest
-        uses: taiki-e/install-action@68675c5a5f1a6950c3975d33f3ae0ef155e5bf3d # v2.68.15
+        uses: taiki-e/install-action@cf39a74df4a72510be4e5b63348d61067f11e64a # v2.75.0
         with:
           tool: just,nextest
 
