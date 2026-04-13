@@ -26,6 +26,7 @@ default = ["env", "toml"]
 # Source types
 env = ["dep:envious"]
 json = ["dep:serde_json"]
+corn-0_10 = ["dep:libcorn-0_10"]
 ron-0_12 = ["dep:ron-0_12"]
 toml = ["dep:toml"]
 yaml_serde-0_10 = ["dep:yaml_serde-0_10"]
@@ -62,6 +63,7 @@ thiserror = "2"
 
 # Source types
 envious = { version = "0.2", optional = true }
+libcorn-0_10 = { package = "libcorn", version = "0.10", optional = true }
 ron-0_12 = { package = "ron", version = "0.12", optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "1", optional = true, default-features = false, features = ["parse", "serde"] }

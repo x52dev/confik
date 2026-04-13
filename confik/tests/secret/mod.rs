@@ -67,6 +67,27 @@ mod json {
     }
 }
 
+#[cfg(feature = "corn-0_10")]
+mod corn {
+    use assert_matches::assert_matches;
+    use confik::{ConfigBuilder, CornSource, Error};
+
+    use super::NotSecret;
+
+    #[test]
+    fn check_corn_is_not_secret() {
+        let target = ConfigBuilder::<NotSecret>::default()
+            .override_with(CornSource::new("{ public = { public = 1 secret = 2 } }"))
+            .try_build()
+            .expect_err("Corn deserialization is not a secret source");
+
+        assert_matches!(
+            &target,
+            Error::UnexpectedSecret(path, _) if path.to_string().contains("public.secret")
+        );
+    }
+}
+
 #[cfg(feature = "ron-0_12")]
 mod ron {
     use assert_matches::assert_matches;
