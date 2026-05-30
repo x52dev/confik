@@ -62,7 +62,7 @@ serde = { version = "1", default-features = false, features = ["std", "derive"] 
 thiserror = "2"
 
 # Source types
-envious = { version = "0.2", optional = true }
+envious = { version = "0.3", optional = true }
 libcorn-0_10 = { package = "libcorn", version = "0.10", optional = true }
 ron-0_12 = { package = "ron", version = "0.12", optional = true }
 serde_json = { version = "1", optional = true }
