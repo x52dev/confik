@@ -38,6 +38,7 @@ downgrade-for-msrv toolchain="":
     cargo {{ toolchain }} update -p=pest_meta --precise=2.8.3 # next ver: 1.83
     cargo {{ toolchain }} update -p=pest --precise=2.8.3 # next ver: 1.83
     cargo {{ toolchain }} update -p=indexmap@2 --precise=2.11.4 # next ver: 1.82
+    cargo {{ toolchain }} update -p=bytesize --precise=2.3.1 # next ver: 1.85
 
 # Test workspace using MSRV
 test-msrv: (downgrade-for-msrv msrv_rustup) (test-no-coverage msrv_rustup)
