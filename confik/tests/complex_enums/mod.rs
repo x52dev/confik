@@ -1,6 +1,7 @@
+#![allow(dead_code)] // derived builders are unused without source features
+
 use confik::Configuration;
 
-#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Configuration, Debug, PartialEq, Eq)]
 enum Target {
     Simple,
@@ -8,7 +9,6 @@ enum Target {
     Field { field1: usize, field2: usize },
 }
 
-#[allow(dead_code)] // unused in no-default-features cases
 #[derive(Configuration, Debug, PartialEq, Eq)]
 struct RootTarget {
     target: Target,
