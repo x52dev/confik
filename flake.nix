@@ -2,6 +2,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    x52 = {
+      url = "github:x52dev/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
 
   outputs = inputs@{ flake-parts, ... }:
@@ -13,11 +18,12 @@
         devShells.default = pkgs.mkShell {
           packages = [
             config.formatter
+            inputs'.x52.packages.x52-release-tools
             pkgs.cargo-hack
             pkgs.just
-            pkgs.nodePackages.prettier
+            pkgs.prettier
             pkgs.taplo
-          ] ++ lib.optional pkgs.stdenv.isDarwin [
+          ] ++ lib.optionals pkgs.stdenv.isDarwin [
             pkgs.pkgsBuildHost.libiconv
           ];
         };
