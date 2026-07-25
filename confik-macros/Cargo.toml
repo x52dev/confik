@@ -17,7 +17,7 @@ proc-macro = true
 darling = "0.21.3"
 proc-macro2 = "1"
 quote = "1"
-syn = { version = "2", features = ["extra-traits"] }
+syn = { version = "3", features = ["extra-traits"] }
 
 [dev-dependencies]
 assert_matches = "1.5"
