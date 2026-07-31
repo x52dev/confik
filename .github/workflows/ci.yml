@@ -31,7 +31,7 @@ jobs:
           - { name: msrv, version: "${{ needs.read_msrv.outputs.msrv }}" }
           - { name: stable, version: stable }
 
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
 
     name: Test / ${{ matrix.toolchain.name }}
 
