@@ -1,3 +1,5 @@
+import '.toolchain/rust.just'
+
 _list:
     @just --list
 
@@ -12,13 +14,6 @@ clippy:
         --include-features ahash,bigdecimal,bytesize,camino,chrono,humantime,jiff-0_2,ipnetwork,js_option,rust_decimal,secrecy,serde_json,url,uuid \
         --exclude-features default \
         clippy -p confik
-
-msrv := ```
-    cargo metadata --format-version=1 \
-    | jq -r 'first(.packages[] | select(.source == null and .rust_version)) | .rust_version' \
-    | sed -E 's/^1\.([0-9]{2})$/1\.\1\.0/'
-```
-msrv_rustup := "+" + msrv
 
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
