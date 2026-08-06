@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install Rust
         uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 # v1.17.0
@@ -54,7 +55,8 @@ jobs:
         if: ${{ steps.release-plz.outputs.prs_created == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: scripts/update-macro-pin '${{ steps.release-plz.outputs.pr }}'
+          RELEASE_PLZ_PR_JSON: ${{ steps.release-plz.outputs.pr }}
+        run: scripts/update-macro-pin "$RELEASE_PLZ_PR_JSON"
 
       - name: Update release notes
         if: ${{ steps.release-plz.outputs.releases_created == 'true' }}
