@@ -3,6 +3,7 @@
 
 # direnv
 /.direnv/
+/.toolchain/
 
 # code coverage
 /codecov.json
