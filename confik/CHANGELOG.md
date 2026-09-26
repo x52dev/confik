@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Upgrade `syn` dependency to `3`.
+- Minimum supported Rust version (MSRV) is now 1.88.
+
 ## 0.15.12
 
 - Add Corn source support behind new crate feature `corn-0_10` (off-by-default).
