@@ -54,7 +54,7 @@ url = ["dep:url"]
 uuid = ["dep:uuid"]
 
 [dependencies]
-confik-macros = "=0.15.3"
+confik-macros = "=0.15.4"
 
 # Always required
 cfg-if = "1"
