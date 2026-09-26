@@ -18,27 +18,7 @@ clippy:
 # Downgrade dev-dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-for-msrv toolchain="":
-    cargo {{ toolchain }} update -p=trybuild --precise=1.0.116 # next ver: 1.85
-    cargo {{ toolchain }} update -p=serde_with --precise=3.16.1 # next ver: 1.82
-    cargo {{ toolchain }} update -p=bytesize --precise=2.3.1 # next ver: 1.85
-    cargo {{ toolchain }} update -p=uuid --precise=1.20.0 # next ver: 1.85
-    cargo {{ toolchain }} update -p=getrandom@0.4 --precise=0.3.4 # next ver: 1.85
-    cargo {{ toolchain }} update -p=wasip2 --precise=1.0.1+wasi-0.2.4 # next ver: 1.87
-    cargo {{ toolchain }} update -p=time --precise=0.3.45 # next ver: 1.88
-    cargo {{ toolchain }} update -p=idna_adapter --precise=1.2.0 # next ver: 1.82
-    cargo {{ toolchain }} update -p=proc-macro-crate --precise=3.4.0 # next ver: 1.82.0
-    cargo {{ toolchain }} update -p=toml --precise=1.0.6+spec-1.1.0 # next ver: 1.85
-    cargo {{ toolchain }} update -p=serde_spanned --precise=1.0.4 # next ver: 1.85
-    cargo {{ toolchain }} update -p=toml_parser@1.1.0+spec-1.1.0 --precise=1.0.10+spec-1.1.0 # next ver: 1.85
-    cargo {{ toolchain }} update -p=toml_writer@1.1.0+spec-1.1.0 --precise=1.0.7+spec-1.1.0 # next ver: 1.85
-    cargo {{ toolchain }} update -p=toml_datetime@1.1.0+spec-1.1.0 --precise=1.0.1+spec-1.1.0 # next ver: 1.85
-    cargo {{ toolchain }} update -p=yaml_serde --precise=0.10.2 # next ver: 1.82
-    cargo {{ toolchain }} update -p=pest_derive --precise=2.8.3 # next ver: 1.83
-    cargo {{ toolchain }} update -p=pest_generator --precise=2.8.3 # next ver: 1.83
-    cargo {{ toolchain }} update -p=pest_meta --precise=2.8.3 # next ver: 1.83
-    cargo {{ toolchain }} update -p=pest --precise=2.8.3 # next ver: 1.83
-    cargo {{ toolchain }} update -p=indexmap@2 --precise=2.11.4 # next ver: 1.82
-    cargo {{ toolchain }} update -p=bytesize --precise=2.3.1 # next ver: 1.85
+    # No downgrades currently necessary.
 
 # Test workspace using MSRV
 test-msrv: (downgrade-for-msrv msrv_rustup) (test-no-coverage msrv_rustup)
