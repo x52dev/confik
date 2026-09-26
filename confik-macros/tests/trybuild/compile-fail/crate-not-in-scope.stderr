@@ -1,8 +1,8 @@
-error[E0433]: failed to resolve: use of undeclared crate or module `not_in_scope`
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `not_in_scope`
  --> tests/trybuild/compile-fail/crate-not-in-scope.rs:2:18
   |
 2 | #[confik(crate = not_in_scope)]
-  |                  ^^^^^^^^^^^^ use of undeclared crate or module `not_in_scope`
+  |                  ^^^^^^^^^^^^ use of unresolved module or unlinked crate `not_in_scope`
 
 error: cannot find attribute `serde` in this scope
  --> tests/trybuild/compile-fail/crate-not-in-scope.rs:3:8
@@ -11,3 +11,11 @@ error: cannot find attribute `serde` in this scope
   |        ^^^^^^
   |
   = note: `serde` is in scope, but it is a crate, not an attribute
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `not_in_scope`
+ --> tests/trybuild/compile-fail/crate-not-in-scope.rs:2:18
+  |
+2 | #[confik(crate = not_in_scope)]
+  |                  ^^^^^^^^^^^^ use of unresolved module or unlinked crate `not_in_scope`
+  |
+  = help: if you wanted to use a crate named `not_in_scope`, use `cargo add not_in_scope` to add it to your `Cargo.toml`
