@@ -11,7 +11,7 @@
 [![codecov](https://codecov.io/gh/x52dev/confik/branch/main/graph/badge.svg)](https://codecov.io/gh/x52dev/confik)
 ![Version](https://img.shields.io/badge/rustc-1.65+-ab6000.svg)
 [![Download](https://img.shields.io/crates/d/confik.svg)](https://crates.io/crates/confik)
-[![Discord: Join chat](https://img.shields.io/badge/Discord-Join%20chat-5865F2?logo=discord&logoColor=white)](https://discord.gg/rKH3W4J8WP)
+[![Chat on Discord](https://img.shields.io/discord/1554698838651179088?label=chat&logo=discord)](https://discord.gg/rKH3W4J8WP)
 
 <!-- prettier-ignore-end -->
 
