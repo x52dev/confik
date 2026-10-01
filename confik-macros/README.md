@@ -9,6 +9,7 @@
 ![Version](https://img.shields.io/badge/rustc-1.65+-ab6000.svg)
 [![dependency status](https://deps.rs/crate/confik/0.9.0/status.svg)](https://deps.rs/crate/confik/0.9.0)
 [![Download](https://img.shields.io/crates/d/confik.svg)](https://crates.io/crates/confik)
+[![Chat on Discord](https://img.shields.io/discord/1554698838651179088?label=chat&logo=discord)](https://discord.gg/rKH3W4J8WP)
 
 <!-- prettier-ignore-end -->
 
