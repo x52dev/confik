@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.15.13
+
 - Preserve explicitly selected enum unit variants.
 - Reject explicitly selected enum variants in `#[confik(secret)]` fields when the source does not allow secrets.
 - Upgrade `syn` dependency to `3`.
