@@ -267,8 +267,13 @@ impl VariantImplementer {
 
         let string = ident.to_string();
 
+        // A selected variant counts as data, even if it has no fields.
         quote_spanned! {var_impl.span() =>
-            Self::#ident #bracketed_extract_us_fields => false #( | #contains_non_secret_data.map_err(|err| err.prepend(#string))? )*
+            Self::#ident #bracketed_extract_us_fields => {
+                #( #contains_non_secret_data.map_err(|err| err.prepend(#string))?; )*
+
+                true
+            }
         }
     }
 }

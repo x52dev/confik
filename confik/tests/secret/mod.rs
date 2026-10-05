@@ -161,6 +161,30 @@ mod toml {
         );
     }
 
+    #[test]
+    fn unit_enum_variant_rejected_from_non_secret_source() {
+        use confik::Error;
+
+        use crate::TargetEnum;
+
+        #[derive(Configuration)]
+        struct Config {
+            #[confik(secret)]
+            value: TargetEnum,
+        }
+
+        let err = Config::builder()
+            .override_with(TomlSource::new(r#"value = "Second""#))
+            .try_build()
+            .map(|config| config.value)
+            .expect_err("TOML must reject a secret unit enum variant");
+
+        assert_matches!(
+            err,
+            Error::UnexpectedSecret(path, _) if path.to_string().contains("`value`")
+        );
+    }
+
     /// This functions and all tests using are to catch the issue in FUT-5298
     /// in which depending on ordering a non-secret `Source` may not be caught
     fn check_secret_error_seq_propagation<T>(expected_path: &str)

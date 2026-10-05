@@ -69,6 +69,29 @@ mod struct_default_merge {
     }
 }
 
+#[cfg(feature = "toml")]
+mod enum_defaults {
+    use confik::{Configuration, TomlSource};
+
+    use crate::TargetEnum;
+
+    #[test]
+    fn unit_enum_variant_overrides_field_default() {
+        #[derive(Configuration)]
+        struct Config {
+            #[confik(default = TargetEnum::First)]
+            value: TargetEnum,
+        }
+
+        let config = Config::builder()
+            .override_with(TomlSource::new(r#"value = "Second""#))
+            .try_build()
+            .expect("TOML deserialization should succeed");
+
+        assert_eq!(config.value, TargetEnum::Second);
+    }
+}
+
 #[derive(Debug, Configuration, PartialEq, Eq, Default)]
 struct Config {
     #[confik(default = 0)]
