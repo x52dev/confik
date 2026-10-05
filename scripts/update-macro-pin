@@ -23,6 +23,10 @@ if [[ -z "$new_version" || "$new_version" == "null" ]]; then
     exit 0
 fi
 
+if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
+    gh pr checkout "$PR_NUMBER"
+fi
+
 current_version="$(
     sed -nE "s/^${DEPENDENCY_NAME} = \"=([^\"]+)\"$/\\1/p" "$TARGET_MANIFEST" | head -n 1
 )"
@@ -37,17 +41,18 @@ if [[ "$current_version" == "$new_version" ]]; then
     exit 0
 fi
 
-if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
-    gh pr checkout "$PR_NUMBER"
-fi
-
 sed -i.bak -E "s|^${DEPENDENCY_NAME} = \"=[^\"]+\"$|${DEPENDENCY_NAME} = \"=${new_version}\"|" "$TARGET_MANIFEST"
 rm -f "${TARGET_MANIFEST}.bak"
+
+cargo update --manifest-path "$TARGET_MANIFEST" \
+    --package "$DEPENDENCY_NAME" --precise "$new_version"
+
+workspace_root="$(cargo metadata --format-version=1 --no-deps --manifest-path "$TARGET_MANIFEST" | jq -r '.workspace_root')"
 
 echo "Updated ${DEPENDENCY_NAME} pin in ${TARGET_MANIFEST}: ${current_version} -> ${new_version}"
 
 if [[ -n "$PR_NUMBER" && "$PR_NUMBER" != "null" ]]; then
-    git add "$TARGET_MANIFEST"
+    git add "$TARGET_MANIFEST" "$workspace_root/Cargo.lock"
 
     if ! git diff --cached --quiet; then
         git commit -m "chore: update ${DEPENDENCY_NAME} pin"
