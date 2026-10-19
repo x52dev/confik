@@ -1166,9 +1166,9 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "rustversion-msrv"
-version = "0.100.0"
+version = "0.100.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6ceb60223ee771fb5dfe462e29e5ee92bca9a7b9c555584f4d361045dae0e12"
+checksum = "50934b21d3bd6085aa3c67ebfcbfcda64a5aa6799195c3414c2d669155ffe3c3"
 
 [[package]]
 name = "ryu"
