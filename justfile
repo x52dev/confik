@@ -15,10 +15,10 @@ clippy:
         --exclude-features default \
         clippy -p confik
 
-# Downgrade dev-dependencies necessary to run MSRV checks/tests.
+# Downgrade dependencies necessary to run MSRV checks/tests.
 [private]
 downgrade-for-msrv toolchain="":
-    # No downgrades currently necessary.
+    cargo {{ toolchain }} update -p uuid --precise 1.26.1
 
 # Test workspace using MSRV
 test-msrv: (downgrade-for-msrv msrv_rustup) (test-no-coverage msrv_rustup)
