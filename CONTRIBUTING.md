@@ -1,10 +1,10 @@
-# Contributing to `config`
+# Contributing to `confik`
 
 Pointers on how to contribute, aimed at simple features. Before starting, it is recommended to install [cargo-hack], due to the number of feature combinations in this crate.
 
 ## Running tests
 
-See [test.yml](./.github/workflows/ci.yml).
+See [ci.yml](./.github/workflows/ci.yml).
 
 ## New 3rd Party Crate Support
 
@@ -27,5 +27,5 @@ impl Configuration for T {
 I recommend basing this off of the containers in [std_impls]. A simple example for each can be seen in `BTreeSet` and `BTreeMap`, depending on whether the container is indexed with a key on deserialization.
 
 [cargo-hack]: https://github.com/taiki-e/cargo-hack
-[third_party]: ./src/third_party.rs
-[std_impls]: ./src/std_impls.rs
+[third_party]: ./confik/src/third_party.rs
+[std_impls]: ./confik/src/std_impls.rs
