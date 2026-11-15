@@ -12,6 +12,10 @@ updates:
       interval: monthly
     cooldown:
       default-days: 7
+    groups:
+      all-flake-inputs:
+        patterns:
+          - "*"
   - package-ecosystem: cargo
     directory: /
     schedule:
