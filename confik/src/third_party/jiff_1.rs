@@ -1,4 +1,4 @@
-//! Serde helpers for optional Jiff 1 configuration fields.
+//! Serde helpers for Jiff 1 configuration fields.
 
 use ::jiff_1::{
     civil::{Date, DateTime, Time},
@@ -49,7 +49,8 @@ impl Configuration for SignedDuration {
 /// Generates `pub mod optional { serialize, deserialize }` given explicit
 /// serialize and deserialize paths.
 macro_rules! optional_module {
-    ($T:ty, $serialize_fn:path, $deserialize_fn:path) => {
+    ($(#[$attr:meta])* $T:ty, $serialize_fn:path, $deserialize_fn:path) => {
+        $(#[$attr])*
         pub mod optional {
             use serde::{Deserializer, Serializer};
 
@@ -188,10 +189,11 @@ pub mod timestamp {
     }
 }
 
-/// Serde helpers for [`Option<std::time::Duration>`] fields using Jiff's
-/// duration serialization formats.
+/// Serde helpers for [`std::time::Duration`] fields using Jiff's duration formats.
 pub mod unsigned_duration {
     forward_option_builder!(unsigned_duration, std::time::Duration);
+
+    pub mod days_are_24_hours;
 
     /// Friendly compact format.
     ///
