@@ -506,6 +506,97 @@ mod jiff_1 {
     }
 }
 
+#[cfg(all(feature = "jiff-1", feature = "toml"))]
+mod jiff_1_fixed_day_durations {
+    use std::time::Duration;
+
+    use confik::{Configuration, TomlSource};
+
+    #[derive(Debug, Configuration)]
+    #[confik(forward(derive(serde::Serialize)))]
+    struct Config {
+        #[confik(forward(serde(
+            with = "confik::jiff_1::unsigned_duration::days_are_24_hours::required"
+        )))]
+        timeout: Duration,
+        #[confik(forward(serde(
+            with = "confik::jiff_1::unsigned_duration::days_are_24_hours::optional"
+        )))]
+        retry_delay: Option<Duration>,
+    }
+
+    #[test]
+    fn parses_fixed_day_durations() {
+        for (input, expected) in [
+            ("1h 42m", Duration::from_secs(6_120)),
+            ("1d", Duration::from_secs(86_400)),
+            ("2 days", Duration::from_secs(172_800)),
+            ("1w", Duration::from_secs(604_800)),
+            ("P2D", Duration::from_secs(172_800)),
+            ("1d 0.5s", Duration::new(86_400, 500_000_000)),
+            ("0d", Duration::ZERO),
+        ] {
+            let config = Config::builder()
+                .override_with(TomlSource::new(format!(
+                    "timeout = {input:?}\nretry_delay = {input:?}"
+                )))
+                .try_build()
+                .unwrap();
+
+            assert_eq!(config.timeout, expected, "{input}");
+            assert_eq!(config.retry_delay, Some(expected), "{input}");
+        }
+    }
+
+    #[test]
+    fn accepts_missing_optional_delay() {
+        let config = Config::builder()
+            .override_with(TomlSource::new(r#"timeout = "1d""#))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.retry_delay, None);
+    }
+
+    #[test]
+    fn rejects_unsupported_duration_inputs() {
+        for input in ["-1d", "1mo", "1y", "1.5 days"] {
+            let required = Config::builder()
+                .override_with(TomlSource::new(format!("timeout = {input:?}")))
+                .try_build();
+            let optional = Config::builder()
+                .override_with(TomlSource::new(format!(
+                    "timeout = \"1d\"\nretry_delay = {input:?}"
+                )))
+                .try_build();
+
+            assert!(required.is_err(), "required field accepted {input}");
+            assert!(optional.is_err(), "optional field accepted {input}");
+        }
+    }
+
+    #[cfg(feature = "json")]
+    #[test]
+    fn serializes_fixed_day_durations_as_elapsed_time() {
+        use confik::{helpers::BuilderOf, JsonSource, Source};
+
+        let source = JsonSource::new(r#"{"timeout":"2 days","retry_delay":"1d 0.5s"}"#);
+        let builder: BuilderOf<Config> = source.provide().unwrap();
+        let json = serde_json::to_string(&builder).unwrap();
+
+        assert_eq!(json, r#"{"timeout":"PT48H","retry_delay":"PT24H0.5S"}"#);
+
+        let config = Config::builder()
+            .override_with(JsonSource::new(json))
+            .override_with(JsonSource::new(r#"{"retry_delay":null}"#))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.timeout, Duration::from_secs(172_800));
+        assert_eq!(config.retry_delay, None);
+    }
+}
+
 #[cfg(all(feature = "jiff-1", feature = "json"))]
 mod jiff_1_json {
     use confik::{helpers::BuilderOf, Configuration, JsonSource};
