@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.15.14
+
+- No significant changes since `0.15.13`.
+
 ## 0.15.13
 
 - Preserve explicitly selected enum unit variants.
