@@ -371,6 +371,70 @@ mod jiff {
     }
 }
 
+#[cfg(all(feature = "jiff-1", feature = "toml"))]
+mod jiff_1 {
+    use std::time::Duration;
+
+    use ::jiff_1::{civil, SignedDuration, Span, Timestamp, ZonedDateTime};
+    use confik::{Configuration, TomlSource};
+    use indoc::indoc;
+
+    #[test]
+    fn parse_jiff_1_types() {
+        #[derive(Debug, Configuration)]
+        struct Config {
+            #[confik(forward(serde(with = "confik::jiff_1::timestamp::second::optional")))]
+            timestamp: Option<Timestamp>,
+            zoned: ZonedDateTime,
+            date: civil::Date,
+            time: civil::Time,
+            datetime: civil::DateTime,
+            #[confik(forward(serde(
+                with = "confik::jiff_1::duration::friendly::compact::optional"
+            )))]
+            duration: Option<SignedDuration>,
+            #[confik(forward(serde(with = "confik::jiff_1::span::friendly::compact::optional")))]
+            span: Option<Span>,
+            #[confik(forward(serde(
+                with = "confik::jiff_1::unsigned_duration::friendly::compact::optional"
+            )))]
+            unsigned_duration: Option<Duration>,
+        }
+
+        let config = Config::builder()
+            .override_with(TomlSource::new(indoc! {r#"
+                timestamp = 1704067200
+                zoned = "2024-01-01T00:00:00+00:00[UTC]"
+                date = "2024-01-01"
+                time = "00:00:00"
+                datetime = "2024-01-01T00:00:00"
+                duration = "1h 42m"
+                span = "1d 2h"
+                unsigned_duration = "1h 42m"
+            "#}))
+            .try_build()
+            .unwrap();
+
+        let date = civil::date(2024, 1, 1);
+        let timestamp = Timestamp::from_second(1_704_067_200).unwrap();
+
+        assert_eq!(config.timestamp, Some(timestamp));
+        assert_eq!(
+            config.zoned,
+            timestamp.to_zoned_datetime(::jiff_1::tz::TimeZone::UTC)
+        );
+        assert_eq!(config.date, date);
+        assert_eq!(config.time, civil::time(0, 0, 0, 0));
+        assert_eq!(config.datetime, date.at(0, 0, 0, 0));
+        assert_eq!(config.duration, Some(SignedDuration::from_secs(6_120)));
+        assert_eq!(
+            config.span.map(Span::fieldwise),
+            Some(Span::new().days(1).hours(2).fieldwise())
+        );
+        assert_eq!(config.unsigned_duration, Some(Duration::from_secs(6_120)));
+    }
+}
+
 #[cfg(feature = "js_option")]
 mod js_option {
     use confik::Configuration;

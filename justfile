@@ -11,7 +11,7 @@ clippy:
         --include-features env,json,ron-0_12,toml,yaml_serde-0_10,reloading,signal,tracing \
         clippy -p confik
     cargo hack --each-feature \
-        --include-features ahash,bigdecimal,bytesize,camino,chrono,humantime,jiff-0_2,ipnetwork,js_option,rust_decimal,secrecy,serde_json,url,uuid \
+        --include-features ahash,bigdecimal,bytesize,camino,chrono,humantime,jiff-0_2,jiff-1,ipnetwork,js_option,rust_decimal,secrecy,serde_json,url,uuid \
         --exclude-features default \
         clippy -p confik
 
