@@ -379,16 +379,99 @@ mod jiff_1 {
     use confik::{Configuration, TomlSource};
     use indoc::indoc;
 
+    #[derive(Debug, Configuration)]
+    struct OptionalConfig {
+        timestamp: Option<Timestamp>,
+        zoned: Option<ZonedDateTime>,
+        date: Option<civil::Date>,
+        time: Option<civil::Time>,
+        datetime: Option<civil::DateTime>,
+        duration: Option<SignedDuration>,
+        span: Option<Span>,
+    }
+
     #[test]
     fn parse_jiff_1_types() {
         #[derive(Debug, Configuration)]
         struct Config {
-            #[confik(forward(serde(with = "confik::jiff_1::timestamp::second::optional")))]
-            timestamp: Option<Timestamp>,
+            timestamp: Timestamp,
             zoned: ZonedDateTime,
             date: civil::Date,
             time: civil::Time,
             datetime: civil::DateTime,
+            duration: SignedDuration,
+            span: Span,
+        }
+
+        let toml = indoc! {r#"
+            timestamp = "2024-01-01T00:00:00Z"
+            zoned = "2024-01-01T00:00:00+00:00[UTC]"
+            date = "2024-01-01"
+            time = "00:00:00"
+            datetime = "2024-01-01T00:00:00"
+            duration = "1h 42m"
+            span = "1d 2h"
+        "#};
+
+        let config = Config::builder()
+            .override_with(TomlSource::new(toml))
+            .try_build()
+            .unwrap();
+        let optional = OptionalConfig::builder()
+            .override_with(TomlSource::new(toml))
+            .try_build()
+            .unwrap();
+
+        let timestamp = Timestamp::from_second(1_704_067_200).unwrap();
+        let date = civil::date(2024, 1, 1);
+        let time = civil::time(0, 0, 0, 0);
+        let datetime = date.at(0, 0, 0, 0);
+        let duration = SignedDuration::from_secs(6_120);
+        let span = Span::new().days(1).hours(2).fieldwise();
+
+        assert_eq!(config.timestamp, timestamp);
+        assert_eq!(optional.timestamp, Some(timestamp));
+
+        let optional_zoned = optional.zoned.unwrap();
+        assert_eq!(config.zoned.timestamp(), timestamp);
+        assert_eq!(config.zoned.time_zone().iana_name(), Some("UTC"));
+        assert_eq!(optional_zoned.timestamp(), timestamp);
+        assert_eq!(optional_zoned.time_zone().iana_name(), Some("UTC"));
+
+        assert_eq!(config.date, date);
+        assert_eq!(optional.date, Some(date));
+        assert_eq!(config.time, time);
+        assert_eq!(optional.time, Some(time));
+        assert_eq!(config.datetime, datetime);
+        assert_eq!(optional.datetime, Some(datetime));
+        assert_eq!(config.duration, duration);
+        assert_eq!(optional.duration, Some(duration));
+        assert_eq!(config.span.fieldwise(), span);
+        assert_eq!(optional.span.map(Span::fieldwise), Some(span));
+    }
+
+    #[test]
+    fn omitted_optional_jiff_1_types() {
+        let config = OptionalConfig::builder()
+            .override_with(TomlSource::new(""))
+            .try_build()
+            .unwrap();
+
+        assert!(config.timestamp.is_none());
+        assert!(config.zoned.is_none());
+        assert!(config.date.is_none());
+        assert!(config.time.is_none());
+        assert!(config.datetime.is_none());
+        assert!(config.duration.is_none());
+        assert!(config.span.is_none());
+    }
+
+    #[test]
+    fn parse_jiff_1_serde_adapters() {
+        #[derive(Debug, Configuration)]
+        struct Config {
+            #[confik(forward(serde(with = "confik::jiff_1::timestamp::second::optional")))]
+            timestamp: Option<Timestamp>,
             #[confik(forward(serde(
                 with = "confik::jiff_1::duration::friendly::compact::optional"
             )))]
@@ -404,10 +487,6 @@ mod jiff_1 {
         let config = Config::builder()
             .override_with(TomlSource::new(indoc! {r#"
                 timestamp = 1704067200
-                zoned = "2024-01-01T00:00:00+00:00[UTC]"
-                date = "2024-01-01"
-                time = "00:00:00"
-                datetime = "2024-01-01T00:00:00"
                 duration = "1h 42m"
                 span = "1d 2h"
                 unsigned_duration = "1h 42m"
@@ -415,17 +494,9 @@ mod jiff_1 {
             .try_build()
             .unwrap();
 
-        let date = civil::date(2024, 1, 1);
         let timestamp = Timestamp::from_second(1_704_067_200).unwrap();
 
         assert_eq!(config.timestamp, Some(timestamp));
-        assert_eq!(
-            config.zoned,
-            timestamp.to_zoned_datetime(::jiff_1::tz::TimeZone::UTC)
-        );
-        assert_eq!(config.date, date);
-        assert_eq!(config.time, civil::time(0, 0, 0, 0));
-        assert_eq!(config.datetime, date.at(0, 0, 0, 0));
         assert_eq!(config.duration, Some(SignedDuration::from_secs(6_120)));
         assert_eq!(
             config.span.map(Span::fieldwise),
