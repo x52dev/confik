@@ -72,7 +72,7 @@ yaml_serde-0_10 = { package = "yaml_serde", version = "0.10", optional = true }
 # Hot reloading
 arc-swap = { version = "1", optional = true }
 signal-hook = { version = "0.4", optional = true }
-tracing = { version = "0.1", optional = true }
+tracing = { version = "0.1.6", optional = true }
 
 # Destination types
 # NB: serde_json::Value is also a destination type, but is specified under source types
