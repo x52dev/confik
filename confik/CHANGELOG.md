@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.15.14
+
 - Add [Jiff 1](https://docs.rs/jiff/1) support behind new crate feature `jiff-1` (off-by-default).
   - Implement `Configuration` for `Timestamp`, `ZonedDateTime`, `SignedDuration`, `Span`, `civil::Date`, `civil::Time`, and `civil::DateTime`.
   - Add `serde(with = ...)` modules under `confik::jiff_1` for optional timestamp, span, and duration fields that use alternate formats.
