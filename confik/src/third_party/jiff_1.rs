@@ -146,8 +146,45 @@ pub mod timestamp {
     pub mod microsecond {
         forward_option_builder!(timestamp::microsecond, ::jiff_1::Timestamp);
     }
+
+    /// Serde helpers for optional timestamps stored as integer nanoseconds.
     pub mod nanosecond {
         forward_option_builder!(timestamp::nanosecond, ::jiff_1::Timestamp);
+
+        /// Serde helpers for optional timestamps stored as `i128` nanoseconds.
+        ///
+        /// Use with `#[confik(forward(serde(with = "confik::jiff_1::timestamp::nanosecond::optional_i128")))]`.
+        ///
+        /// The configuration source must support `i128` input. `JsonSource` can read the full range
+        /// of Jiff timestamps with this helper.
+        pub mod optional_i128 {
+            use ::jiff_1::Timestamp;
+            use serde::{Deserialize, Deserializer};
+
+            pub use super::optional::serialize;
+            use crate::std_impls::OptionBuilder;
+
+            #[derive(Deserialize)]
+            #[serde(transparent)]
+            struct NanosecondTimestamp(
+                #[serde(
+                    deserialize_with = "::jiff_1::fmt::serde::timestamp::nanosecond::required::deserialize"
+                )]
+                Timestamp,
+            );
+
+            /// Deserialize an optional integer number of nanoseconds since the Unix epoch.
+            pub fn deserialize<'de, D>(
+                deserializer: D,
+            ) -> Result<OptionBuilder<Option<Timestamp>>, D::Error>
+            where
+                D: Deserializer<'de>,
+            {
+                let timestamp = Option::<NanosecondTimestamp>::deserialize(deserializer)?;
+
+                Ok(timestamp.map(|value| Some(value.0)).into())
+            }
+        }
     }
 }
 

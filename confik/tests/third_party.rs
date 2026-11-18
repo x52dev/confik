@@ -506,6 +506,50 @@ mod jiff_1 {
     }
 }
 
+#[cfg(all(feature = "jiff-1", feature = "json"))]
+mod jiff_1_json {
+    use confik::{helpers::BuilderOf, Configuration, JsonSource};
+    use jiff_1::Timestamp;
+
+    #[derive(Debug, Configuration)]
+    #[confik(forward(derive(serde::Serialize)))]
+    struct Config {
+        #[confik(forward(serde(with = "confik::jiff_1::timestamp::nanosecond::optional_i128")))]
+        ts: Option<Timestamp>,
+    }
+
+    #[test]
+    fn optional_nanosecond_timestamp_round_trips_as_json_integer() {
+        for nanoseconds in [42, -10_000_000_000_000_000_000, 20_000_000_000_000_000_000] {
+            let timestamp = Timestamp::from_nanosecond(nanoseconds).unwrap();
+            let builder = BuilderOf::<Config> {
+                ts: Some(Some(timestamp)).into(),
+            };
+
+            let json = serde_json::to_string(&builder).unwrap();
+            assert_eq!(json, format!(r#"{{"ts":{nanoseconds}}}"#));
+
+            let config = Config::builder()
+                .override_with(JsonSource::new(json))
+                .try_build()
+                .unwrap();
+
+            assert_eq!(config.ts, Some(timestamp));
+        }
+    }
+
+    #[test]
+    fn null_nanosecond_timestamp_clears_earlier_value() {
+        let config = Config::builder()
+            .override_with(JsonSource::new(r#"{"ts":42}"#))
+            .override_with(JsonSource::new(r#"{"ts":null}"#))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.ts, None);
+    }
+}
+
 #[cfg(feature = "js_option")]
 mod js_option {
     use confik::Configuration;
