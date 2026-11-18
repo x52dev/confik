@@ -63,6 +63,8 @@ pub use self::sources::yaml_source::YamlSource;
 pub use self::third_party::humantime;
 #[cfg(feature = "jiff-0_2")]
 pub use self::third_party::jiff;
+#[cfg(feature = "jiff-1")]
+pub use self::third_party::jiff_1;
 pub use self::{
     builder::ConfigBuilder,
     errors::Error,

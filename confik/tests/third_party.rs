@@ -371,6 +371,185 @@ mod jiff {
     }
 }
 
+#[cfg(all(feature = "jiff-1", feature = "toml"))]
+mod jiff_1 {
+    use std::time::Duration;
+
+    use ::jiff_1::{civil, SignedDuration, Span, Timestamp, ZonedDateTime};
+    use confik::{Configuration, TomlSource};
+    use indoc::indoc;
+
+    #[derive(Debug, Configuration)]
+    struct OptionalConfig {
+        timestamp: Option<Timestamp>,
+        zoned: Option<ZonedDateTime>,
+        date: Option<civil::Date>,
+        time: Option<civil::Time>,
+        datetime: Option<civil::DateTime>,
+        duration: Option<SignedDuration>,
+        span: Option<Span>,
+    }
+
+    #[test]
+    fn parse_jiff_1_types() {
+        #[derive(Debug, Configuration)]
+        struct Config {
+            timestamp: Timestamp,
+            zoned: ZonedDateTime,
+            date: civil::Date,
+            time: civil::Time,
+            datetime: civil::DateTime,
+            duration: SignedDuration,
+            span: Span,
+        }
+
+        let toml = indoc! {r#"
+            timestamp = "2024-01-01T00:00:00Z"
+            zoned = "2024-01-01T00:00:00+00:00[UTC]"
+            date = "2024-01-01"
+            time = "00:00:00"
+            datetime = "2024-01-01T00:00:00"
+            duration = "1h 42m"
+            span = "1d 2h"
+        "#};
+
+        let config = Config::builder()
+            .override_with(TomlSource::new(toml))
+            .try_build()
+            .unwrap();
+        let optional = OptionalConfig::builder()
+            .override_with(TomlSource::new(toml))
+            .try_build()
+            .unwrap();
+
+        let timestamp = Timestamp::from_second(1_704_067_200).unwrap();
+        let date = civil::date(2024, 1, 1);
+        let time = civil::time(0, 0, 0, 0);
+        let datetime = date.at(0, 0, 0, 0);
+        let duration = SignedDuration::from_secs(6_120);
+        let span = Span::new().days(1).hours(2).fieldwise();
+
+        assert_eq!(config.timestamp, timestamp);
+        assert_eq!(optional.timestamp, Some(timestamp));
+
+        let optional_zoned = optional.zoned.unwrap();
+        assert_eq!(config.zoned.timestamp(), timestamp);
+        assert_eq!(config.zoned.time_zone().iana_name(), Some("UTC"));
+        assert_eq!(optional_zoned.timestamp(), timestamp);
+        assert_eq!(optional_zoned.time_zone().iana_name(), Some("UTC"));
+
+        assert_eq!(config.date, date);
+        assert_eq!(optional.date, Some(date));
+        assert_eq!(config.time, time);
+        assert_eq!(optional.time, Some(time));
+        assert_eq!(config.datetime, datetime);
+        assert_eq!(optional.datetime, Some(datetime));
+        assert_eq!(config.duration, duration);
+        assert_eq!(optional.duration, Some(duration));
+        assert_eq!(config.span.fieldwise(), span);
+        assert_eq!(optional.span.map(Span::fieldwise), Some(span));
+    }
+
+    #[test]
+    fn omitted_optional_jiff_1_types() {
+        let config = OptionalConfig::builder()
+            .override_with(TomlSource::new(""))
+            .try_build()
+            .unwrap();
+
+        assert!(config.timestamp.is_none());
+        assert!(config.zoned.is_none());
+        assert!(config.date.is_none());
+        assert!(config.time.is_none());
+        assert!(config.datetime.is_none());
+        assert!(config.duration.is_none());
+        assert!(config.span.is_none());
+    }
+
+    #[test]
+    fn parse_jiff_1_serde_adapters() {
+        #[derive(Debug, Configuration)]
+        struct Config {
+            #[confik(forward(serde(with = "confik::jiff_1::timestamp::second::optional")))]
+            timestamp: Option<Timestamp>,
+            #[confik(forward(serde(
+                with = "confik::jiff_1::duration::friendly::compact::optional"
+            )))]
+            duration: Option<SignedDuration>,
+            #[confik(forward(serde(with = "confik::jiff_1::span::friendly::compact::optional")))]
+            span: Option<Span>,
+            #[confik(forward(serde(
+                with = "confik::jiff_1::unsigned_duration::friendly::compact::optional"
+            )))]
+            unsigned_duration: Option<Duration>,
+        }
+
+        let config = Config::builder()
+            .override_with(TomlSource::new(indoc! {r#"
+                timestamp = 1704067200
+                duration = "1h 42m"
+                span = "1d 2h"
+                unsigned_duration = "1h 42m"
+            "#}))
+            .try_build()
+            .unwrap();
+
+        let timestamp = Timestamp::from_second(1_704_067_200).unwrap();
+
+        assert_eq!(config.timestamp, Some(timestamp));
+        assert_eq!(config.duration, Some(SignedDuration::from_secs(6_120)));
+        assert_eq!(
+            config.span.map(Span::fieldwise),
+            Some(Span::new().days(1).hours(2).fieldwise())
+        );
+        assert_eq!(config.unsigned_duration, Some(Duration::from_secs(6_120)));
+    }
+}
+
+#[cfg(all(feature = "jiff-1", feature = "json"))]
+mod jiff_1_json {
+    use confik::{helpers::BuilderOf, Configuration, JsonSource};
+    use jiff_1::Timestamp;
+
+    #[derive(Debug, Configuration)]
+    #[confik(forward(derive(serde::Serialize)))]
+    struct Config {
+        #[confik(forward(serde(with = "confik::jiff_1::timestamp::nanosecond::optional_i128")))]
+        ts: Option<Timestamp>,
+    }
+
+    #[test]
+    fn optional_nanosecond_timestamp_round_trips_as_json_integer() {
+        for nanoseconds in [42, -10_000_000_000_000_000_000, 20_000_000_000_000_000_000] {
+            let timestamp = Timestamp::from_nanosecond(nanoseconds).unwrap();
+            let builder = BuilderOf::<Config> {
+                ts: Some(Some(timestamp)).into(),
+            };
+
+            let json = serde_json::to_string(&builder).unwrap();
+            assert_eq!(json, format!(r#"{{"ts":{nanoseconds}}}"#));
+
+            let config = Config::builder()
+                .override_with(JsonSource::new(json))
+                .try_build()
+                .unwrap();
+
+            assert_eq!(config.ts, Some(timestamp));
+        }
+    }
+
+    #[test]
+    fn null_nanosecond_timestamp_clears_earlier_value() {
+        let config = Config::builder()
+            .override_with(JsonSource::new(r#"{"ts":42}"#))
+            .override_with(JsonSource::new(r#"{"ts":null}"#))
+            .try_build()
+            .unwrap();
+
+        assert_eq!(config.ts, None);
+    }
+}
+
 #[cfg(feature = "js_option")]
 mod js_option {
     use confik::Configuration;

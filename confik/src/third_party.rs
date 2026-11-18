@@ -415,6 +415,9 @@ pub mod jiff {
     }
 }
 
+#[cfg(feature = "jiff-1")]
+pub mod jiff_1;
+
 #[cfg(feature = "bigdecimal")]
 mod bigdecimal {
     use bigdecimal::BigDecimal;
