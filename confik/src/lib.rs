@@ -37,6 +37,13 @@ mod sources;
 mod std_impls;
 mod third_party;
 
+// Hide cargo's unused dependency warning when `signal_hook` is enabled without `reloading`.
+#[cfg(feature = "signal")]
+use ::signal_hook as _;
+// Hide cargo's unused dependency warning when `tracing` is enabled without `signal`.
+#[cfg(feature = "tracing")]
+use ::tracing as _;
+
 use self::path::Path;
 #[cfg(feature = "reloading")]
 pub use self::reloading::{ReloadCallback, ReloadableConfig, ReloadingConfig};

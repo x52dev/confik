@@ -102,7 +102,7 @@ let config = config.with_on_update(|| {
 
 ### Signal Handling
 
-When the `signal` feature is enabled (requires `reloading`), you can also set up automatic reloading on SIGHUP:
+When the `signal` feature is enabled in addition to `reloading`, you can also set up automatic reloading on SIGHUP:
 
 ```no_run
 # #[cfg(all(feature = "signal", feature = "toml"))]
@@ -124,7 +124,7 @@ let handle = config.spawn_signal_handler().unwrap();
 # }
 ```
 
-When the `tracing` feature is enabled, reload errors in the signal handler are automatically logged with `tracing::error!`.
+When the `tracing` feature is also enabled, reload errors in the signal handler are automatically logged with `tracing::error!`.
 
 ## Sources
 

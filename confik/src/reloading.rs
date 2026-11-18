@@ -289,6 +289,7 @@ where
 
         let mut signals = Signals::new([SIGHUP])?;
         let config = self.clone();
+
         Ok(std::thread::spawn(move || {
             for signal in &mut signals {
                 if signal == SIGHUP {
