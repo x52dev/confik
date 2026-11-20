@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   coverage:
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: blacksmith-2vcpu-ubuntu-2404;scheduling=flex
     steps:
       - uses: actions/checkout@v7.0.1
         with:
